@@ -8,25 +8,24 @@
     "packages": [
         {
             "name": "ivopetkov/html5-dom-document-php",
-            "version": "v2.2.4",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ivopetkov/html5-dom-document-php.git",
-                "reference": "1b105b8682aaa62ec7fc149ab1484274e2bb94c0"
+                "reference": "5a6bcb7c5399be1a5e589ae7daa3759c3b58bd6f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ivopetkov/html5-dom-document-php/zipball/1b105b8682aaa62ec7fc149ab1484274e2bb94c0",
-                "reference": "1b105b8682aaa62ec7fc149ab1484274e2bb94c0",
+                "url": "https://api.github.com/repos/ivopetkov/html5-dom-document-php/zipball/5a6bcb7c5399be1a5e589ae7daa3759c3b58bd6f",
+                "reference": "5a6bcb7c5399be1a5e589ae7daa3759c3b58bd6f",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
-                "php": ">=7.0.0"
+                "php": "7.0.*|7.1.*|7.2.*|7.3.*|7.4.*|8.0.*|8.1.*"
             },
             "require-dev": {
-                "ivopetkov/docs-generator": "0.2.*",
-                "phpunit/phpunit": "6.*"
+                "ivopetkov/docs-generator": "0.2.*"
             },
             "type": "library",
             "autoload": {
@@ -46,7 +45,11 @@
                 }
             ],
             "description": "HTML5 DOMDocument PHP library (extends DOMDocument)",
-            "time": "2020-04-02T07:19:34+00:00"
+            "support": {
+                "issues": "https://github.com/ivopetkov/html5-dom-document-php/issues",
+                "source": "https://github.com/ivopetkov/html5-dom-document-php/tree/v2.3.0"
+            },
+            "time": "2021-11-29T09:04:29+00:00"
         }
     ],
     "packages-dev": [],
@@ -57,5 +60,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.2.0"
 }

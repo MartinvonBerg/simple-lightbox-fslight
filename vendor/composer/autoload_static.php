@@ -10,9 +10,14 @@ class ComposerStaticInit1dc9fb232769374e7a5d9a619b6fa317
         '16eed290c5592c18dc3f16802ad3d0e4' => __DIR__ . '/..' . '/ivopetkov/html5-dom-document-php/autoload.php',
     );
 
+    public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
+            $loader->classMap = ComposerStaticInit1dc9fb232769374e7a5d9a619b6fa317::$classMap;
 
         }, null, ClassLoader::class);
     }

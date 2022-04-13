@@ -38,71 +38,26 @@ function lightbox_gallery_for_gutenberg($content)
 
     foreach ($gallery_block as $block) {
         $gallery = $block->querySelectorAll("figure");
-        /*
-        $li = $block->querySelectorAll("li");
-
-        for ($i = 0; $i < $li->length; $i++) {
-            $node = $li->item($i);
-            $parent = $node->parentNode;
-            $node->parentNode->removeChild($node);
-        }
-
-        $ul = $block->querySelector("ul");
-        $ul->parentNode->removeChild($ul);
-        */
-        $ul = $dom->createElement("ul");
-        $ul->setAttribute("class", "blocks-gallery-grid");
-        $block->appendChild($ul);
-
+      
         foreach ($gallery as $figure) {
             $item = $figure->querySelector("img");
             $caption = $figure->querySelector("figcaption");
-
-            $li = $dom->createElement("li");
-            $li->classList->add("blocks-gallery-item");
+            $class = $figure->getAttribute("class");
 
             $newfigure = $dom->createElement("figure");
-            $li->appendChild($newfigure);
-
+            $newfigure->setAttribute("class", $class);
+         
             $a = $dom->createElement("a");
             $a->setAttribute("data-fslightbox", true);
             $a->setAttribute("href", $item->getAttribute("src"));
-            $newfigure->appendChild($a);
-
-            $img = $dom->createElement("img");
-            $img->setAttribute("src", $item->getAttribute("src"));
-            $img->setAttribute("alt", $item->getAttribute("alt"));
-            $img->setAttribute("data-id", $item->getAttribute("data-id"));
-            $img->setAttribute("data-link", $item->getAttribute("data-link"));
-            $img->setAttribute("data-class", $item->getAttribute("data-class"));
-            $a->appendChild($img);
-            
             $a->appendChild($item);
-            $d = $dom->createElement("span");
-            $d->setAttribute("data-div-test", true);
-            $newtext = $dom->createTextNode('XXX');
-            $d->appendChild($newtext);
-            $d->appendChild($item);
-            
-            //caption
-            if ($caption) {
-                $new_caption = $dom->createElement("figcaption");
-                $new_caption->setAttribute(
-                    "class",
-                    "blocks-gallery-item__caption"
-                );
-
-                $text = $dom->createTextNode($caption->getTextContent());
-                $new_caption->appendChild($text);
-
-                $newfigure->appendChild($new_caption);
-            }
-            $ul->appendChild($li);
+            $newfigure->appendChild($a);
+            $newfigure->appendChild($caption);
+           
+            $figure->parentNode->replaceChild($newfigure, $figure);
         }
-       
     }
-
     return $dom->saveHTML();
 }
 
-//add_filter("the_content", "lightbox_gallery_for_gutenberg", 10, 1);
+add_filter("the_content", "lightbox_gallery_for_gutenberg", 10, 1);
