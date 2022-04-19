@@ -22,7 +22,7 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if ( ! defined('ABSPATH' )) die('Are you ok?');
 
-require_once __DIR__ . './classes/RewriteFigureTagsClass.php';
+require_once __DIR__ . '/classes/RewriteFigureTagsClass.php';
 
 add_filter("the_content", '\mvbplugins\fslightbox\wrapClass', 10, 1);
 

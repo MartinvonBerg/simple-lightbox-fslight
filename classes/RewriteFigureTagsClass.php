@@ -22,7 +22,7 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if ( ! defined('ABSPATH' )) die('Are you ok?');
 
-require_once \WP_PLUGIN_DIR . "./simple-lightbox-gutenberg/vendor/autoload.php";
+require_once \WP_PLUGIN_DIR . "/simple-lightbox-gutenberg/vendor/autoload.php";
 const ALLOW_DUPLICATE_IDS = 67108864;
 
 final class RewriteFigureTags
@@ -161,8 +161,11 @@ final class RewriteFigureTags
                             
                 if ( $hasHref ) {
                     $href = $href->getAttribute('href');
-                    $isMediaFile = \strpos( $href, 'uploads');
-                    $hasSiteUrl = \strpos( $href, $this->siteUrl);
+                    $header = \wp_remote_head($href, array( 'timeout'=>2 ));
+                    $content_type = wp_remote_retrieve_header( $header, 'content-type' );
+                    $isMediaFile = \strpos( $content_type, 'image');
+                    $hasSiteUrl = \strpos( $href, $this->siteUrl); // only shows lokal files in lightbox
+                    $hasSiteUrl = true; // all files are shown, even externals.
                     if ( ($isMediaFile !== false) && ($hasSiteUrl !== false) )
                         $isMediaFile = true;
                 }  
