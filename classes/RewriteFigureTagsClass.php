@@ -20,7 +20,7 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if ( ! defined('ABSPATH' )) die('Are you ok?');
 
-require_once __DIR__ . "/vendor/autoload.php";
+require_once \WP_PLUGIN_DIR . "./simple-lightbox-gutenberg/vendor/autoload.php";
 const ALLOW_DUPLICATE_IDS = 67108864;
 
 // todo: load js from subfolder "paid" and fallback to standard if not available. Mind gitignore!
@@ -98,7 +98,17 @@ final class RewriteFigureTags
     }
 
     private function my_enqueue_script() {
-        wp_enqueue_script( "fslightbox", plugin_dir_url(__FILE__) . "/js/fslightbox-basic/fslightbox.js", [], "3.3.1", true );
+        $path = \WP_PLUGIN_DIR . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js';
+        if (is_file($path)) {
+            $path = \WP_PLUGIN_URL . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js';
+            wp_enqueue_script( "fslightbox", $path, [], "3.3.1", true );
+        }
+
+        $path = \WP_PLUGIN_DIR . '/simple-lightbox-gutenberg/js/fslightbox-basic/fslightbox.js';
+        if (is_file($path)) {
+            $path = \WP_PLUGIN_URL . '/simple-lightbox-gutenberg/js/fslightbox-basic/fslightbox.js';
+            wp_enqueue_script( "fslightbox", $path, [], "3.3.1", true );
+        }
     }
 
     public function lightbox_gallery_for_gutenberg($content)
@@ -172,7 +182,8 @@ final class RewriteFigureTags
             } 
         }
         
-        if ( $nFound > 0) $this->my_enqueue_script();
+        if ( $nFound > 0) 
+            $this->my_enqueue_script();
 
         return $dom->saveHTML();  
     }  

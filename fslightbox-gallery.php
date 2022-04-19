@@ -5,7 +5,7 @@
  * Plugin Name:       Simple Lightbox for Gutenberg
  * Plugin URI:        https://github.com/MartinvonBerg/simple-lightbox-gutenberg
  * Description:       An easy way to create lightbox effect for WordPress Gutenberg images, galleries and Media-Text-Block. Settings provided with json-File in Plugin-Folder, see there and Readme.
- * Version:           1.2.0
+ * Version:           0.1.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -20,7 +20,7 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if ( ! defined('ABSPATH' )) die('Are you ok?');
 
-require_once __DIR__ . '/classes/RewriteFigureTagsClass.php';
+require_once __DIR__ . './classes/RewriteFigureTagsClass.php';
 
 add_filter("the_content", '\mvbplugins\fslightbox\wrapClass', 10, 1);
 
