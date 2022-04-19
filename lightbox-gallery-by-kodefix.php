@@ -29,34 +29,59 @@ final class RewriteFigureTags
 {
     // --------------- settings ----------------------------------------
     // PHP 7.3 version :: no type definition
-    protected $page = true;
-    protected $post = true;
-    protected $home = true;
-    protected $front = true;
-
-    protected $archive = false;
-    protected $date = false;
-    protected $author = false;
-    protected $tag = false;
-    protected $category = false;
-    protected $attachment = false;
+    protected $posttype = '';
     protected $siteUrl  = '';
+    protected $doRewrite = false;
 
-    protected $hrefEmpty = true;
-    protected $hrefMedia = true;
+    protected $hrefEmpty = false;
+    protected $hrefMedia = false;
     protected $hrefAttach = false; // only for information. No Functionality provided.
     protected $hrefExternal = false; // only for information. No Functionality provided.
+
+    protected $hrefTypes = [
+        'Empty',
+        'Media',
+        //'Attachment', // only for information. No Functionality provided.
+        //'External', // only for information. No Functionality provided.
+    ];
+
+    protected $postTypes = [
+        'page',
+        'post',
+        //'attachment',
+        'home',
+        'front',
+        //'archive',
+        //'date',
+        //'author',
+        //'tag',
+        //'category',
+    ];
 
     protected $cssClassesToSearch = [
         'block-image',
         'media-text',
         'block-video'
-
     ];
 
     public function __construct()
     {
        $this->siteUrl = \get_site_url();
+       $this->posttype = \get_post_type();
+       $this->doRewrite = in_array($this->posttype, $this->postTypes, true);
+
+       foreach($this->hrefTypes as $type) {
+           switch ($type) {
+                case 'Empty':
+                    $this->hrefEmpty = true;
+                    break;
+                case 'Media':
+                    $this->hrefMedia = true;
+                    break;
+                default:
+                    break;
+           }
+       }
        // todo: load settings from json
     }
 
@@ -67,7 +92,7 @@ final class RewriteFigureTags
 
         foreach($this->cssClassesToSearch as $search) {
             $classFound = 0;
-            $classFound =strpos($class, $search); // todo: include videos
+            $classFound =strpos($class, $search); 
             if ($classFound > 0) {
                 $classFound = true;
                 break;
@@ -79,6 +104,8 @@ final class RewriteFigureTags
 
     public function lightbox_gallery_for_gutenberg($content)
     {
+        if ( ! $this->doRewrite) return $content;
+
         $dom = new \IvoPetkov\HTML5DOMDocument();
         $dom->loadHTML($content, ALLOW_DUPLICATE_IDS);
 
@@ -88,68 +115,55 @@ final class RewriteFigureTags
         foreach ($allFigures as $figure) {
 
             $class = $figure->getAttribute("class");
+            $classFound = false;
             [$classFound, $isVideo] = $this->findCssClass($class);
+            $isMediaFile = false;
+            $hasHref = false;
+            $item = null;
 
-            if ($classFound && ! $isVideo) {;
+            if ($classFound && ! $isVideo) 
+            {
+                $item = $figure->querySelector( 'img');
+                $dataType = 'image';  
 
-                $item = $figure->querySelector("img");
-                if (is_null($item)) $classFound = false;
-
-                $href = '';
+                $href = null;
                 $href = $figure->querySelector("a");
                 $hasHref = \is_null($href) ? false : true;
-                $isMediaFile = false;
-                
+                            
                 if ( $hasHref ) {
                     $href = $href->getAttribute('href');
                     $isMediaFile = \strpos( $href, 'uploads');
                     $hasSiteUrl = \strpos( $href, $this->siteUrl);
                     if ($isMediaFile > 0 && $hasSiteUrl > 0)
                         $isMediaFile = true;
-                }
-                    
-                if (($classFound > 0) && ( (!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia) )) {
-                    $newfigure = $dom->createElement("figure");
-                    $newfigure->setAttribute("class", $class);
-                    $a = $dom->createElement("a");
-                    $a->setAttribute("data-fslightbox", true);
-                    $a->setAttribute("data-type", "image");
-                    $a->setAttribute("href", $item->getAttribute("src"));
-                    $a->appendChild($item);
-                    $newfigure->appendChild($a);
-
-                    $caption = $figure->querySelector("figcaption");
-                    if (! is_null($caption)) {
-                        $newfigure->appendChild($caption);
-                    }
-                    $figure->parentNode->replaceChild($newfigure, $figure);
-                    $nFound += 1;
-                }
-            } elseif ($classFound && $isVideo) {
-                // <figure class="wp-block-video"><video controls preload="auto" src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"></video></figure>
-                $item = $figure->querySelector("video"); // diff
+                }  
+            }
+            elseif ($classFound && $isVideo) 
+            {   
+                $item = $figure->querySelector( 'video');
+                $dataType = 'video';
+            } 
+           
+            if ( ($classFound) && (! is_null($item)) && ( ( ! $hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia) || $isVideo )) {
                 $newfigure = $dom->createElement("figure");
                 $newfigure->setAttribute("class", $class);
                 $a = $dom->createElement("a");
                 $a->setAttribute("data-fslightbox", true);
-                $a->setAttribute("data-type", "video"); // diff
+                $a->setAttribute("data-type", $dataType);
                 $a->setAttribute("href", $item->getAttribute("src"));
                 $a->appendChild($item);
                 $newfigure->appendChild($a);
+
+                $caption = $figure->querySelector("figcaption");
+                if (! is_null($caption)) {
+                    $newfigure->appendChild($caption);
+                }
                 $figure->parentNode->replaceChild($newfigure, $figure);
-                $nFound += 1;
-            }
+                $nFound += 1;   
+            } 
         }
         
-        if ( $nFound > 0) {
-            wp_enqueue_script( 
-                "engine", 
-                plugin_dir_url(__FILE__) . "/js/fslightbox.js", 
-                [], 
-                "3.3.1", 
-                true
-            );
-        }
+        if ( $nFound > 0) wp_enqueue_script( "fslightbox", plugin_dir_url(__FILE__) . "/js/fslightbox.js", [], "3.3.1", true );
 
         return $dom->saveHTML();  
     }  
@@ -162,5 +176,6 @@ function wrapClass($content)
 {
     $rewrite = new RewriteFigureTags();
     $new=$rewrite->lightbox_gallery_for_gutenberg($content);
+    $rewrite = null;
     return $new;
 }
