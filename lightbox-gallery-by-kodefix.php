@@ -22,23 +22,67 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if ( ! defined('ABSPATH' )) { die('Are you ok?');}
 
-require __DIR__ . "./vendor/autoload.php";
+require_once __DIR__ . "/vendor/autoload.php";
+const ALLOW_DUPLICATE_IDS = 67108864;
+
+// --------------- settings ----------------------------------------
+$page = true;
+$post = true;
+$home = true;
+$front = true;
+
+$archive = false;
+$date = false;
+$author = false;
+$tag = false;
+$category = false;
+$attachment = false;
+
+$hrefEmpty = true;
+$hrefattach = false;
+$hrefMedia = true;
+
+// --------------- settings end ------------------------------------
 
 function lightbox_gallery_for_gutenberg($content)
 {
+    
     $dom = new \IvoPetkov\HTML5DOMDocument();
-    $dom->loadHTML($content);
+    $dom->loadHTML($content, ALLOW_DUPLICATE_IDS);
 
-    //$gallery_block = $dom->querySelectorAll(".wp-block-gallery");
     $allFigures = $dom->querySelectorAll('figure');
-        
+    $nFound = 0;
+           
     foreach ($allFigures as $figure) {
-        $item = $figure->querySelector("img");
-        $caption = $figure->querySelector("figcaption");
-        $class = $figure->getAttribute("class");
-        $found =strpos($class, 'gallery');
 
-        if ($found === false) {
+        $class = $figure->getAttribute("class");
+        $found = 0;
+        $isMediaFile = 0;
+        $found =strpos($class, 'image');
+        $item = $figure->querySelector("img");
+
+        //if (\current_user_can('edit_posts')) echo "fslight" . $class;
+        
+        if (is_null($item) ) {
+            $found = 0;
+        }
+
+        $caption = $figure->querySelector("figcaption");
+
+        $href = '';
+        $hasHref = true;
+        $hasHref = $figure->querySelector("a");
+        
+        if (! is_null($hasHref)) {
+            $href = $hasHref->getAttribute('href');
+            $isMediaFile = \strpos( $href, 'uploads');
+
+            if (!filter_var($href, FILTER_VALIDATE_URL) === false) {
+                //break;
+              } 
+        }
+        
+        if (($found > 0) && ( is_null($hasHref) || ($isMediaFile > 0) )) {
             $newfigure = $dom->createElement("figure");
             $newfigure->setAttribute("class", $class);
             $a = $dom->createElement("a");
@@ -51,10 +95,12 @@ function lightbox_gallery_for_gutenberg($content)
                 $newfigure->appendChild($caption);
             }
             $figure->parentNode->replaceChild($newfigure, $figure);
+            $nFound += 1;
         }
+        
     }
     
-    if ( count($allFigures) > 0) {
+    if ( $nFound > 0) {
         wp_enqueue_script( 
             "engine", 
             plugin_dir_url(__FILE__) . "/js/fslightbox.js", 
@@ -63,8 +109,29 @@ function lightbox_gallery_for_gutenberg($content)
             true
         );
     }
-
+    
     return $dom->saveHTML();
+    
 }
 
 add_filter("the_content", '\mvbplugins\fslightbox\lightbox_gallery_for_gutenberg', 10, 1);
+
+
+/**
+ * Get the upload URL/path in right way (works with SSL).
+ *
+ * @param string $param  "basedir" or "baseurl"
+ * @param string $subfolder  subfolder to append to basedir or baseurl
+ * @return string the base appended with subfolder
+ */
+function my_get_upload_dir($param, $subfolder = '') :string
+{
+	$upload_dir = wp_get_upload_dir();
+	$url = $upload_dir[$param];
+
+	if ($param === 'baseurl' && is_ssl()) {
+		$url = str_replace('http://', 'https://', $url);
+	}
+
+	return $url . $subfolder;
+}
