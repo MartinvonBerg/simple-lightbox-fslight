@@ -15,6 +15,8 @@
  *  
  */
 
+// todo: phpdoc, phpstan, phpunit
+
 namespace mvbplugins\fslightbox;
 
 // fallback for wordpress security
@@ -23,7 +25,6 @@ if ( ! defined('ABSPATH' )) die('Are you ok?');
 require_once \WP_PLUGIN_DIR . "./simple-lightbox-gutenberg/vendor/autoload.php";
 const ALLOW_DUPLICATE_IDS = 67108864;
 
-// todo: load js from subfolder "paid" and fallback to standard if not available. Mind gitignore!
 final class RewriteFigureTags
 {
     // --------------- settings ----------------------------------------
@@ -77,7 +78,15 @@ final class RewriteFigureTags
                     break;
            }
        }
-       // todo: load settings from json
+       // load settings from file plugin-settings.json
+       $path = \WP_PLUGIN_DIR . "./simple-lightbox-gutenberg/plugin-settings.json";
+       if (is_file($path)) {
+           $settings = file_get_contents( $path, 'plugin-settings.json' );
+           $settings = \json_decode( $settings, true );
+           $this->hrefTypes = $settings['hrefTypes'];
+           $this->postTypes = $settings['postTypes'];
+           $this->cssClassesToSearch = $settings['cssClassesToSearch'];
+       };
     }
 
     private function findCssClass($class)
@@ -97,7 +106,8 @@ final class RewriteFigureTags
         return [$classFound, $isVideo];
     }
 
-    private function my_enqueue_script() {
+    private function my_enqueue_script() 
+    {
         $path = \WP_PLUGIN_DIR . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js';
         if (is_file($path)) {
             $path = \WP_PLUGIN_URL . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js';

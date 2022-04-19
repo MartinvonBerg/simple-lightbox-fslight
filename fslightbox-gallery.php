@@ -15,6 +15,8 @@
  *  
  */
 
+// todo: phpdoc, phpstan, phpunit
+
 namespace mvbplugins\fslightbox;
 
 // fallback for wordpress security

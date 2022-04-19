@@ -1,0 +1,20 @@
+{
+    "hrefTypes" : [ 
+        "Empty",
+         "Media" 
+    ],
+
+    "postTypes" : [
+        "page",
+        "post",
+        "home",
+        "front"
+    ],
+
+    "cssClassesToSearch" : [
+        "block-image",
+        "media-text",
+        "block-video",
+        "postie-image"
+    ]
+}
