@@ -107,6 +107,16 @@ final class RewriteFigureTags
        $this->posttype = strval( \get_post_type() );
        $this->doRewrite = in_array($this->posttype, $this->postTypes, true);
 
+       // load settings from file plugin-settings.json
+       $path = \WP_PLUGIN_DIR . "/simple-lightbox-gutenberg/plugin-settings.json"; // @phpstan-ignore-line
+       if (is_file($path)) {
+           $settings = strval( file_get_contents( $path, false ) );
+           $settings = \json_decode( $settings, true );
+           $this->hrefTypes = $settings['hrefTypes'];
+           $this->postTypes = $settings['postTypes'];
+           $this->cssClassesToSearch = $settings['cssClassesToSearch'];
+       };
+
        foreach($this->hrefTypes as $type) {
            switch ( strtolower($type) ) {
                 case 'empty':
@@ -119,16 +129,6 @@ final class RewriteFigureTags
                     break;
            }
        }
-
-       // load settings from file plugin-settings.json
-       $path = \WP_PLUGIN_DIR . "/simple-lightbox-gutenberg/plugin-settings.json"; // @phpstan-ignore-line
-       if (is_file($path)) {
-           $settings = strval( file_get_contents( $path, false ) );
-           $settings = \json_decode( $settings, true );
-           $this->hrefTypes = $settings['hrefTypes'];
-           $this->postTypes = $settings['postTypes'];
-           $this->cssClassesToSearch = $settings['cssClassesToSearch'];
-       };
     }
 
     /**
