@@ -1,0 +1,101 @@
+{
+	"definitions": {},
+	"$schema": "http://json-schema.org/draft-07/schema#", 
+	"title": "Schema for Settings of Simple Lightbox for Guenberg", 
+	"type": "object",
+  "additionalProperties": true,
+	"required": [
+		"hrefTypes",
+		"postTypes",
+		"cssClassesToSearch"
+	],
+	"properties": {
+		"hrefTypes": {
+			"$id": "#root/hrefTypes", 
+			"title": "Hreftypes", 
+			"type": "array",
+			"default": [],
+			"items":{
+				"$id": "#root/hrefTypes/items", 
+				"title": "Items", 
+				"type": "string",
+				"default": "Empty",
+				"examples": [
+					"Empty"
+				],
+				"pattern": "^.*$",
+        "maxLength": 20,
+        "minLength": 2,
+        "allOf": [
+          {
+            "type": "string"
+          },
+          {
+            "enum": [
+              "Empty",
+              "Media"
+            ]
+          }
+        ]
+			}
+		},
+		"postTypes": {
+			"$id": "#root/postTypes", 
+			"title": "Posttypes", 
+			"type": "array",
+			"default": [],
+			"items":{
+				"$id": "#root/postTypes/items", 
+				"title": "Items", 
+				"type": "string",
+				"default": "",
+				"examples": [
+					"page"
+				],
+				"pattern": "^.*$",
+        "maxLength": 20,
+        "minLength": 2,
+        "allOf": [
+          {
+            "type": "string"
+          },
+          {
+            "enum": [
+              "page",
+              "post",
+              "home",
+              "front",
+              "attachment",
+              "archive",
+              "date",
+              "author",
+              "tag",
+              "category"
+            ]
+          }
+        ]
+			}
+		},
+		"cssClassesToSearch": {
+			"$id": "#root/cssClassesToSearch", 
+			"title": "Cssclassestosearch", 
+			"type": "array",
+			"default": [],
+			"items":{
+				"$id": "#root/cssClassesToSearch/items", 
+				"title": "Items", 
+				"type": "string",
+				"default": "",
+				"examples": [
+					"block-image",
+          "media-text",
+          "block-video",
+          "postie-image"
+				],
+				"pattern": "^.*$",
+        "maxLength": 50,
+        "minLength": 2
+			}
+		}
+	}
+}
