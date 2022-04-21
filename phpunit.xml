@@ -12,7 +12,7 @@
 	<coverage pathCoverage='true'>
 		<include>
 			<directory suffix=".php">./tests/src/</directory>
-			<file>C:\Bitnami\wordpress-5.2.2-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-gutenberg\classes\RewriteFigureTagsClass.php</file>
+			<file>C:\Bitnami\wordpress-5.2.2-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\classes\RewriteFigureTagsClass.php</file>
 		</include>
 	</coverage>
 	<testsuites>

@@ -7,7 +7,7 @@ use function Brain\Monkey\Functions\expect;
 use function Brain\Monkey\Actions\expectDone;
 use function Brain\Monkey\Filters\expectApplied;
 
-include_once 'C:\Bitnami\wordpress-5.2.2-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-gutenberg\classes\RewriteFigureTagsClass.php';
+include_once 'C:\Bitnami\wordpress-5.2.2-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\classes\RewriteFigureTagsClass.php';
 
 final class RewriteFigureTagsClassTest extends TestCase {
 	public function setUp(): void {

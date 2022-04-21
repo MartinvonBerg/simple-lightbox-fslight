@@ -1,5 +1,5 @@
-=== Simple Lightbox for Gutenberg ===
-Plugin Name: Simple Lightbox for Gutenberg
+=== Simple Lightbox for WordPress ===
+Plugin Name: Simple Lightbox for WordPress with fslight
 Contributors: Martin von Berg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery
@@ -44,7 +44,7 @@ Change here the type of posts, pages which shall include the lightbox. Additiona
 
 = Is the paid version of fslightbox.js supported? =
 
-Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder ./simple-lightbox-gutenberg/js/fslightbox-paid. That's it.
+Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder ./simple-lightbox-fslight/js/fslightbox-paid. That's it.
 
 = Does plugin has any requirements? =
 

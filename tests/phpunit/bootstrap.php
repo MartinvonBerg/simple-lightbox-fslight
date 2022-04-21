@@ -5,7 +5,7 @@
  * it with something that matches your plugin name.
  */
 $plugin_main_dir = dirname(__DIR__, 2);
-$plugin_rel_dir = 'wp-content/plugins/simple-lightbox-gutenberg';
+$plugin_rel_dir = 'wp-content/plugins/simple-lightbox-fslight';
 
 // define test environment
 define( 'PLUGIN_PHPUNIT', true );

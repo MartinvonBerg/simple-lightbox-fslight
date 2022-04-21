@@ -2,10 +2,6 @@
 
 /**
  *
- * @wordpress-plugin
- * Plugin Name:       Simple Lightbox for Gutenberg - Responsive Lightbox Effect for Image, Gallery and Media-Text Block.
- * Plugin URI:        https://github.com/MartinvonBerg/simple-lightbox-gutenberg
- * Description:       An easy way to create lightbox effect for WordPress Gutenberg images and galleries. Settings provided with json-File in Plugin-Folder.
  * Version:           0.0.1
  * Requires at least: 5.9
  * Requires PHP       7.3
@@ -21,7 +17,7 @@ namespace mvbplugins\fslightbox;
 // fallback for wordpress security
 if (!defined('ABSPATH')) die('Are you ok?');
 
-require_once \WP_PLUGIN_DIR . "/simple-lightbox-gutenberg/vendor/autoload.php"; // @phpstan-ignore-line
+require_once \WP_PLUGIN_DIR . "/simple-lightbox-fslight/vendor/autoload.php"; // @phpstan-ignore-line
 const ALLOW_DUPLICATE_IDS = 67108864;
 
 /**
@@ -107,7 +103,7 @@ final class RewriteFigureTags
         $this->doRewrite = in_array($this->posttype, $this->postTypes, true);
 
         // load settings from file plugin-settings.json
-        $path = \WP_PLUGIN_DIR . "/simple-lightbox-gutenberg/plugin-settings.json"; // @phpstan-ignore-line
+        $path = \WP_PLUGIN_DIR . "/simple-lightbox-fslight/plugin-settings.json"; // @phpstan-ignore-line
         if (is_file($path)) {
             $settings = strval(file_get_contents($path, false));
             $settings = \json_decode($settings, true);
@@ -161,15 +157,15 @@ final class RewriteFigureTags
      */
     private function my_enqueue_script()
     {
-        $path = \WP_PLUGIN_DIR . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
+        $path = \WP_PLUGIN_DIR . '/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
         if (is_file($path)) {
-            $path = \WP_PLUGIN_URL . '/simple-lightbox-gutenberg/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
+            $path = \WP_PLUGIN_URL . '/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
             wp_enqueue_script("fslightbox", $path, [], "3.4.1", true);
         }
 
-        $path = \WP_PLUGIN_DIR . '/simple-lightbox-gutenberg/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
+        $path = \WP_PLUGIN_DIR . '/simple-lightbox-fslight/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
         if (is_file($path)) {
-            $path = \WP_PLUGIN_URL . '/simple-lightbox-gutenberg/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
+            $path = \WP_PLUGIN_URL . '/simple-lightbox-fslight/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
             wp_enqueue_script("fslightbox", $path, [], "3.3.1", true);
         }
     }
