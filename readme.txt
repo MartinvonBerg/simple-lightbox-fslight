@@ -1,5 +1,5 @@
 === Simple Lightbox for WordPress ===
-Plugin Name: Simple Lightbox for WordPress with fslight
+Plugin Name: Simple Lightbox with fslight
 Contributors: Martin von Berg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery

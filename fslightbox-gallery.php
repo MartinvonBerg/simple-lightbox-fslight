@@ -2,7 +2,7 @@
 /**
  *
  * @wordpress-plugin
- * Plugin Name:       Simple Lightbox for WordPress with fslight
+ * Plugin Name:       Simple Lightbox with fslight
  * Plugin URI:        https://github.com/MartinvonBerg/simple-lightbox-fslight
  * Description:       An easy way to create lightbox effect for WordPress Gutenberg images, galleries and Media-Text-Block. Settings provided with json-File in Plugin-Folder, see there and Readme.
  * Version:           0.1.0
