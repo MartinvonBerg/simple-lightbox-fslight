@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery
 Requires at least: 5.9
 Tested up to: 5.9.3
-Stable tag: 4.3
+Stable tag: 1.0.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -23,14 +23,6 @@ Available Settings are provided by a JSON-file that may be easily changed and ba
 Just create gallery by using "gallery" block and use lightbox gallery effect powered by fslightbox.js
 
 
-== Installation ==
-
-1. Visit the plugins page on your Admin-page and click  ‘Add New’
-2. Search for 'wp_wpcat_json_rest', or 'JSON' and 'REST'
-3. Once found, click on 'Install'
-4. Go to the plugins page and activate the plugin
-
-
 == Frequently Asked Questions ==
 
 = How does the plugin work? =
@@ -44,7 +36,7 @@ Change here the type of posts, pages which shall include the lightbox. Additiona
 
 = Is the paid version of fslightbox.js supported? =
 
-Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder ./simple-lightbox-fslight/js/fslightbox-paid. That's it.
+Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder ./folder-where-the-plugin-is-installed/js/fslightbox-paid. That's it.
 
 = Does plugin has any requirements? =
 
@@ -66,9 +58,8 @@ Example lightbox.
 
 == Changelog ==
 
-= 0.1.0 =
+= 1.0.0 =
 * First Version based on Lightbox Gallery by Kodefix.
-
 
 
 == Plugin uses ==

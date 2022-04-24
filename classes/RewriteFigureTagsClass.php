@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           0.0.1
+ * Version:           1.0.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -14,10 +14,9 @@
 
 namespace mvbplugins\fslightbox;
 
-// fallback for wordpress security
 if (!defined('ABSPATH')) die('Are you ok?');
 
-require_once \WP_PLUGIN_DIR . "/simple-lightbox-fslight/vendor/autoload.php"; // @phpstan-ignore-line
+require_once __DIR__ . "/html5-dom-document-php/autoload.php"; 
 const ALLOW_DUPLICATE_IDS = 67108864;
 
 /**
@@ -31,12 +30,13 @@ final class RewriteFigureTags
 {
     // --------------- settings ----------------------------------------
     // PHP 7.3 version :: no type definition
-
+    
     protected $posttype = '';
     protected $siteUrl  = '';
     protected $doRewrite = false;
     protected $hrefEmpty = false;
     protected $hrefMedia = false;
+    protected $plugin_main_dir = '';
 
     protected $hrefTypes = [
         'Empty',
@@ -70,40 +70,37 @@ final class RewriteFigureTags
     protected bool $doRewrite = false;
     protected bool $hrefEmpty = false;
     protected bool $hrefMedia = false;
+    protected string $plugin_main_dir = '';
     */
     /**
      * @var hrefTypes
      */
-    # protected array $hrefTypes = [ 'Empty', 'Media' ];
+    #protected array $hrefTypes = [ 'Empty', 'Media' ];
 
     /**
      * @var postTypes
      */
     #protected array $postTypes = [ 'page', 'post',  'home', 'front', ];
-    //'attachment',
-    //'archive',
-    //'date',
-    //'author',
-    //'tag',
-    //'category'
+    //'attachment', 'archive', 'date', 'author', 'tag', 'category'
 
     /**
      * @var cssClassesToSearch
      */
     #protected array $cssClassesToSearch = [ 'block-image','media-text', 'block-video', 'postie-image' ];
-
+    
 
     /**
      * Do settings for the class. Load from json-settings-file.
      */
     public function __construct()
     {
+        $this->plugin_main_dir = dirname(__DIR__, 1);
         $this->siteUrl = \get_site_url();
         $this->posttype = strval(\get_post_type());
         $this->doRewrite = in_array($this->posttype, $this->postTypes, true);
 
         // load settings from file plugin-settings.json
-        $path = \WP_PLUGIN_DIR . "/simple-lightbox-fslight/plugin-settings.json"; // @phpstan-ignore-line
+        $path = $this->plugin_main_dir . "/plugin-settings.json"; 
         if (is_file($path)) {
             $settings = strval(file_get_contents($path, false));
             $settings = \json_decode($settings, true);
@@ -157,15 +154,17 @@ final class RewriteFigureTags
      */
     private function my_enqueue_script()
     {
-        $path = \WP_PLUGIN_DIR . '/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
+        $path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js'; 
+        $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
+
         if (is_file($path)) {
-            $path = \WP_PLUGIN_URL . '/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js'; // @phpstan-ignore-line
+            $path = $slug . '/js/fslightbox-paid/fslightbox.js';
             wp_enqueue_script("fslightbox", $path, [], "3.4.1", true);
         }
 
-        $path = \WP_PLUGIN_DIR . '/simple-lightbox-fslight/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
+        $path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js'; 
         if (is_file($path)) {
-            $path = \WP_PLUGIN_URL . '/simple-lightbox-fslight/js/fslightbox-basic/fslightbox.js'; // @phpstan-ignore-line
+            $path = $slug . '/js/fslightbox-basic/fslightbox.js';
             wp_enqueue_script("fslightbox", $path, [], "3.3.1", true);
         }
     }
