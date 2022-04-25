@@ -23,6 +23,9 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            LICENSE.txt
-            *.js
-            *.php
+            readme.txt
+            plugin-settings.json
+            /settings/*
+            /js/*
+            simple-lightbox-fslight.php
+            /classes/*
