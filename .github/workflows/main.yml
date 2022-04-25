@@ -1,0 +1,28 @@
+# This is a basic workflow to help you get started with Actions
+
+name: "tagged-release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  tagged-release:
+    name: "Tagged Release"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      # ...
+      - name: "Create Release"
+        run: |
+          echo "done!"
+
+      - uses: "MartinvonBerg/simple-lightbox-fslight@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            LICENSE.txt
+            *.js
+            *.php
