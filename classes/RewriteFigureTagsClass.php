@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.0.0
+ * Version:           1.1.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -26,6 +26,7 @@ const ALLOW_DUPLICATE_IDS = 67108864;
  * @phpstan-type hrefTypes array{string}
  * @phpstan-type postTypes array{string}
  * @phpstan-type cssClassesToSearch array{string}
+ * @phpstan-type excludeIDs array{integer}
  */
 final class RewriteFigureTags {
 
@@ -64,6 +65,8 @@ final class RewriteFigureTags {
 		'postie-image',
 	);
 
+    protected $exludeIDs = array();
+
 	/*
 	// PHP 7.4 version
 	protected string $posttype = '';
@@ -89,12 +92,16 @@ final class RewriteFigureTags {
 	 */
 	// protected array $cssClassesToSearch = [ 'block-image','media-text', 'block-video', 'postie-image' ];
 
+    /**
+	 * @var excludeIDs
+	 */
+    //  protected array $exludeIDs = array();
 
 	/**
 	 * Do settings for the class. Load from json-settings-file.
 	 */
 	public function __construct() {
-		 $this->plugin_main_dir = dirname( __DIR__, 1 );
+		$this->plugin_main_dir  = dirname( __DIR__, 1 );
 		$this->siteUrl          = \get_site_url();
 		$this->posttype         = strval( \get_post_type() );
 		$this->doRewrite        = in_array( $this->posttype, $this->postTypes, true );
@@ -107,6 +114,7 @@ final class RewriteFigureTags {
 			$this->hrefTypes          = $settings['hrefTypes'];
 			$this->postTypes          = $settings['postTypes'];
 			$this->cssClassesToSearch = $settings['cssClassesToSearch'];
+            $this->exludeIDs          = $settings['excludeIDs'];
 		};
 
 		foreach ( $this->hrefTypes as $type ) {
@@ -174,7 +182,10 @@ final class RewriteFigureTags {
 	 * @return string the altered $content of the page post to show in browser
 	 */
 	public function lightbox_gallery_for_gutenberg( $content ) {
-		if ( ! $this->doRewrite ) {
+        $postID = (int) \get_the_ID();
+        $exclude = \in_array( $postID, $this->exludeIDs, true);
+
+		if ( (! $this->doRewrite) || ( $exclude ) ) {
 			return $content;
 		}
 
@@ -184,11 +195,13 @@ final class RewriteFigureTags {
 		$allFigures = $dom->querySelectorAll( 'figure' );
 
 		// append all old imgs in <div><a><img>..</img></a></div> to $allFigures. These are converted to figures.
+        // is done for old images and media-text also!
 		$allImgs = $dom->querySelectorAll( 'img' );
 		foreach ( $allImgs as $image ) {
 			$parent = $image->parentNode->parentNode; // todo: what if there is no a tag? Ignore, because wont't work anyway?
 			$tag    = $parent->tagName;
-			if ( $tag === 'div' ) {
+            $class  = $parent->getAttribute('class');
+			if ( ( $tag === 'div' ) && ( $class === 'postie-image-div' ) ) {
 				$allFigures->append( $parent );
 			}
 		}
@@ -204,6 +217,7 @@ final class RewriteFigureTags {
 			$hasHref                = false;
 			$item                   = null;
 			$dataType               = '';
+            $videoThumb             = null;
 
 			// provide item, $dataType, $isMediaFile, $hasHref from $figure, $classFound, $isVideo
 			if ( $classFound && ! $isVideo ) {
@@ -212,10 +226,16 @@ final class RewriteFigureTags {
 
 				$href    = null;
 				$href    = $figure->querySelector( 'a' );
+                if ( ! \is_null( $href ) ) {
+                    $hrefParent   = $href->parentNode;
+                }
 				$hasHref = \is_null( $href ) ? false : true;
 
 				if ( $hasHref ) {
 					$href         = $href->getAttribute( 'href' );
+                    if ( $hrefParent->tagName === 'figcaption' ) {
+                        $hasHref = false;
+                    }
 					$header       = \wp_remote_head( $href, array( 'timeout' => 2 ) );
 					$content_type = wp_remote_retrieve_header( $header, 'content-type' );
 					$isMediaFile  = \strpos( $content_type, 'image' );
@@ -227,6 +247,7 @@ final class RewriteFigureTags {
 				}
 			} elseif ( $isVideo ) {
 				$item     = $figure->querySelector( 'video' );
+                $videoThumb   = $item->getAttribute('poster');
 				$dataType = 'video';
 			}
 
@@ -244,6 +265,9 @@ final class RewriteFigureTags {
 					$text = $caption->getNodeValue();
 					$a->setAttribute( 'data-caption', $text );
 				}
+                if ( ! empty( $videoThumb ) ) {
+                    $a->setAttribute( 'data-thumb', $videoThumb );
+                }
 				$a->setAttribute( 'href', $item->getAttribute( 'src' ) );
 				$a->appendChild( $item );
 

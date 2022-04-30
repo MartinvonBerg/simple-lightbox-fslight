@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery
 Requires at least: 5.9
 Tested up to: 5.9.3
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -57,6 +57,11 @@ Example lightbox.
 
 
 == Changelog ==
+
+= 1.1.0 =
+* Added a Setting to exclude certain IDs (post or page or whatever is set)
+* Included the Preview ('poster') of videos in the thumbnails (only paid version will see thumbnails)
+* Bugfixes: Corrected the generated html for Media-Text and for images with a link in their caption
 
 = 1.0.0 =
 * First Version based on Lightbox Gallery by Kodefix.

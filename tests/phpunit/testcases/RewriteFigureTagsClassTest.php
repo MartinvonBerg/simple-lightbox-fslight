@@ -43,7 +43,7 @@ final class RewriteFigureTagsClassTest extends TestCase {
 			->once()
 			->andReturn('post');	
 
-		//$class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
+        //$class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
 		$privateProp1 = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "doRewrite");
 		$privateProp1->setAccessible(true);
 
@@ -70,7 +70,7 @@ final class RewriteFigureTagsClassTest extends TestCase {
 			->once()
 			->andReturn('other');	
 
-		//$class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
+        //$class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
 		$privateProp1 = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "doRewrite");
 		$privateProp1->setAccessible(true);
 
@@ -92,6 +92,9 @@ final class RewriteFigureTagsClassTest extends TestCase {
 			->once()
 			->andReturn('post');	
 
+        expect( 'get_the_ID' )
+			->andReturn(-1);
+
 		$class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
 		$privateMethod = $class->getMethod('findCssClass');
         $privateMethod->setAccessible(TRUE);
@@ -107,8 +110,8 @@ final class RewriteFigureTagsClassTest extends TestCase {
 	{
 		return [
 			['wp-block-image-ewer',true, false],
-			["wp-XXX-media-text-fdsdf",true, false],
-			["other-block-video-666fgh", true, true],
+			["wp-block-media-text-fdsdf",true, false],
+			["wp-block-video-666fgh", true, true],
 			["this-postie-image-dfdfg", true, false],
 			["not-in-array-class", false, false],
 		];
@@ -135,6 +138,10 @@ final class RewriteFigureTagsClassTest extends TestCase {
 
 		expect('wp_enqueue_script')
 			->andReturn( true);
+
+        expect( 'get_the_ID' )
+			->once()
+			->andReturn(-1);
 
 		$tested = new mvbplugins\fslightbox\RewriteFigureTags();
       
@@ -193,6 +200,10 @@ final class RewriteFigureTagsClassTest extends TestCase {
 		expect('wp_enqueue_script')
 			->andReturn( true);
 
+        expect( 'get_the_ID' )
+			->once()
+			->andReturn(-1);
+
 		$tested = new mvbplugins\fslightbox\RewriteFigureTags();
       
 		$result = $tested->lightbox_gallery_for_gutenberg($htmlin);
@@ -231,6 +242,10 @@ final class RewriteFigureTagsClassTest extends TestCase {
 
 		expect('wp_enqueue_script')
 			->andReturn( true);
+
+        expect( 'get_the_ID' )
+			->once()
+			->andReturn(-1);
 
 		$tested = new mvbplugins\fslightbox\RewriteFigureTags();
       
