@@ -13,6 +13,8 @@ final class RewriteFigureTagsClassTest extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		setUp();
+        expect('wp_add_inline_script')
+            ->andReturn(0);
 	}
 	public function tearDown(): void {
 		tearDown();
