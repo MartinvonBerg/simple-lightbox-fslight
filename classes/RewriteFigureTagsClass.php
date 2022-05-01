@@ -204,6 +204,12 @@ final class RewriteFigureTags {
 			$path = $slug . '/js/fslightbox-basic/fslightbox.js';
 			wp_enqueue_script( 'fslightbox', $path, array(), '3.3.1', true );
 		}
+
+        // pass option to the js-script to switch fullscreen of browser off, when lightbox is closed.
+        $jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;";
+        // this option increases the load time with many images.
+        //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;fsLightboxInstances['1'].props.showThumbsOnMount = true;";
+        \wp_add_inline_script('fslightbox', $jsFullscreen);
 	}
 
 	/**
