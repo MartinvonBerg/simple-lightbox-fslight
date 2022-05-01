@@ -59,10 +59,10 @@ final class RewriteFigureTags {
 	);
 
 	protected $cssClassesToSearch = array(
-		'block-image',
-		'media-text',
-		'block-video',
-		'postie-image',
+        'wp-block-image',
+        'wp-block-media-text',
+        'wp-block-video',
+        'postie-image',
 	);
 
     protected $exludeIDs = array();
@@ -104,8 +104,7 @@ final class RewriteFigureTags {
 		$this->plugin_main_dir  = dirname( __DIR__, 1 );
 		$this->siteUrl          = \get_site_url();
 		$this->posttype         = strval( \get_post_type() );
-		$this->doRewrite        = in_array( $this->posttype, $this->postTypes, true );
-
+		
 		// load settings from file plugin-settings.json
 		$path = $this->plugin_main_dir . '/plugin-settings.json';
 		if ( is_file( $path ) ) {
@@ -116,6 +115,10 @@ final class RewriteFigureTags {
 			$this->cssClassesToSearch = $settings['cssClassesToSearch'];
             $this->exludeIDs          = $settings['excludeIDs'];
 		};
+        // rewrite only for posts that are in settings
+        $postID = (int) \get_the_ID();
+        $exclude = \in_array( $postID, $this->exludeIDs, true);
+        $this->doRewrite        = in_array( $this->posttype, $this->postTypes, true ) && ! $exclude;
 
 		foreach ( $this->hrefTypes as $type ) {
 			switch ( strtolower( $type ) ) {
@@ -154,6 +157,34 @@ final class RewriteFigureTags {
 		return array( $classFound, $isVideo );
 	}
 
+    /**
+	 * Find the Css-Class in parent of the figure as DOM-Elemnet.
+	 *
+	 * @param  object $figure the class-attribute as DOM-Object
+	 * @return bool
+	 */
+	private function parentFindCssClass( object $figure ) {
+		$classFound = false;
+		$search     = '';
+        $parent     = $figure->parentNode;
+        if (is_null( $parent )) {
+            return $classFound;
+        }
+        $class      = $parent->getAttribute('class');
+
+		foreach ( $this->cssClassesToSearch as $search ) {
+			$classFound = 0;
+			$classFound = strpos( $class, $search );
+			if ( $classFound !== false ) {
+				$classFound = true;
+				break;
+			}
+		}
+		
+		return $classFound;
+	}
+
+
 	/**
 	 * enqueue the fslightbox.js script as basic or paid version, if available
 	 *
@@ -182,10 +213,8 @@ final class RewriteFigureTags {
 	 * @return string the altered $content of the page post to show in browser
 	 */
 	public function lightbox_gallery_for_gutenberg( $content ) {
-        $postID = (int) \get_the_ID();
-        $exclude = \in_array( $postID, $this->exludeIDs, true);
-
-		if ( (! $this->doRewrite) || ( $exclude ) ) {
+        
+		if ( ! $this->doRewrite ) {
 			return $content;
 		}
 
@@ -218,6 +247,12 @@ final class RewriteFigureTags {
 			$item                   = null;
 			$dataType               = '';
             $videoThumb             = null;
+            $hrefParent             = null;
+            
+            if ( ! $classFound ) {
+                $classInParent = $this->parentFindCssClass( $figure );
+                $classFound    = $classInParent;
+            }
 
 			// provide item, $dataType, $isMediaFile, $hasHref from $figure, $classFound, $isVideo
 			if ( $classFound && ! $isVideo ) {

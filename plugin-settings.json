@@ -16,5 +16,7 @@
         "wp-block-video",
         "postie-image"
     ],
-    "excludeIDs": []
+    "excludeIDs": [
+        0
+    ]
 }
