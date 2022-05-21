@@ -236,7 +236,7 @@ final class RewriteFigureTags {
 			$parent = $image->parentNode->parentNode; // todo: what if there is no a tag? Ignore, because wont't work anyway?
 			$tag    = $parent->tagName;
             $class  = $parent->getAttribute('class');
-			if ( ( $tag === 'div' ) && ( $class === 'postie-image-div' ) ) {
+			if ( ( $tag === 'div' ) && ( $class === 'postie-image-div' ) ) { // TODO: add further classes?
 				$allFigures->append( $parent );
 			}
 		}

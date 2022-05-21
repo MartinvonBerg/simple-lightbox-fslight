@@ -4,7 +4,7 @@ Contributors: Martin von Berg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg
 Requires at least: 5.9
-Tested up to: 5.9.3
+Tested up to: 6.0
 Stable tag: 1.1.0
 Requires PHP: 7.3
 License: GPLv2 or later
