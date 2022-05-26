@@ -59,6 +59,9 @@ Example lightbox.
 
 == Changelog ==
 
+= 1.1.1 =
+* Test with WP 6.0. No changes.
+
 = 1.1.0 =
 * Added a Setting to exclude certain IDs (post or page or whatever is set)
 * Included the Preview ('poster') of videos in the thumbnails (only paid version will see thumbnails)
