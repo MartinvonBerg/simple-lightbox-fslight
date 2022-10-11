@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.1.1
+ * Version:           1.2.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -210,11 +210,14 @@ final class RewriteFigureTags
             wp_enqueue_script('fslightbox', $path, array(), '3.3.1', true);
         }
 
+        //$path = $slug . '/js/fslightbox_main.js';
+        //wp_enqueue_script('fslightbox_main', $path, array('fslightbox'), '1.2.0', true);
+
         // pass option to the js-script to switch fullscreen of browser off, when lightbox is closed.
-        $jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;";
+        //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;";
         // this option increases the load time with many images.
         //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;fsLightboxInstances['1'].props.showThumbsOnMount = true;";
-        \wp_add_inline_script('fslightbox', $jsFullscreen);
+        //\wp_add_inline_script('fslightbox', $jsFullscreen);
     }
 
     /**

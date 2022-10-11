@@ -59,6 +59,9 @@ Example lightbox.
 
 == Changelog ==
 
+= 1.2.0 =
+* Test with WP 6.1. No changes.
+
 = 1.1.1 =
 * Test with WP 6.0. No changes.
 
