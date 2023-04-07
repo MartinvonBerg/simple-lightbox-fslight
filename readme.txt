@@ -38,7 +38,7 @@ In the JSON file, you can select which link may already be present on the image 
 
 Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder ./folder-where-the-plugin-is-installed/js/fslightbox-paid. That's it.
 
-= Does plugin has any requirements? =
+= Does the plugin have any requirements? =
 
 No. You can use this plugin with pure WordPress with Gutenberg editor enabled.
 
