@@ -201,13 +201,13 @@ final class RewriteFigureTags
 
         if (is_file($path)) {
             $path = $slug . '/js/fslightbox-paid/fslightbox.js';
-            wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
+            wp_enqueue_script('fslightbox', $path, array(), '3.6.0', true);
         }
 
         $path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
         if (is_file($path)) {
             $path = $slug . '/js/fslightbox-basic/fslightbox.js';
-            wp_enqueue_script('fslightbox', $path, array(), '3.3.1', true);
+            wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
         }
 
         //$path = $slug . '/js/fslightbox_main.js';
