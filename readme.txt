@@ -58,6 +58,9 @@ Example lightbox.
 
 == Changelog ==
 
+= 1.3.1 =
+= Added an aria-label to the button for accessibility and lighthouse tests. Updated Unit-Tests successfully. No functional change.
+
 = 1.3.0 =
 * Update of fslightbox.js (basic, free version) to 3.4.1. Download from: https://fslightbox.com/fslightbox/javascript/fslightbox-basic-3.4.1.zip
 * Test with WP 6.2. 

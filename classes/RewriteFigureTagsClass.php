@@ -311,13 +311,17 @@ final class RewriteFigureTags
                 $a = $dom->createElement('a');
                 $a->setAttribute('data-fslightbox', '1');
                 $a->setAttribute('data-type', $dataType);
+                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
+
                 if (!is_null($caption)) {
                     $text = $caption->getNodeValue();
                     $a->setAttribute('data-caption', $text);
                 }
+
                 if (!empty($videoThumb)) {
                     $a->setAttribute('data-thumb', $videoThumb);
                 }
+
                 $a->setAttribute('href', $item->getAttribute('src'));
                 $a->appendChild($item);
 
