@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.3.0
+ * Version:           1.3.1
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -211,7 +211,7 @@ final class RewriteFigureTags
         }
 
         //$path = $slug . '/js/fslightbox_main.js';
-        //wp_enqueue_script('fslightbox_main', $path, array('fslightbox'), '1.3.0', true);
+        //wp_enqueue_script('fslightbox_main', $path, array('fslightbox'), '1.3.1', true);
 
         // pass option to the js-script to switch fullscreen of browser off, when lightbox is closed.
         //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;";
