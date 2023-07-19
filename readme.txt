@@ -15,7 +15,7 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-STATUS: The upload to the WordPress Plugin directory is still pending. The Plugin won't be maintained until End of 09 / 2023. Tests with WordPress 6.3 will be done later.
+STATUS: The Plugin won't be maintained until End of 09 / 2023. Tests with WordPress 6.3 will be done later.
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
