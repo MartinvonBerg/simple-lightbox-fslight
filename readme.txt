@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg
 Requires at least: 5.9
 Tested up to: 6.2
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -17,7 +17,7 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
-Available Settings are provided by a JSON-file that may be easily changed and backed-up.
+Available Settings are provided by a JSON-file that may be easily changed and backed-up manually.
 
 Just create gallery by using "gallery" block and use lightbox gallery effect powered by fslightbox.js.
 
@@ -57,6 +57,9 @@ Example lightbox.
 
 
 == Changelog ==
+
+= 1.3.2 =
+= Added PHP type definitions.
 
 = 1.3.1 =
 = Added an aria-label to the button for accessibility and lighthouse tests. Updated Unit-Tests successfully. No functional change.

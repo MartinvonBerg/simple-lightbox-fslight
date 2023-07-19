@@ -6,7 +6,7 @@
  * Plugin Name:       Simple Lightbox with fslightbox
  * Plugin URI:        https://github.com/MartinvonBerg/simple-lightbox-fslight
  * Description:       An easy way to create lightbox effect for WordPress Gutenberg images, galleries and Media-Text-Block. Settings provided with json-File in Plugin-Folder, see there and Readme.
- * Version:           1.3.1
+ * Version:           1.3.2
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -32,7 +32,7 @@ add_filter('the_content', '\mvbplugins\fslightbox\wrapClass', 10, 1);
  * @param  string $content the content of the page / post to adopt with fslightbox
  * @return string the altered $content of the page post to show in browser
  */
-function wrapClass(string $content)
+function wrapClass(string $content): string
 {
     $rewrite = new RewriteFigureTags();
     $new     = $rewrite->lightbox_gallery_for_gutenberg($content);

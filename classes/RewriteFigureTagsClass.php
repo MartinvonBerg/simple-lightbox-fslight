@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.3.1
+ * Version:           1.3.2
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -142,7 +142,7 @@ final class RewriteFigureTags
      * @param  string $class the class-attribute as string
      * @return array{bool, bool}
      */
-    private function findCssClass(string $class)
+    private function findCssClass(string $class): array
     {
         $classFound = false;
         $isVideo    = false;
@@ -166,11 +166,11 @@ final class RewriteFigureTags
      * @param  object $figure the class-attribute as DOM-Object
      * @return bool
      */
-    private function parentFindCssClass(object $figure)
+    private function parentFindCssClass(object $figure): bool
     {
         $classFound = false;
         $search     = '';
-        $parent     = $figure->parentNode;
+        $parent     = $figure->parentNode; // @phpstan-ignore-line
         if (is_null($parent)) {
             return $classFound;
         }
@@ -194,7 +194,7 @@ final class RewriteFigureTags
      *
      * @return void
      */
-    private function my_enqueue_script()
+    private function my_enqueue_script(): void
     {
         $path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
         $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
@@ -226,7 +226,7 @@ final class RewriteFigureTags
      * @param  string $content the content of the page / post to adopt with fslightbox
      * @return string the altered $content of the page post to show in browser
      */
-    public function lightbox_gallery_for_gutenberg($content)
+    public function lightbox_gallery_for_gutenberg(string $content): string
     {
 
         if (!$this->doRewrite) {
