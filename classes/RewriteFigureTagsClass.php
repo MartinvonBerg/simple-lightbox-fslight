@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.3.2
+ * Version:           1.3.3
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -139,8 +139,9 @@ final class RewriteFigureTags
     /**
      * Find the Css-Class from settings in the class-attribute.
      *
-     * @param  string $class the class-attribute as string
-     * @return array{bool, bool}
+     * @param string $class The class-attribute as a string.
+     * @return array{bool,bool} An array containing a boolean indicating whether the class was found
+     * and a boolean indicating whether it is a video class.
      */
     private function findCssClass(string $class): array
     {
@@ -190,7 +191,7 @@ final class RewriteFigureTags
 
 
     /**
-     * enqueue the fslightbox.js script as basic or paid version, if available
+     * Enqueues the fslightbox.js script as basic or paid version, if available.
      *
      * @return void
      */
@@ -209,15 +210,6 @@ final class RewriteFigureTags
             $path = $slug . '/js/fslightbox-basic/fslightbox.js';
             wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
         }
-
-        //$path = $slug . '/js/fslightbox_main.js';
-        //wp_enqueue_script('fslightbox_main', $path, array('fslightbox'), '1.3.1', true);
-
-        // pass option to the js-script to switch fullscreen of browser off, when lightbox is closed.
-        //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;";
-        // this option increases the load time with many images.
-        //$jsFullscreen = "fsLightboxInstances['1'].props.exitFullscreenOnClose = true;fsLightboxInstances['1'].props.showThumbsOnMount = true;";
-        //\wp_add_inline_script('fslightbox', $jsFullscreen);
     }
 
     /**

@@ -4,8 +4,8 @@ Contributors: Martin von Berg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg
 Requires at least: 5.9
-Tested up to: 6.2
-Stable tag: 1.3.2
+Tested up to: 6.3
+Stable tag: 1.3.3
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,7 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-STATUS: The Plugin won't be maintained until End of 09 / 2023. Tests with WordPress 6.3 will be done later.
+REMINDER: Save your settings.json prior to Plugin-Update.
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
@@ -59,6 +59,10 @@ Example lightbox.
 
 
 == Changelog ==
+
+= 1.3.3 =
+= Some changes for WPCS rules and code reformatting. No functional change. Updated HTML5DOMDocument.php from github.
+= Test with WordPress 6.3. Save and Restore function for settings before Update not realized. Save your settings before update.
 
 = 1.3.2 =
 = Added PHP type definitions.

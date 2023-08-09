@@ -13,6 +13,10 @@ use IvoPetkov\HTML5DOMDocument\Internal\QuerySelectors;
 
 /**
  * Represents a live (can be manipulated) representation of a HTML5 document.
+ * 
+ * @method \IvoPetkov\HTML5DOMElement|false createElement(string $localName, string $value = '') Create new element node.
+ * @method \IvoPetkov\HTML5DOMElement|false createElementNS(?string $namespace, string $qualifiedName, string $value = '') Create new element node with an associated namespace.
+ * @method ?\IvoPetkov\HTML5DOMElement getElementById(string $elementId) Searches for an element with a certain id.
  */
 class HTML5DOMDocument extends \DOMDocument
 {
@@ -48,6 +52,11 @@ class HTML5DOMDocument extends \DOMDocument
      * A modification (passed to modify()) that moves charset metatag and title elements first.
      */
     const OPTIMIZE_HEAD = 32;
+
+    /**
+     * A modification (passed to modify()) that removes all but first styles with duplicate content.
+     */
+    const FIX_DUPLICATE_STYLES = 64;
 
     /**
      *
@@ -169,6 +178,7 @@ class HTML5DOMDocument extends \DOMDocument
                 break;
             }
         }
+        /** @var HTML5DOMElement|null */
         $metaTagElement = $this->getElementsByTagName('meta')->item(0);
         if ($metaTagElement !== null) {
             if ($metaTagElement->getAttribute('data-html5-dom-document-internal-attribute') === 'charset-meta') {
@@ -607,6 +617,7 @@ class HTML5DOMDocument extends \DOMDocument
      *  - HTML5DOMDocument::FIX_MULTIPLE_HEADS - merges multiple head elements.
      *  - HTML5DOMDocument::FIX_MULTIPLE_BODIES - merges multiple body elements.
      *  - HTML5DOMDocument::OPTIMIZE_HEAD - moves charset metatag and title elements first.
+     *  - HTML5DOMDocument::FIX_DUPLICATE_STYLES - removes all but first styles with duplicate content.
      */
     public function modify($modifications = 0)
     {
@@ -616,7 +627,9 @@ class HTML5DOMDocument extends \DOMDocument
         $fixMultipleHeads = ($modifications & self::FIX_MULTIPLE_HEADS) !== 0;
         $fixMultipleBodies = ($modifications & self::FIX_MULTIPLE_BODIES) !== 0;
         $optimizeHead = ($modifications & self::OPTIMIZE_HEAD) !== 0;
+        $fixDuplicateStyles = ($modifications & self::FIX_DUPLICATE_STYLES) !== 0;
 
+        /** @var \DOMNodeList<HTML5DOMElement> */
         $headElements = $this->getElementsByTagName('head');
 
         if ($fixMultipleHeads) { // Merges multiple head elements.
@@ -688,6 +701,27 @@ class HTML5DOMDocument extends \DOMDocument
                         }
                     }
                 }
+            }
+
+            if ($fixDuplicateStyles) {
+                $styles = $headElement->getElementsByTagName('style');
+                if ($styles->length > 0) {
+                    $stylesToRemove = [];
+                    $list = [];
+                    foreach ($styles as $style) {
+                        $innerHTML = trim($style->innerHTML);
+                        if (array_search($innerHTML, $list) === false) {
+                            $list[] = $innerHTML;
+                        } else {
+                            $stylesToRemove[] = $style;
+                        }
+                    }
+                    foreach ($stylesToRemove as $styleToRemove) {
+                        $styleToRemove->parentNode->removeChild($styleToRemove);
+                    }
+                    unset($list);
+                }
+                unset($styles);
             }
 
             if ($optimizeHead) { // Moves charset metatag and title elements first.
