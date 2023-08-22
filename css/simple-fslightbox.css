@@ -1,0 +1,17 @@
+.yt-button-simple-fslb-mvb {
+    content: url('../css/icon-fullscreen-white.png') !important;
+    z-index: 20;
+    position: absolute;
+    height: auto;
+    width: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+    background: #f50505af;
+    border-radius: 4px;
+}
+
+.yt-button-simple-fslb-mvb:hover {
+    -webkit-box-shadow: 1px 3px 14px 0px rgba(0, 0, 0, 0.68);
+    box-shadow: 1px 3px 14px 0px rgba(0, 0, 0, 0.68);
+    background: #f50505ff;
+}

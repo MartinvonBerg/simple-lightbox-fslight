@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.3.3
+ * Version:           1.4.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -147,6 +147,7 @@ final class RewriteFigureTags
     {
         $classFound = false;
         $isVideo    = false;
+        $isEmbed = false;
         $search     = '';
 
         foreach ($this->cssClassesToSearch as $search) {
@@ -157,8 +158,16 @@ final class RewriteFigureTags
                 break;
             }
         }
-        $isVideo = ((strpos($search, 'video') !== false) && $classFound) ? true : false; // works because $search is set to last key.
-        return array($classFound, $isVideo);
+
+        if (((strpos($search, 'video') !== false) || (strpos($search, 'youtube') !== false)) && $classFound) { // works only because $search is set to last key after break in for-loop
+            $isVideo = true;
+        };
+
+        if ($isVideo && (strpos($search, 'youtube') !== false) && $classFound) { // works only because $search is set to last key after break in for-loop
+            $isEmbed = true;
+        };
+
+        return array($classFound, $isVideo, $isEmbed);
     }
 
     /**
@@ -189,7 +198,6 @@ final class RewriteFigureTags
         return $classFound;
     }
 
-
     /**
      * Enqueues the fslightbox.js script as basic or paid version, if available.
      *
@@ -209,6 +217,22 @@ final class RewriteFigureTags
         if (is_file($path)) {
             $path = $slug . '/js/fslightbox-basic/fslightbox.js';
             wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
+        }
+    }
+
+    /**
+     * Enqueues the simple-fslightbox.css style.
+     *
+     * @return void
+     */
+    private function my_enqueue_style(): void
+    {
+        $path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
+        $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
+
+        if (is_file($path)) {
+            $path = $slug . '/css/simple-fslightbox.css';
+            wp_enqueue_style('simple-fslightbox-css', $path, array(), '1.4.0', 'all');
         }
     }
 
@@ -247,8 +271,7 @@ final class RewriteFigureTags
 
             $class                  = $figure->getAttribute('class');
             $tagType                = $figure->tagName;
-            $classFound             = false;
-            [$classFound, $isVideo] = $this->findCssClass($class);
+            [$classFound, $isVideo, $isEmbed] = $this->findCssClass($class);
             $isMediaFile            = false;
             $hasHref                = false;
             $item                   = null;
@@ -287,14 +310,17 @@ final class RewriteFigureTags
                         $isMediaFile = true;
                     }
                 }
-            } elseif ($isVideo) {
+            } elseif ($classFound && $isVideo && !$isEmbed) {
                 $item     = $figure->querySelector('video');
                 $videoThumb   = $item->getAttribute('poster');
+                $dataType = 'video';
+            } elseif ($classFound && $isVideo && $isEmbed) {
+                $item = $figure->querySelector('iframe');
                 $dataType = 'video';
             }
 
             // create new dom-element and append to dom
-            if (($classFound) && (!is_null($item)) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia) || $isVideo)) {
+            if (($classFound) && (!is_null($item)) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia) || $isVideo) && !$isEmbed) {
                 $caption = $figure->querySelector('figcaption');
 
                 $newfigure = $dom->createElement($tagType);
@@ -325,11 +351,51 @@ final class RewriteFigureTags
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
                 $nFound += 1;
+            } elseif (($classFound) && !is_null($item) && $isVideo && $isEmbed) {
+                // prepare YouTube Videos here
+                $newfigure = $dom->createElement($tagType);
+                $newfigure->setAttribute('class', $class);
+
+                $a = $dom->createElement('a');
+                $a->setAttribute('data-fslightbox', '1');
+                //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
+                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
+
+                $href = $item->getAttribute('src');
+                $href = explode('?', $href)[0];
+                $a->setAttribute('href', $href);
+
+                // get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. 
+                // source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
+                $ytID = explode('/', $href);
+                $ytID = end($ytID);
+                $videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
+
+                // Use get_headers() function
+                $headers = @get_headers($videoThumbUrl);
+
+                // Use condition to check the existence of URL
+                if ($headers && strpos($headers[0], '200')) {
+                    $a->setAttribute('data-thumb', $videoThumbUrl);
+                }
+
+                // create the button to open the lightbox
+                $lbdiv = $dom->createElement('div');
+                $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
+
+                $a->appendChild($lbdiv);
+                $newfigure->appendChild($a);
+                $newfigure->appendChild($item);
+
+
+                $figure->parentNode->replaceChild($newfigure, $figure);
+                $nFound += 1;
             }
         }
 
         if ($nFound > 0) {
             $this->my_enqueue_script();
+            $this->my_enqueue_style();
         }
 
         return $dom->saveHTML();

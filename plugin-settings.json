@@ -14,7 +14,8 @@
         "wp-block-image",
         "wp-block-media-text",
         "wp-block-video",
-        "postie-image"
+        "postie-image",
+        "wp-block-embed-youtube"
     ],
     "excludeIDs": [
         0

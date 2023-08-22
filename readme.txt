@@ -1,11 +1,11 @@
 === Simple Lightbox for WordPress ===
 Plugin Name: Simple Lightbox with fslightbox
-Contributors: Martin von Berg
+Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
-Tags: lightbox, gallery, fslightbox, Gutenberg
+Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
 Tested up to: 6.3
-Stable tag: 1.3.3
+Stable tag: 1.4.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -15,7 +15,10 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-REMINDER: Save your settings.json prior to Plugin-Update.
+REMINDER: Save your file ```settings.json``` prior to Plugin-Update.
+
+NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
+Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```settings.json```. If you do so please delete the comma at the end of the line before, too!
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
@@ -54,40 +57,44 @@ No. Plugin just uses fslightbox.js. Free or paid version optionally.
 
 
 == Screenshots ==
-
 Example lightbox.
 
+== Upgrade Notice ==
+Upgrade to 1.4.0+ if you want support for Youtube Videos. Otherwise no upgrade is required.
 
 == Changelog ==
 
+= 1.4.0 =
+Added support for Youtube-Videos.
+
 = 1.3.3 =
-= Some changes for WPCS rules and code reformatting. No functional change. Updated HTML5DOMDocument.php from github.
-= Test with WordPress 6.3. Save and Restore function for settings before Update not realized. Save your settings before update.
+Some changes for WPCS rules and code reformatting. No functional change. Updated HTML5DOMDocument.php from github.
+Test with WordPress 6.3. Save and Restore function for settings before Update not realized. Save your settings before update.
 
 = 1.3.2 =
-= Added PHP type definitions.
+Added PHP type definitions.
 
 = 1.3.1 =
-= Added an aria-label to the button for accessibility and lighthouse tests. Updated Unit-Tests successfully. No functional change.
+Added an aria-label to the button for accessibility and lighthouse tests. Updated Unit-Tests successfully. No functional change.
 
 = 1.3.0 =
-* Update of fslightbox.js (basic, free version) to 3.4.1. Download from: https://fslightbox.com/fslightbox/javascript/fslightbox-basic-3.4.1.zip
-* Test with WP 6.2. 
+Update of fslightbox.js (basic, free version) to 3.4.1. Download from: https://fslightbox.com/fslightbox/javascript/fslightbox-basic-3.4.1.zip
+Test with WP 6.2. 
 
 = 1.2.0 =
-* Test with WP 6.1. No changes.
+Test with WP 6.1. No changes.
 
 = 1.1.1 =
-* Test with WP 6.0. No changes.
+Test with WP 6.0. No changes.
 
 = 1.1.0 =
-* Added a Setting to exclude certain IDs (post or page or whatever is set)
-* Included the Preview ('poster') of videos in the thumbnails (only paid version will see thumbnails)
-* Included a logic for old Gutenberg images with div-tag figure-tag img-tag... structure where the class is defined in the div.
-* Bugfixes: Corrected the generated html for Media-Text and for images with a link in their caption
+Added a Setting to exclude certain IDs (post or page or whatever is set)
+Included the Preview ('poster') of videos in the thumbnails (only paid version will see thumbnails)
+Included a logic for old Gutenberg images with div-tag figure-tag img-tag... structure where the class is defined in the div.
+Bugfixes: Corrected the generated html for Media-Text and for images with a link in their caption
 
 = 1.0.0 =
-* First Version based on Lightbox Gallery by Kodefix.
+First Version based on Lightbox Gallery by Kodefix.
 
 
 == Plugin uses ==
