@@ -20,6 +20,7 @@ REMINDER: Save your file ```settings.json``` prior to Plugin-Update.
 NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
+The support for Youtube-Videos is working with the given functionality. So, the videos are running independently. fslightbox provides no option to stop / restart on open / close.
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 

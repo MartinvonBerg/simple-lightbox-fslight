@@ -15,6 +15,10 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
+// TBD: open YT video at the current time, if it is already running and play only one video at time. and do the same on close. open only one video. So, if running in fullscreen do switch to that tab?
+//      see: https://stackoverflow.com/questions/6970013/getting-current-youtube-video-time
+//      and: https://github.com/banthagroup/fslightbox/issues/103, function managaAutoplay
+
 namespace mvbplugins\fslightbox;
 
 // fallback for WordPress security
