@@ -66,7 +66,7 @@ final class RewriteFigureTags
         'postie-image',
     );
 
-    protected $exludeIDs = array();
+    protected $excludeIds = array();
 
     /*
 	// PHP 7.4 version
@@ -96,7 +96,7 @@ final class RewriteFigureTags
     /**
      * @var excludeIDs
      */
-    //  protected array $exludeIDs = array();
+    //  protected array $excludeIds = array();
 
     /**
      * Do settings for the class. Load from json-settings-file.
@@ -115,11 +115,11 @@ final class RewriteFigureTags
             $this->hrefTypes          = $settings['hrefTypes'];
             $this->postTypes          = $settings['postTypes'];
             $this->cssClassesToSearch = $settings['cssClassesToSearch'];
-            $this->exludeIDs          = $settings['excludeIDs'];
+            $this->excludeIds          = $settings['excludeIDs'];
         };
         // rewrite only for posts that are in settings
         $postID = (int) \get_the_ID();
-        $exclude = \in_array($postID, $this->exludeIDs, true);
+        $exclude = \in_array($postID, $this->excludeIds, true);
         $this->doRewrite        = in_array($this->posttype, $this->postTypes, true) && !$exclude;
 
         foreach ($this->hrefTypes as $type) {
@@ -171,7 +171,7 @@ final class RewriteFigureTags
     }
 
     /**
-     * Find the Css-Class in parent of the figure as DOM-Elemnet.
+     * Find the Css-Class in parent of the figure as DOM-Element.
      *
      * @param  object $figure the class-attribute as DOM-Object
      * @return bool
@@ -304,7 +304,7 @@ final class RewriteFigureTags
                     $header       = \wp_remote_head($href, array('timeout' => 2));
                     $content_type = wp_remote_retrieve_header($header, 'content-type');
                     $isMediaFile  = \strpos($content_type, 'image');
-                    $hasSiteUrl   = \strpos($href, $this->siteUrl); // only shows lokal files in lightbox
+                    $hasSiteUrl   = \strpos($href, $this->siteUrl); // only shows local files in lightbox (except YouTube videos)
                     $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
                     if (($isMediaFile !== false) && ($hasSiteUrl !== false)) {
                         $isMediaFile = true;

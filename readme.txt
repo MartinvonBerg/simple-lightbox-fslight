@@ -67,7 +67,7 @@ Upgrade to 1.4.0+ if you want support for Youtube Videos. Otherwise no upgrade i
 == Changelog ==
 
 = 1.4.0 =
-Added support for Youtube-Videos.
+Added support for Youtube-Videos. (The access to the YT-JS-API is not feasible for me to CORS-Policy, so the trial to sync the running videos was stopped.)
 
 = 1.3.3 =
 Some changes for WPCS rules and code reformatting. No functional change. Updated HTML5DOMDocument.php from github.
