@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
 Tested up to: 6.3
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -62,9 +62,12 @@ No. Plugin just uses fslightbox.js. Free or paid version optionally.
 Example lightbox.
 
 == Upgrade Notice ==
-Upgrade to 1.4.0+ if you want support for Youtube Videos. Otherwise no upgrade is required.
+Upgrade to 1.5.0+ if you want support for Youtube Videos. Otherwise no upgrade is required.
 
 == Changelog ==
+
+= 1.5.0 =
+Added JS to pause all running videos on Open of lightbox and pause current video on slide change.
 
 = 1.4.0 =
 Added support for Youtube-Videos. (The access to the YT-JS-API is not feasible for me to CORS-Policy, so the trial to sync the running videos was stopped.)

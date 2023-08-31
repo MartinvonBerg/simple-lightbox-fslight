@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.4.0
+ * Version:           1.5.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
@@ -218,6 +218,9 @@ final class RewriteFigureTags
             $path = $slug . '/js/fslightbox-basic/fslightbox.js';
             wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
         }
+
+        $path = $slug . '/js/simple-lightbox.js';
+        wp_enqueue_script('yt-script', $path, array('fslightbox'), '1.5.0', true);
     }
 
     /**
@@ -232,7 +235,7 @@ final class RewriteFigureTags
 
         if (is_file($path)) {
             $path = $slug . '/css/simple-fslightbox.css';
-            wp_enqueue_style('simple-fslightbox-css', $path, array(), '1.4.0', 'all');
+            wp_enqueue_style('simple-fslightbox-css', $path, array(), '1.5.0', 'all');
         }
     }
 
@@ -362,6 +365,9 @@ final class RewriteFigureTags
                 $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
                 $href = $item->getAttribute('src');
+                $ytHref = $href; // feature=oembed
+                $ytHref = \str_replace('feature=oembed', 'feature=oembed&enablejsapi=1', $ytHref);
+                $item->setAttribute('src', $ytHref);
                 $href = explode('?', $href)[0];
                 $a->setAttribute('href', $href);
 
@@ -386,7 +392,6 @@ final class RewriteFigureTags
                 $a->appendChild($lbdiv);
                 $newfigure->appendChild($a);
                 $newfigure->appendChild($item);
-
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
                 $nFound += 1;
