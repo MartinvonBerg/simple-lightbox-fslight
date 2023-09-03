@@ -52,16 +52,15 @@
         var sources = instance.elements.sources;
         for (var i = 0; i < sources.length; i++) {
             var source = sources[i];
-            if (!source) {
-                continue;
-            }
+            if (!source) { continue; }
+
             if (source.tagName === "IFRAME") {
                 // change src tag here
                 var oldSrc = source.src;
+
                 if (!oldSrc.includes('enablejsapi')) {
                     oldSrc = oldSrc + '?enablejsapi=1'; // TODO: assumming that '?' was not removed by fslightbox
-                    let newSrc = oldSrc.replace('??', '?');
-                    source.src = newSrc;
+                    source.src = oldSrc.replace('??', '?');
                 }
             }
         }
