@@ -307,7 +307,7 @@ final class RewriteFigureTags
                     $header       = \wp_remote_head($href, array('timeout' => 2));
                     $content_type = wp_remote_retrieve_header($header, 'content-type');
                     $isMediaFile  = \strpos($content_type, 'image');
-                    $hasSiteUrl   = \strpos($href, $this->siteUrl); // only shows local files in lightbox (except YouTube videos)
+                    $hasSiteUrl   = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
                     $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
                     if (($isMediaFile !== false) && ($hasSiteUrl !== false)) {
                         $isMediaFile = true;
@@ -330,7 +330,7 @@ final class RewriteFigureTags
                 $newfigure->setAttribute('class', $class);
 
                 $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1');
+                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
                 $a->setAttribute('data-type', $dataType);
                 $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
@@ -360,7 +360,7 @@ final class RewriteFigureTags
                 $newfigure->setAttribute('class', $class);
 
                 $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1');
+                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
                 //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
                 $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
@@ -371,8 +371,7 @@ final class RewriteFigureTags
                 $href = explode('?', $href)[0];
                 $a->setAttribute('href', $href);
 
-                // get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. 
-                // source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
+                // get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
                 $ytID = explode('/', $href);
                 $ytID = end($ytID);
                 $videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';

@@ -50,18 +50,17 @@
     function handleOnOpen(instance) {
         // append enablejsapi to youtube src in fslightbox
         var sources = instance.elements.sources;
-        for (var i = 0; i < sources.length; i++) {
-            var source = sources[i];
-            if (!source) {
-                continue;
-            }
-            if (source.tagName === "IFRAME") {
-                // change src tag here
-                var oldSrc = source.src;
+
+        for (let source of sources) {
+            if (source && source.tagName === "IFRAME") {
+                let oldSrc = source.src;
                 if (!oldSrc.includes('enablejsapi')) {
-                    oldSrc = oldSrc + '?enablejsapi=1'; // TODO: assumming that '?' was not removed by fslightbox
-                    let newSrc = oldSrc.replace('??', '?');
-                    source.src = newSrc;
+                    oldSrc = oldSrc + (oldSrc.includes('?') ? '' : '?') + 'enablejsapi=1';
+                    source.src = oldSrc;
+                }
+                if (oldSrc.includes('youtube')) {
+                    oldSrc = oldSrc.replace('youtube', 'youtube-nocookie')
+                    source.src = oldSrc;
                 }
             }
         }
@@ -70,8 +69,6 @@
         try {
             // Call the function to stop all YouTube videos
             stopAllYouTubeVideos();
-            // Log a success message
-            //console.log('All YouTube videos stopped.');
         } catch (error) {
             // If there's an error, log the error message
             console.error(error.message);
@@ -84,26 +81,22 @@
     /**
      * function that pauses a running youtube video in opened fslightbox on slide change with postMessage
      */
-    function handleOnSlideChange(instance) {
-
-        // Get the current slide index which was running until arrow was clicked
-        const currentSlideIndex = instance.stageIndexes.previous;
-
-        // Get the YouTube video iframe element
-        const currentSource = instance.elements.sources[currentSlideIndex];
-
-        // Check if the YouTube video iframe exists
-        if (currentSource && currentSource.src.includes('youtube.com')) {
-            // Send a postMessage to the YouTube video iframe to stop the video
-            currentSource.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', "*");
-        } else if (currentSource && currentSource.tagName === "VIDEO") {
-            // stop other running videos
-            currentSource.pause();
-        }
+    function handleOnSlideChange() {
+        stopAllYouTubeVideos();
+        stopAllHTMLVideos();
     }
+    /*
+    document.addEventListener('click', function (event) {
 
+        // If the clicked element doesn't have the right selector, bail
+        if (event.target.parentElement.parentElement.className.includes('fslightbox-slide-btn') || event.target.parentElement.parentElement.className.includes('fslightbox-thumbs-inner')) {
+            handleOnSlideChange();
+        } else return;
+
+    }, false);
+    */
     fsLightboxInstances['1'].props.onOpen = handleOnOpen;
-    fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange;
+    fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange; // not available in free version of fslightbox
 
 })(window, document);
 

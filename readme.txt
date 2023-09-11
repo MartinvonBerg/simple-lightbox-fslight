@@ -15,18 +15,16 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-REMINDER: Save your file ```settings.json``` prior to Plugin-Update.
+REMINDER: Save your file ```plugin-settings.json``` prior to Plugin-Update.
+
+Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
+The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually.
+E.g., just create gallery by using Gutenberg gallery block and use lightbox gallery effect powered by fslightbox.js.
 
 NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
-Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```settings.json```. If you do so please delete the comma at the end of the line before, too!
+Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
 The support for Youtube-Videos is working with the given functionality. So, the videos are running independently. fslightbox provides no option to stop / restart on open / close.
-
-Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install and activate and use it.
-The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
-Available Settings are provided by a JSON-file that may be easily changed and backed-up manually.
-
-Just create gallery by using "gallery" block and use lightbox gallery effect powered by fslightbox.js.
 
 
 == Frequently Asked Questions ==
@@ -62,7 +60,7 @@ No. Plugin just uses fslightbox.js. Free or paid version optionally.
 Example lightbox.
 
 == Upgrade Notice ==
-Upgrade to 1.5.0+ if you want support for Youtube Videos. Otherwise no upgrade is required.
+Upgrade to 1.5.0+ if you want support for Youtube Videos. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
 
 == Changelog ==
 
