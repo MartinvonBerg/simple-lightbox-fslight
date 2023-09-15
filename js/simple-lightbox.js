@@ -50,7 +50,6 @@
     function handleOnOpen(instance) {
         // append enablejsapi to youtube src in fslightbox
         var sources = instance.elements.sources;
-<<<<<<< HEAD
 
         for (let source of sources) {
             if (source && source.tagName === "IFRAME") {
@@ -62,19 +61,6 @@
                 if (oldSrc.includes('youtube')) {
                     oldSrc = oldSrc.replace('youtube', 'youtube-nocookie')
                     source.src = oldSrc;
-=======
-        for (var i = 0; i < sources.length; i++) {
-            var source = sources[i];
-            if (!source) { continue; }
-
-            if (source.tagName === "IFRAME") {
-                // change src tag here
-                var oldSrc = source.src;
-
-                if (!oldSrc.includes('enablejsapi')) {
-                    oldSrc = oldSrc + '?enablejsapi=1'; // TODO: assumming that '?' was not removed by fslightbox
-                    source.src = oldSrc.replace('??', '?');
->>>>>>> 6b5f6693fd5c0845716ee2aa11c0f84b6b575f27
                 }
             }
         }
