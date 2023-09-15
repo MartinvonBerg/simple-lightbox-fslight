@@ -50,6 +50,19 @@
     function handleOnOpen(instance) {
         // append enablejsapi to youtube src in fslightbox
         var sources = instance.elements.sources;
+<<<<<<< HEAD
+
+        for (let source of sources) {
+            if (source && source.tagName === "IFRAME") {
+                let oldSrc = source.src;
+                if (!oldSrc.includes('enablejsapi')) {
+                    oldSrc = oldSrc + (oldSrc.includes('?') ? '' : '?') + 'enablejsapi=1';
+                    source.src = oldSrc;
+                }
+                if (oldSrc.includes('youtube')) {
+                    oldSrc = oldSrc.replace('youtube', 'youtube-nocookie')
+                    source.src = oldSrc;
+=======
         for (var i = 0; i < sources.length; i++) {
             var source = sources[i];
             if (!source) { continue; }
@@ -61,6 +74,7 @@
                 if (!oldSrc.includes('enablejsapi')) {
                     oldSrc = oldSrc + '?enablejsapi=1'; // TODO: assumming that '?' was not removed by fslightbox
                     source.src = oldSrc.replace('??', '?');
+>>>>>>> 6b5f6693fd5c0845716ee2aa11c0f84b6b575f27
                 }
             }
         }
@@ -87,17 +101,15 @@
     }
     /*
     document.addEventListener('click', function (event) {
-
+ 
         // If the clicked element doesn't have the right selector, bail
         if (event.target.parentElement.parentElement.className.includes('fslightbox-slide-btn') || event.target.parentElement.parentElement.className.includes('fslightbox-thumbs-inner')) {
             handleOnSlideChange();
         } else return;
-
+ 
     }, false);
     */
     fsLightboxInstances['1'].props.onOpen = handleOnOpen;
     fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange; // not available in free version of fslightbox
 
 })(window, document);
-
-
