@@ -55,8 +55,8 @@ Yes. Lightbox is fully responsive - it scales to every device.
 
 No. Plugin just uses fslightbox.js. Free or paid version optionally.
 
-= Does the plugin backup and restore my plugin-setings.json? =
-Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the files have to be on your server already. So, with this update it is the last time you have to save your files. The scripts creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server.
+= Does the plugin backup and restore my plugin-setings.json and my paid Version of fslightbox? =
+Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the files have to be on your server already. So, with this update it is the last time you have to save your files. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
 
 
 == Screenshots ==
