@@ -8,14 +8,16 @@
         "page",
         "post",
         "home",
-        "front"
+        "front",
+        "gallery-piece"
     ],
     "cssClassesToSearch": [
         "wp-block-image",
         "wp-block-media-text",
         "wp-block-video",
         "postie-image",
-        "wp-block-embed-youtube"
+        "wp-block-embed-youtube",
+        "wp-block-post-featured-image"
     ],
     "excludeIDs": [
         0
