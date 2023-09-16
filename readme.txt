@@ -15,7 +15,7 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-REMINDER: Save your file ```plugin-settings.json``` prior to Plugin-Update.
+REMINDER: Save your file ```plugin-settings.json``` prior to Plugin-Update. The Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates. So, with this update it is the last time you have to save your files.
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
 The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually.
@@ -55,17 +55,21 @@ Yes. Lightbox is fully responsive - it scales to every device.
 
 No. Plugin just uses fslightbox.js. Free or paid version optionally.
 
+= Does the plugin backup and restore my plugin-setings.json? =
+Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates to V1.6+ because the files have to be on your server . So, with this update it is the last time you have to save your files. The scripts creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update
+
 
 == Screenshots ==
 Example lightbox.
 
 == Upgrade Notice ==
-Upgrade to 1.5.0+ if you want support for Youtube Videos. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
+Upgrade to 1.5.0+ if you want support for Youtube Videos or want to have your settings restored automatically. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
 
 == Changelog ==
 
 = 1.5.0 =
 Added JS to pause all running videos on Open of lightbox and pause current video on slide change.
+Added backup / restore logic for plugin-settings.json and fslightbox-paid files. 
 
 = 1.4.0 =
 Added support for Youtube-Videos. (The access to the YT-JS-API is not feasible for me to CORS-Policy, so the trial to sync the running videos was stopped.)
