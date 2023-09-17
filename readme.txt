@@ -24,14 +24,23 @@ E.g., just create gallery by using Gutenberg gallery block and use lightbox gall
 NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
-The support for Youtube-Videos is working with the given functionality. So, the videos are running independently. fslightbox provides no option to stop / restart on open / close.
+
+The support for Youtube-Videos is working with the given functionality. So, the videos are running independently. fslightbox provides no option to stop / restart on open / close. (may change in future, see version notices)
 
 
 == Frequently Asked Questions ==
 
 = How does the plugin work? =
 
-Plugin is filtering the content of posts and pages and appends lightbox effect for video, image, gallery and wp-text blocks. It also works for external images or videos that are not on your site.
+Plugin is filtering the content of posts and pages and appends lightbox effect for native Gutenberg-Blocks: Image, Gallery, Media-and-Text, Featured Image, Video and Youtube-Video. It also works for external images or YT-videos that are not on your site.
+
+= What exactly are the preconditions? =
+- It filters the content of the page, post etc (setting: postTypes). Meaning exactly the content that WP stores in the database. (Using the_content filter)
+- All elements in html figure tags and img tags will be filtered and if its CSS-Class is defined in the plugin-settings.json (setting: cssClassesToSearch).
+
+= Will it work with my page builder, Theme, ACF etc.? =
+Maybe, see preconditions above. If your theme provides output that is NOT stored as content in the database it will not work. If your media ( be it image or video ) is not given in a figure tag it will not work. 
+Positive feedback is reported from Beaver Builder, Post Types of Advanced Custom Fields. Negative feedback is given by GeneratePress that generates page content in special elements by the theme files. So, just try if it works and mind the preconditions.
 
 = How to change the plugin settings? =
 
@@ -45,7 +54,7 @@ Yes, you may buy the fslightbox.js an add the file fslightbox.js to the folder .
 
 = Does the plugin have any requirements? =
 
-No. You can use this plugin with pure WordPress with Gutenberg editor enabled.
+No. You can use this plugin with pure WordPress with Gutenberg editor enabled. But mind the preconditions above.
 
 = Is the lightbox responsive? =
 
@@ -55,12 +64,12 @@ Yes. Lightbox is fully responsive - it scales to every device.
 
 No. Plugin just uses fslightbox.js. Free or paid version optionally.
 
-= Does the plugin backup and restore my plugin-setings.json and my paid Version of fslightbox? =
-Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the files have to be on your server already. So, with this update it is the last time you have to save your files. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
+= Does the plugin backup and restore my plugin-settings.json and my paid Version of fslightbox? =
+Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the php-files have to be on your server already. So, with this update it is the last time you have to save your files in advance. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
 
 
 == Screenshots ==
-Example lightbox.
+1. Example lightbox.
 
 == Upgrade Notice ==
 Upgrade to 1.5.0+ if you want support for Youtube Videos or want to have your settings restored automatically. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
