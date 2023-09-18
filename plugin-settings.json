@@ -8,8 +8,7 @@
         "page",
         "post",
         "home",
-        "front",
-        "gallery-piece"
+        "front"
     ],
     "cssClassesToSearch": [
         "wp-block-image",
