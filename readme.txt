@@ -18,14 +18,14 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 REMINDER: Save your file ```plugin-settings.json``` prior to Plugin-Update. The Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates. So, with this update it is the last time you have to save your files.
 
 Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
-The Javascript-library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually.
+The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V1.5.0)
 E.g., just create gallery by using Gutenberg gallery block and use lightbox gallery effect powered by fslightbox.js.
 
 NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
 
-The support for Youtube-Videos is working with the given functionality. So, the videos are running independently. fslightbox provides no option to stop / restart on open / close. (may change in future, see version notices)
+The support for Youtube-Videos is working with the given functionality and extended to stop running videos onOpen and for the paid version to stop running videos on slideChange.
 
 
 == Frequently Asked Questions ==
@@ -67,6 +67,9 @@ No. Plugin just uses fslightbox.js. Free or paid version optionally.
 = Does the plugin backup and restore my plugin-settings.json and my paid Version of fslightbox? =
 Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the php-files have to be on your server already. So, with this update it is the last time you have to save your files in advance. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
 
+= With Youtube-Videos the Browser Console shows Javascript Errors. It it a Problem? =
+Yes, there are errors shown like "The service worker navigation preload request was cancelled before 'preloadResponse' settled. If you intend to use 'preloadResponse', use waitUntil() or respondWith() to wait for the promise to settle". This issue is not solvable by me. If you dislike it: Just delete the JS-File ```simple-lightbox.min.js```. The Video Sync will no longer work after that.
+
 
 == Screenshots ==
 1. Example lightbox.
@@ -77,7 +80,7 @@ Upgrade to 1.5.0+ if you want support for Youtube Videos or want to have your se
 == Changelog ==
 
 = 1.5.0 =
-Added JS to pause all running videos on Open of lightbox and pause current video on slide change.
+Added JS to pause all running videos on Open of lightbox and pause current video on slide change (paid version, only).
 Added backup / restore logic for plugin-settings.json and fslightbox-paid files. 
 
 = 1.4.0 =
