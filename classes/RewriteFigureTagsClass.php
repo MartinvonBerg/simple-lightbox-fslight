@@ -203,7 +203,7 @@ final class RewriteFigureTags
      *
      * @return void
      */
-    private function my_enqueue_script(): void
+    public function my_enqueue_script(): void
     {
         $path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
         $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
@@ -219,8 +219,11 @@ final class RewriteFigureTags
             wp_enqueue_script('fslightbox', $path, array(), '3.4.1', true);
         }
 
-        $path = $slug . '/js/simple-lightbox.js';
-        wp_enqueue_script('yt-script', $path, array('fslightbox'), '1.5.0', true);
+        $path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
+        if (is_file($path)) {
+            $path = $slug . '/js/simple-lightbox.min.js';
+            wp_enqueue_script('yt-script', $path, array('fslightbox'), '1.5.0', true);
+        }
     }
 
     /**
@@ -228,7 +231,7 @@ final class RewriteFigureTags
      *
      * @return void
      */
-    private function my_enqueue_style(): void
+    public function my_enqueue_style(): void
     {
         $path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
         $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
@@ -365,9 +368,11 @@ final class RewriteFigureTags
                 $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
                 $href = $item->getAttribute('src');
-                $ytHref = $href; // feature=oembed
+                $ytHref = $href;
+                $ytHref = \str_replace('youtube.com', 'youtube-nocookie.com', $ytHref);
                 $ytHref = \str_replace('feature=oembed', 'feature=oembed&enablejsapi=1', $ytHref);
                 $item->setAttribute('src', $ytHref);
+
                 $href = explode('?', $href)[0];
                 $a->setAttribute('href', $href);
 
