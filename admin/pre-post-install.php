@@ -156,7 +156,7 @@ function restorePluginFiles(): bool
     $sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
     $destFolder =   \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
 
-    // check directories. All shall be available.
+    // check directories. All should be available.
     if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
         return false;
     }
@@ -170,7 +170,7 @@ function restorePluginFiles(): bool
         return false;
     }
 
-    // save the folder './js/fslightbox-paid
+    // restore the folder './js/fslightbox-paid
     $path = $sourceFolder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
     if (\is_dir($path)) {
         $savePath = $destFolder . \DIRECTORY_SEPARATOR . 'js/fslightbox-paid';

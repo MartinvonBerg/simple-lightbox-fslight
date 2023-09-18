@@ -67,6 +67,7 @@ final class RewriteFigureTags
     );
 
     protected $excludeIds = array();
+    public $nFound = 0;
 
     /*
 	// PHP 7.4 version
@@ -271,7 +272,7 @@ final class RewriteFigureTags
                 $allFigures->append($parent);
             }
         }
-        $nFound = 0;
+        $this->nFound = 0;
 
         foreach ($allFigures as $figure) {
 
@@ -356,7 +357,7 @@ final class RewriteFigureTags
                 }
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
-                $nFound += 1;
+                $this->nFound += 1;
             } elseif (($classFound) && !is_null($item) && $isVideo && $isEmbed) {
                 // prepare YouTube Videos here
                 $newfigure = $dom->createElement($tagType);
@@ -398,11 +399,11 @@ final class RewriteFigureTags
                 $newfigure->appendChild($item);
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
-                $nFound += 1;
+                $this->nFound += 1;
             }
         }
 
-        if ($nFound > 0) {
+        if ($this->nFound > 0) {
             $this->my_enqueue_script();
             $this->my_enqueue_style();
         }
