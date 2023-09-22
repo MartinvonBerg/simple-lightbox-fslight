@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           1.5.0
+ * Version:           2.0.0
  * Requires at least: 5.9
  * Requires PHP       7.3
  * Author:            Martin von Berg
