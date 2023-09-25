@@ -15,9 +15,6 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
-// TODO: handling for admin, ajax, rest-api and other. exclude these. see https://github.com/dmhendricks/wordpress-output-buffering
-// testing: with php.ini ob buffering on! and other implications.
-
 namespace mvbplugins\fslightbox;
 
 // fallback for WordPress security
