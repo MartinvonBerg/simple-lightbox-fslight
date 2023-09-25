@@ -25,9 +25,7 @@ const ALLOW_DUPLICATE_IDS = 67108864;
  */
 interface RewriteFigureTagsInterface
 {
-    public function prepare(): bool;
     public function execute(): bool;
-    public function finish(): bool;
 }
 
 /**
@@ -77,8 +75,9 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     );
 
     protected $excludeIds = array();
-    public $nFound = 0;
-    public $want_to_modify_body = false;
+    private $nFound = 0;
+    private $want_to_modify_body = false;
+    private $includedTags = array();
 
     /*
 	// PHP 7.4 version
@@ -128,6 +127,10 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $this->postTypes          = $settings['postTypes'];
             $this->cssClassesToSearch = $settings['cssClassesToSearch'];
             $this->excludeIds         = $settings['excludeIDs'];
+            // extract $want_to_modify_body from settings
+            if (\key_exists('rewriteScope', $settings)) {
+                $this->want_to_modify_body = $settings['rewriteScope'] === 'body';
+            }
         };
 
         foreach ($this->hrefTypes as $type) {
@@ -142,48 +145,121 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                     break;
             }
         }
-
-        // extract $want_to_modify_body from settings
-        // TODO
-        $this->want_to_modify_body = false;
     }
 
-    // --------------- Interface ----------------------------------------
     /**
      * Prepares the rewrite for the HTML rewrite of figures.
      *
      * @return bool Returns a boolean indicating whether the rewrite shall be done.
      */
-    public function prepare(): bool
+    private function prepare(): bool
     {
-        // prepare rewrite only for posts that are in settings
+        // prepare rewrite only for posts that are in settings and only for front-end
         $postID = (int) \get_the_ID();
         $exclude = \in_array($postID, $this->excludeIds, true);
         $this->posttype         = strval(\get_post_type());
-        $this->doRewrite        = in_array($this->posttype, $this->postTypes, true) && !$exclude && !is_admin();
+        $this->doRewrite        = in_array($this->posttype, $this->postTypes, true) && !$exclude && !is_admin(); // && !wp_doing_ajax(); TODO : REST-API-request???
         return $this->doRewrite;
     }
 
+    // --------------- Interface ----------------------------------------
     public function execute(): bool
     {
-        if ($this->prepare()) {
-
-            if (!$this->want_to_modify_body) {
-                add_filter('the_content', array($this, 'lightbox_gallery_for_gutenberg'), 10, 1);
-                return true;
-            } else {
-                // TODO here for output buffering.
-                return false;
-            }
+        if (!$this->want_to_modify_body) {
+            add_filter('the_content', array($this, 'changeFigureTagsInContent'), 10, 1);
+        } else {
+            //  here for output buffering.
+            $this->changeFigureTagsInBody();
         }
-        return false;
+        return true;
     }
 
-    public function finish(): bool
+    // --------------- public functions called by WP Hooks --------------
+    public function changeFigureTagsInContent(string $content): string
     {
-        $this->my_enqueue_script();
-        $this->my_enqueue_style();
-        return true;
+        if ($this->prepare()) {
+            $content = $this->lightbox_gallery_for_gutenberg($content);
+            // include scripts and styles if rewrite was actually done.
+            if ($this->nFound > 0) {
+                $this->my_enqueue_script();
+                $this->my_enqueue_style();
+            }
+        }
+        return $content;
+    }
+
+    public function changeFigureTagsInBody()
+    {
+        add_action('wp_body_open', array($this, 'rewrite_body_buffer_start'), 0); // hook to 'template_redirect' for whole html even html-head
+    }
+
+    public function rewrite_body_buffer_start()
+    {
+        ob_start(array($this, 'rewrite_body_modify_content'));
+        add_action('wp_footer', array($this, 'rewrite_body_buffer_stop'), PHP_INT_MAX, 0); // stop at the end of the body tag.
+    }
+
+    public function rewrite_body_buffer_stop()
+    {
+        $status = ob_get_status(true);
+        if (!empty($status)) {
+            foreach ($status as $s) {
+                if (in_array('mvbplugins\fslightbox\RewriteFigureTags::rewrite_body_modify_content', $s, false)) {
+                    ob_end_flush();
+                }
+            }
+        }
+    }
+
+    public function rewrite_body_modify_content($content)
+    {
+        //modify $content
+        if ($this->prepare()) {
+            $content = $this->lightbox_gallery_for_gutenberg($content);
+            if ($this->nFound > 0) {
+                $content .= $this->rewrite_body_add_scripts();
+            }
+        }
+        return $content;
+    }
+
+    /**
+     * Adds scripts and styles to the HTML page.
+     *
+     * @return string The generated HTML code for the scripts and styles.
+     */
+    public function rewrite_body_add_scripts(): string
+    {
+        $out = '';
+
+        $slug = \WP_PLUGIN_URL . '/' . \basename($this->plugin_main_dir); // @phpstan-ignore-line
+
+        // check for fslightbox.js free version
+        $path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
+        if (is_file($path)) {
+            $path = $slug . '/js/fslightbox-basic/fslightbox.js';
+            $out = "<script defer src='{$path}' id='fslightbox-js'></script>";
+        }
+        // check for fslightbox.js paid version
+        $path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
+        if (is_file($path)) {
+            $path = $slug . '/js/fslightbox-paid/fslightbox.js';
+            $out = "<script defer src='{$path}' id='fslightbox-js'></script>";
+        }
+        // check for simple-lightbox.min.js script to handle videos
+        $path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
+        if (is_file($path)) {
+            $path = $slug . '/js/simple-lightbox.min.js';
+            $out .= "<script defer src='{$path}' id='yt-script-js'></script>";
+        }
+        // check for CSS file for simple-fslightbox for YouTube Videos
+        $path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
+        if (is_file($path)) {
+            $path = $slug . '/css/simple-fslightbox.css';
+            $out .= "<link rel='stylesheet' id='simple-fslightbox-css' href='{$path}' media='all' />";
+        }
+
+        return $out;
     }
 
     // --------------- private functions : HTML rewriter ------------------------
@@ -195,7 +271,15 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      */
     private function lightbox_gallery_for_gutenberg(string $content): string
     {
-
+        if ($this->want_to_modify_body) {
+            $this->includedTags['<!DOCTYPE html>'] = strpos($content, '<!DOCTYPE html>') !== false;
+            $this->includedTags['<html'] = strpos($content, '<html') !== false;
+            $this->includedTags['</html>'] = strpos($content, '</html>') !== false;
+            $this->includedTags['<head ']  = strpos($content, '<head ') !== false;
+            $this->includedTags['</head>'] = strpos($content, '</head>') !== false;
+            $this->includedTags['<body']  = strpos($content, '<body') !== false;
+            $this->includedTags['</body>'] = strpos($content, '</body>') !== false;
+        }
         // rewrite HTML code with figures
         $dom = new \IvoPetkov\HTML5DOMDocument();
         $dom->loadHTML($content, ALLOW_DUPLICATE_IDS);
@@ -344,14 +428,29 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 $this->nFound += 1;
             }
         }
-        // ---------------------------------------------------
 
-        // include scripts and styles if rewrite was actually done. TODO: this is systematically not correct here.
-        if ($this->nFound > 0 && !$this->want_to_modify_body) {
-            $this->finish();
+        if ($this->nFound > 0) {
+            $originalContent = $content;
+            $content = $dom->saveHTML();
+
+            // remove html, head, body tags if not in original content
+            if ($this->want_to_modify_body) {
+                foreach ($this->includedTags as $tag => $inOriginal) {
+
+                    if (!$inOriginal && (strpos($content, $tag) !== false)) {
+                        $content = str_replace($tag, '', $content);
+                    } elseif ($inOriginal && (strpos($content, $tag) === false)) {
+                        // new content is wrong: provide original content
+                        break;
+                        return $originalContent;
+                    }
+                }
+                // final clean-up for closing tags
+                $content = str_replace('>>', '', $content);
+            }
         }
 
-        return $dom->saveHTML();
+        return $content;
     }
 
     /**
@@ -460,43 +559,4 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             wp_enqueue_style('simple-fslightbox-css', $path, array(), '2.0.0', 'all');
         }
     }
-}
-
-// ---------------------------------------------------------------
-function changeFigureTagsInBody()
-{
-    add_action('wp_body_open', '\mvbplugins\fslightbox\silbfslit_buffer_start', 0); // template_redirect for whole html even head
-    add_action('wp_footer', '\mvbplugins\fslightbox\silbfslit_add_scripts', 0); // TODO: load only if images were changed.
-}
-
-function silbfslit_buffer_start()
-{
-    add_action('wp_footer', '\mvbplugins\fslightbox\silbfslit_buffer_stop', PHP_INT_MAX); // stop at the end of the body tag.
-    ob_start('\mvbplugins\fslightbox\silbfslit_modify_content');
-}
-
-function silbfslit_buffer_stop()
-{
-    $status = ob_get_status(true);
-    if (!empty($status)) {
-        foreach ($status as $s) {
-            if (in_array('\mvbplugins\fslightbox\silbfslit_modify_content', $s, false)) {
-                ob_end_flush();
-            }
-        }
-    }
-}
-
-function silbfslit_modify_content($content)
-{
-    //modify $content
-    $rewrite = new RewriteFigureTags();
-    $new     = $rewrite->execute($content);
-    return $new;
-}
-
-function silbfslit_add_scripts()
-{
-    $rewrite = new RewriteFigureTags();
-    $rewrite->finish();
 }
