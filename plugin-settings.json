@@ -16,7 +16,8 @@
         "wp-block-video",
         "postie-image",
         "wp-block-embed-youtube",
-        "wp-block-post-featured-image"
+        "wp-block-post-featured-image",
+        "featured-media"
     ],
     "excludeIDs": [
         0

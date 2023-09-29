@@ -272,10 +272,10 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * @param  string $content the content of the page / post to adopt with fslightbox
      * @return string the altered $content of the page post to show in browser
      */
-    private function rewriteHTML(string $content): string
+    public function rewriteHTML(string $content): string
     {
         // check for different html tags in content
-        if ($this->want_to_modify_body) {
+        if (true) {
             $this->includedTags['<!DOCTYPE html>'] = strpos($content, '<!DOCTYPE html>') !== false; // usually not in passed html
             $this->includedTags['<html'] = strpos($content, '<html') !== false; // usually not in passed html
             $this->includedTags['</html>'] = strpos($content, '</html>') !== false;
@@ -316,6 +316,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $dataType               = '';
             $videoThumb             = null;
             $hrefParent             = null;
+            $hasDivInFigure         = false; // 2023-09: new decision for figures with structure not regarded in first development.
 
             if (!$classFound) {
                 $classInParent = $this->parentFindCssClass($figure);
@@ -340,7 +341,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                         $hasHref = false;
                     }
                     $header       = \wp_remote_head($href, array('timeout' => 2));
-                    $content_type = wp_remote_retrieve_header($header, 'content-type');
+                    $content_type = \wp_remote_retrieve_header($header, 'content-type');
                     $isMediaFile  = \strpos($content_type, 'image');
                     $hasSiteUrl   = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
                     $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
@@ -348,6 +349,8 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                         $isMediaFile = true;
                     }
                 }
+                $hasDivInFigure = $this->hasDivInFigure($item);
+
             } elseif ($classFound && $isVideo && !$isEmbed) {
                 $item     = $figure->querySelector('video');
                 $videoThumb   = $item->getAttribute('poster');
@@ -358,7 +361,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             }
 
             // create new dom-element and append to dom
-            if ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo) {
+            if ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && !$hasDivInFigure) {
 
                 $newfigure = $dom->createElement($tagType);
                 $newfigure->setAttribute('class', $class);
@@ -383,6 +386,37 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 }
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
+                $this->nFound += 1;
+            }
+            // new method for featured images in header with tag sequence: figure-div-img. This is a new case in 2023-09.
+            elseif ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && $hasDivInFigure) {
+                //$newfigure = $dom->createElement($tagType);
+                //$newfigure->setAttribute('class', $class);
+                //$newfigure = $figure->cloneNode(true);
+
+                // ---------------- start create a -------------------------------
+                $a = $dom->createElement('a');
+                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
+                $a->setAttribute('data-type', $dataType);
+                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
+
+                $caption = $figure->querySelector('figcaption');
+                if (!is_null($caption)) {
+                    $text = $caption->getNodeValue();
+                    $a->setAttribute('data-caption', $text);
+                }
+                $newitem = $item->cloneNode(true);
+                $a->setAttribute('href', $item->getAttribute('src'));
+                $a->appendChild($newitem); // this MOVES the $item from $figure to $a! Is this a bug?
+                // ---------------- end create a -------------------------------
+
+                $item->parentNode->replaceChild($a, $item);
+               
+                if (!is_null($caption)) {
+                    //$newfigure->appendChild($caption);
+                }
+
+                //$figure->parentNode->replaceChild($newfigure, $figure);
                 $this->nFound += 1;
             }
             // handle html5 videos here
@@ -471,7 +505,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $content = $dom->saveHTML();
 
             // remove html, head, body tags if not in original content
-            if ($this->want_to_modify_body) {
+            if (true) {
                 foreach ($this->includedTags as $tag => $inOriginal) {
 
                     if (!$inOriginal && (strpos($content, $tag) !== false)) {
@@ -483,11 +517,41 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                     }
                 }
                 // final clean-up for closing tags
+                $content = preg_replace("/\r|\n/", "", $content);
                 $content = str_replace('>>', '', $content);
             }
         }
 
         return $content;
+    }
+
+    //** a function that detects wether the domnode $item has a div tag in its parents and stops searching if tag is figure */
+    private function hasDivInFigure(object $item): bool {
+        // Check if $item is a DOMNode
+        if (get_class($item) === 'IvoPetkov\HTML5DOMElement' && $item->tagName === 'img') {
+            // Check if $item has a <div> tag in its parents
+        } else return false;
+
+        // Start from the parent node
+        $parent = $item->parentNode;
+
+        while ($parent !== null) {
+            // Check if the parent node is a <figure> tag
+            if ($parent->nodeName === 'figure') {
+                break; // Stop searching at <figure> tag
+            }
+
+            // Check if the parent node contains a <div> tag
+            if ($parent->tagName === 'div') {
+                return true; // Found a <div> tag in parents
+            }
+
+            // Move up to the next parent node
+            $parent = $parent->parentNode;
+        }
+
+        return false; // No <div> tag found in parents
+
     }
 
     /**
