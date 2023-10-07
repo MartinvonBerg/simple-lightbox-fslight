@@ -11,8 +11,6 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
-// TODO : change rewriter for nested figures like <figure> <div> <img> </div> </figure> in featured image and others.
-
 namespace mvbplugins\fslightbox;
 
 if (!defined('ABSPATH')) {
@@ -43,7 +41,6 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
     // --------------- settings ----------------------------------------
     // PHP 7.3 version :: no type definition
-
     protected $posttype        = '';
     protected $siteUrl         = '';
     protected $doRewrite       = false;
@@ -115,21 +112,26 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     /**
      * Do settings for the class and Plugin. Load from json-settings-file.
      */
-    public function __construct()
+    public function __construct( ?string $file = null )
     {
         $this->plugin_main_dir  = dirname(__DIR__, 1);
         $this->siteUrl          = \get_site_url();
 
         // load and parse settings from file plugin-settings.json in main directory
-        $path = $this->plugin_main_dir . '/plugin-settings.json';
+        if ( \is_null($file) ) {
+            $path = $this->plugin_main_dir . '/plugin-settings.json';
+        } else {
+            $path = $this->plugin_main_dir . $file;
+        }
 
         if (is_file($path)) {
             $settings                 = strval(file_get_contents($path, false));
             $settings                 = \json_decode($settings, true);
-            $this->hrefTypes          = $settings['hrefTypes'];
-            $this->postTypes          = $settings['postTypes'];
-            $this->cssClassesToSearch = $settings['cssClassesToSearch'];
-            $this->excludeIds         = $settings['excludeIDs'];
+            $this->hrefTypes          = \key_exists('hrefTypes', $settings) ? $settings['hrefTypes'] : $this->hrefTypes;
+            $this->postTypes          = \key_exists('postTypes', $settings) ? $settings['postTypes'] : $this->postTypes;
+            $this->cssClassesToSearch = \key_exists('cssClassesToSearch', $settings) ? $settings['cssClassesToSearch'] : $this->cssClassesToSearch;
+            $this->excludeIds         = \key_exists('excludeIDs', $settings) ? $settings['excludeIDs'] : $this->excludeIds;
+
             // extract $want_to_modify_body from settings
             if (\key_exists('rewriteScope', $settings)) {
                 $this->want_to_modify_body = $settings['rewriteScope'] === 'body';
@@ -153,7 +155,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     /**
      * Prepares the rewrite for the HTML rewrite of figures.
      *
-     * @return bool Returns a boolean indicating whether the rewrite shall be done.
+     * @return boolean Returns a boolean indicating whether the rewrite shall be done.
      */
     private function prepare(): bool
     {
@@ -162,10 +164,16 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
         $exclude = \in_array($postID, $this->excludeIds, true);
         $this->posttype         = strval(\get_post_type());
         $this->doRewrite        = in_array($this->posttype, $this->postTypes, true) && !$exclude && !is_admin(); // TODO && !wp_doing_ajax(); REST-API-request???
+        $this->nFound           = 0;
         return $this->doRewrite;
     }
 
     // --------------- Interface ----------------------------------------
+    /**
+     * Run the Class Code Rewriter
+     *
+     * @return boolean
+     */
     public function execute(): bool
     {
         if (!$this->want_to_modify_body) {
@@ -178,6 +186,12 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     }
 
     // --------------- public functions called by WP Hooks --------------
+    /**
+     * Rewrite the HTML code with figures if the rewrite shall be done and enqueue scripts and styles if so.
+     *
+     * @param  string $content the html to rewrite
+     * @return string the rewritten html
+     */
     public function changeFigureTagsInContent(string $content): string
     {
         if ($this->prepare()) {
@@ -191,17 +205,32 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
         return $content;
     }
 
+    /**
+     * Hook the PHP output buffer to the 'wp_body_open' action.
+     *
+     * @return void
+     */
     public function changeFigureTagsInBody()
     {
         add_action('wp_body_open', array($this, 'rewrite_body_buffer_start'), 0); // hook to 'template_redirect' for whole html even html-head
     }
 
+    /**
+     * Pass the output buffer to rewrite function and hook ob-buffer-stop to the 'wp_footer' action.
+     *
+     * @return void
+     */
     public function rewrite_body_buffer_start()
     {
         ob_start(array($this, 'rewrite_body_modify_content'));
         add_action('wp_footer', array($this, 'rewrite_body_buffer_stop'), PHP_INT_MAX, 0); // stop at the end of the body tag.
     }
 
+    /**
+     * stop the PHP output buffer and flush its content.
+     *
+     * @return void
+     */
     public function rewrite_body_buffer_stop()
     {
         $status = ob_get_status(true);
@@ -214,7 +243,13 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
         }
     }
 
-    public function rewrite_body_modify_content($content)
+    /**
+     * Rewrite the HTML code with figures if the rewrite shall be done and add script and style tags to html if so.
+     *
+     * @param  string $content the html to rewrite
+     * @return string the rewritten html $content
+     */
+    public function rewrite_body_modify_content( string $content) :string
     {
         //modify $content
         if ($this->prepare()) {
@@ -267,23 +302,21 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
     // --------------- private functions : HTML rewriter ------------------------
     /**
-     * Adopt the images, galleries and media-with-text in the content of a page / post with settings for fslightbox.js
+     * Adopt the images, galleries and media-with-text in the content of a page / post with settings for fslightbox.js. This is the main function.
      *
      * @param  string $content the content of the page / post to adopt with fslightbox
      * @return string the altered $content of the page post to show in browser
      */
-    public function rewriteHTML(string $content): string
+    private function rewriteHTML(string $content): string
     {
         // check for different html tags in content
-        if (true) {
-            $this->includedTags['<!DOCTYPE html>'] = strpos($content, '<!DOCTYPE html>') !== false; // usually not in passed html
-            $this->includedTags['<html'] = strpos($content, '<html') !== false; // usually not in passed html
-            $this->includedTags['</html>'] = strpos($content, '</html>') !== false;
-            $this->includedTags['<head ']  = strpos($content, '<head ') !== false; // usually not in passed html
-            $this->includedTags['</head>'] = strpos($content, '</head>') !== false;
-            $this->includedTags['<body']  = strpos($content, '<body') !== false; // usually not in passed html
-            $this->includedTags['</body>'] = strpos($content, '</body>') !== false;
-        }
+        $this->includedTags['<!DOCTYPE html>'] = strpos($content, '<!DOCTYPE html>') !== false; // usually not in passed html
+        $this->includedTags['<html'] = strpos($content, '<html') !== false; // usually not in passed html
+        $this->includedTags['</html>'] = strpos($content, '</html>') !== false;
+        $this->includedTags['<head ']  = strpos($content, '<head ') !== false; // usually not in passed html
+        $this->includedTags['</head>'] = strpos($content, '</head>') !== false;
+        $this->includedTags['<body']  = strpos($content, '<body') !== false; // usually not in passed html
+        $this->includedTags['</body>'] = strpos($content, '</body>') !== false;
 
         // rewrite HTML code with figures
         $dom = new \IvoPetkov\HTML5DOMDocument();
@@ -293,6 +326,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
         // append all old imgs in <div><a><img>..</img></a></div> to $allFigures. These are converted to figures.
         // is done for old images and media-text also!
+        /*
         $allImgs = $dom->querySelectorAll('img');
         foreach ($allImgs as $image) {
             $parent = $image->parentNode->parentNode; // todo: what if there is no a tag? Ignore, because wont't work anyway?
@@ -302,6 +336,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 $allFigures->append($parent);
             }
         }
+        */
 
         $this->nFound = 0;
 
@@ -363,90 +398,45 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             // create new dom-element and append to dom
             if ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && !$hasDivInFigure) {
 
+                $caption = $figure->querySelector('figcaption');
+
+                $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                $a->appendChild($item);
+
                 $newfigure = $dom->createElement($tagType);
                 $newfigure->setAttribute('class', $class);
-
-                $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
-                $a->setAttribute('data-type', $dataType);
-                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
-
-                $caption = $figure->querySelector('figcaption');
-                if (!is_null($caption)) {
-                    $text = $caption->getNodeValue();
-                    $a->setAttribute('data-caption', $text);
-                }
-
-                $a->setAttribute('href', $item->getAttribute('src'));
-                $a->appendChild($item);
                 $newfigure->appendChild($a);
 
-                if (!is_null($caption)) {
-                    $newfigure->appendChild($caption);
-                }
+                !is_null($caption) ? $newfigure->appendChild($caption) : null;
 
                 $figure->parentNode->replaceChild($newfigure, $figure);
                 $this->nFound += 1;
             }
             // new method for featured images in header with tag sequence: figure-div-img. This is a new case in 2023-09.
             elseif ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && $hasDivInFigure) {
-                //$newfigure = $dom->createElement($tagType);
-                //$newfigure->setAttribute('class', $class);
-                //$newfigure = $figure->cloneNode(true);
-
-                // ---------------- start create a -------------------------------
-                $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
-                $a->setAttribute('data-type', $dataType);
-                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
-
+               
                 $caption = $figure->querySelector('figcaption');
-                if (!is_null($caption)) {
-                    $text = $caption->getNodeValue();
-                    $a->setAttribute('data-caption', $text);
-                }
+                $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                
                 $newitem = $item->cloneNode(true);
-                $a->setAttribute('href', $item->getAttribute('src'));
                 $a->appendChild($newitem); // this MOVES the $item from $figure to $a! Is this a bug?
-                // ---------------- end create a -------------------------------
 
                 $item->parentNode->replaceChild($a, $item);
-               
-                if (!is_null($caption)) {
-                    //$newfigure->appendChild($caption);
-                }
-
-                //$figure->parentNode->replaceChild($newfigure, $figure);
                 $this->nFound += 1;
             }
             // handle html5 videos here
             elseif (($classFound) && !is_null($item) && $isVideo && !$isEmbed) {
 
-                $newfigure = $dom->createElement($tagType);
-                $newfigure->setAttribute('class', $class);
-
-                $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
-                $a->setAttribute('data-type', $dataType);
-                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
-
                 $caption = $figure->querySelector('figcaption');
-                if (!is_null($caption)) {
-                    $text = $caption->getNodeValue();
-                    $a->setAttribute('data-caption', $text);
-                }
-
-                if (!empty($videoThumb)) {
-                    $a->setAttribute('data-thumb', $videoThumb);
-                }
-
-                $a->setAttribute('href', $item->getAttribute('src'));
+                $a = $this->classCreateElement( $dom, $dataType, $caption, $item, $videoThumb);
 
                 // create the button to open the lightbox
                 $lbdiv = $dom->createElement('div');
                 $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
-
                 $a->appendChild($lbdiv);
+
+                $newfigure = $dom->createElement($tagType);
+                $newfigure->setAttribute('class', $class);
                 $newfigure->appendChild($a);
                 $newfigure->appendChild($item);
 
@@ -456,18 +446,15 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             // handle YouTube Videos here
             elseif (($classFound) && !is_null($item) && $isVideo && $isEmbed) {
 
-                $newfigure = $dom->createElement($tagType);
-                $newfigure->setAttribute('class', $class);
-
                 $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
-                //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
+                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!   //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
                 $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
                 $href = $item->getAttribute('src');
                 $ytHref = $href;
                 $ytHref = \str_replace('youtube.com', 'youtube-nocookie.com', $ytHref);
                 $ytHref = \str_replace('feature=oembed', 'feature=oembed&enablejsapi=1', $ytHref);
+
                 $item->setAttribute('src', $ytHref);
 
                 $href = explode('?', $href)[0];
@@ -477,20 +464,19 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 $ytID = explode('/', $href);
                 $ytID = end($ytID);
                 $videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
-
-                // Use get_headers() function
+                // Get the video thumbnail. Use get_headers() function
                 $headers = @get_headers($videoThumbUrl);
-
                 // Use condition to check the existence of URL
-                if ($headers && strpos($headers[0], '200')) {
-                    $a->setAttribute('data-thumb', $videoThumbUrl);
-                }
+                $headers && strpos($headers[0], '200') ? $a->setAttribute('data-thumb', $videoThumbUrl) : null;
 
                 // create the button to open the lightbox
                 $lbdiv = $dom->createElement('div');
                 $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
 
                 $a->appendChild($lbdiv);
+
+                $newfigure = $dom->createElement($tagType);
+                $newfigure->setAttribute('class', $class);
                 $newfigure->appendChild($a);
                 $newfigure->appendChild($item);
 
@@ -505,27 +491,58 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $content = $dom->saveHTML();
 
             // remove html, head, body tags if not in original content
-            if (true) {
-                foreach ($this->includedTags as $tag => $inOriginal) {
+            foreach ($this->includedTags as $tag => $inOriginal) {
 
-                    if (!$inOriginal && (strpos($content, $tag) !== false)) {
-                        $content = str_replace($tag, '', $content);
-                    } elseif ($inOriginal && (strpos($content, $tag) === false)) {
-                        // new content is wrong: provide original content
-                        break;
-                        return $originalContent;
-                    }
+                if (!$inOriginal && (strpos($content, $tag) !== false)) {
+                    $content = str_replace($tag, '', $content);
+                } elseif ($inOriginal && (strpos($content, $tag) === false)) {
+                    // new content is wrong: provide original content
+                    return $originalContent;
                 }
-                // final clean-up for closing tags
-                $content = preg_replace("/\r|\n/", "", $content);
-                $content = str_replace('>>', '', $content);
             }
+            // final clean-up for closing tags
+            $content = preg_replace("/\r|\n/", "", $content);
+            $content = str_replace('>>', '', $content);
         }
 
         return $content;
     }
 
-    //** a function that detects wether the domnode $item has a div tag in its parents and stops searching if tag is figure */
+    /**
+     * Create the HTML5DOMElement with A-Tag and attributes
+     *
+     * @param  object      $dom the dom-object to which the element shall be appended
+     * @param  string      $dataType either image or video type
+     * @param  [type]      $caption the caption of the image
+     * @param  object      $item theo originating item in the figure which is being processed
+     * @param  string|null $videoThumb the video thumbnail
+     * @return object      the new generated A-Tag asHTML5DOMElement
+     */
+    private function classCreateElement( object $dom, string $dataType, &$caption, object &$item, ?string $videoThumb='') :object {
+        $a = $dom->createElement('a');
+        $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
+        $a->setAttribute('data-type', $dataType);
+        $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
+            
+        if (!is_null($caption)) {
+            $a->setAttribute('data-caption', $caption->getNodeValue() );
+        }
+    
+        if (!empty($videoThumb)) {
+            $a->setAttribute('data-thumb', $videoThumb);
+        }
+
+        $a->setAttribute('href', $item->getAttribute('src'));
+    
+        return $a;
+    }
+
+    /**
+     * a function that detects wether the domnode $item has a div tag in its parents and stops searching if tag is figure
+     *
+     * @param  object  $item
+     * @return boolean
+     */
     private function hasDivInFigure(object $item): bool {
         // Check if $item is a DOMNode
         if (get_class($item) === 'IvoPetkov\HTML5DOMElement' && $item->tagName === 'img') {
@@ -558,8 +575,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * Find the Css-Class from settings in the class-attribute.
      *
      * @param string $class The class-attribute as a string.
-     * @return array{bool,bool} An array containing a boolean indicating whether the class was found
-     * and a boolean indicating whether it is a video class.
+     * @return array{bool,bool} An array containing a boolean indicating whether the class was found and a boolean indicating whether it is a video class.
      */
     private function findCssClass(string $class): array
     {

@@ -4,3 +4,8 @@ Achtung: PHP Pfad einstellen!
 Achtung: PHPunit ist installiert in ..\inactive-mu-plugins\vendor\bin\phpunit
 Aufruf eines TestCase 
     ..\inactive-mu-plugins\vendor\bin\phpunit --filter test_RewriteClass_1
+
+TODO: lightbox von WP ausschluss vorbereiten
+TODO: Update Readme
+TODO: phpstan
+
