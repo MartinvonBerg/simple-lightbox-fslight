@@ -360,7 +360,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $videoThumb = null;
             $hrefParent = null;
             $hasDivInFigure = false; // 2023-09: new decision for figures with structure not regarded in first development.
-            $hasWPLightbox = false;
+            $hasWPLightbox = false; // preparation for WP 6.4
 
             if (!$classFound) {
                 $classFound = $this->parentFindCssClass($figure);

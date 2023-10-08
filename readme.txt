@@ -15,14 +15,14 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
-REMINDER: Save your file ```plugin-settings.json``` prior to Plugin-Update. The Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates. So, with this update it is the last time you have to save your files.
-
-Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
+Provides an easy was to add a Lightbox to Gutenberg videos, Youtube-Videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
 The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V1.5.0)
 E.g., just create gallery by using Gutenberg gallery block and use lightbox gallery effect powered by fslightbox.js.
 
-NEW: Added support for Youtube-Videos. This will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
-Could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
+NEW: Added support for the complete HTML-body-code to the page (inbetween body tags). This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
+
+The support for HTML-Videos and Youtube-Videos will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
+YT-Videos could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
 
 The support for Youtube-Videos is working with the given functionality and extended to stop running videos onOpen and for the paid version to stop running videos on slideChange.
@@ -78,6 +78,16 @@ Yes, there are errors shown like "The service worker navigation preload request 
 Upgrade to 1.5.0+ if you want support for Youtube Videos or want to have your settings restored automatically. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
 
 == Changelog ==
+
+= V2.0.0 =
+Breaking Changes:
+- NEW: Minimum PHP Version is now 7.4
+- NEW: added an option to handle the complete HTML code inbetween the Body tags
+- BUGFIX: changed code for HTML5Videos to be compatible with W3C standards. Will add the Button Icon on the Top Left.
+- removed handling of Postie-images (was my private use)
+- Code Refactoring of Main Class
+- Updated JS to pause Videos on Slide change
+- Updated PHPDocBlocks for PHPUnit Tests, PHPStan Level 6 and PHPCS
 
 = 1.5.0 =
 Added JS to pause all running videos on Open of lightbox and pause current video on slide change (paid version, only).

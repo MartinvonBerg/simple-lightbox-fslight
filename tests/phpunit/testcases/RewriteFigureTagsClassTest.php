@@ -94,7 +94,7 @@ final class RewriteFigureTagsClassTest extends TestCase
             ->once()
             ->andReturn('http://localhost/wordpress');
 
-        $tested = new mvbplugins\fslightbox\RewriteFigureTags();
+        $tested = new mvbplugins\fslightbox\RewriteFigureTags('/tests/phpunit/testdata/plugin-settings-body.json');
         $this->assertInstanceOf('\mvbplugins\fslightbox\RewriteFigureTags', $tested);
 
         $privateProp1 = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "excludeIds");
@@ -128,7 +128,7 @@ final class RewriteFigureTagsClassTest extends TestCase
         $class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
         $privateMethod = $class->getMethod('prepare');
         $privateMethod->setAccessible(TRUE);
-        
+
 
         $privateProp1 = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "doRewrite");
         $privateProp1->setAccessible(true);
@@ -151,7 +151,8 @@ final class RewriteFigureTagsClassTest extends TestCase
     /**
      * @dataProvider htmlProvider
      */
-    public function test_changeFigureTagsInContent($htmlin, $expected) {
+    public function test_changeFigureTagsInContent($htmlin, $expected)
+    {
         expect('get_site_url')
             ->once()
             ->andReturn('http://localhost/wordpress');
@@ -173,34 +174,35 @@ final class RewriteFigureTagsClassTest extends TestCase
 
         expect('wp_remote_retrieve_header')
             ->andReturn('image/jpeg');
-        
+
         $class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
         $privateMethod = $class->getMethod('rewriteHTML');
         $privateMethod->setAccessible(TRUE);
 
-        $tested = new mvbplugins\fslightbox\RewriteFigureTags();
+        $tested = new mvbplugins\fslightbox\RewriteFigureTags('/tests/phpunit/testdata/plugin-settings-body.json');
         $this->assertInstanceOf('\mvbplugins\fslightbox\RewriteFigureTags', $tested);
 
         $nFound = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "nFound");
         $nFound->setAccessible(true);
 
         $out = $tested->changeFigureTagsInContent('');
-        $this->assertEquals('',$out);
-        $this->assertEquals(0, $nFound->getValue($tested) );
+        $this->assertEquals('', $out);
+        $this->assertEquals(0, $nFound->getValue($tested));
 
         $result = $privateMethod->invoke($tested, $htmlin);
 
         $this->assertEquals($expected, $result);
-        
+
         if ($result === $htmlin) {
             $this->assertEquals(0, $nFound->getValue($tested));
         } else {
             $this->assertEquals(1, $nFound->getValue($tested));
         }
-        
+
     }
 
-    public function test_add_scripts_to_html() {
+    public function test_add_scripts_to_html()
+    {
         expect('get_site_url')
             ->once()
             ->andReturn('http://localhost/wordpress');
@@ -234,21 +236,21 @@ final class RewriteFigureTagsClassTest extends TestCase
         $privateMethod = $class->getMethod('rewriteHTML');
         $privateMethod->setAccessible(TRUE);
 
-        $tested = new mvbplugins\fslightbox\RewriteFigureTags();
+        $tested = new mvbplugins\fslightbox\RewriteFigureTags('/tests/phpunit/testdata/plugin-settings-body.json');
         $this->assertInstanceOf('\mvbplugins\fslightbox\RewriteFigureTags', $tested);
-        
+
         $out = $privateMethod->invoke($tested, '');
-        $this->assertEquals('',$out);
-        
+        $this->assertEquals('', $out);
+
         $out = $privateMethod->invoke($tested, '<body><div></div</body>');
         $this->assertEquals('<body><div></div</body>', $out);
-        
+
         $out = $privateMethod->invoke($tested, '<body><dib><figure><img></img></figure></div</body>');
         $this->assertEquals('<body><dib><figure><img></img></figure></div</body>', $out);
-        
+
         $result = $privateMethod->invoke($tested, $htmlin);
         $this->assertEquals($expected, $result);
-        
+
     }
 
     public function test_RewriteClass_3()
@@ -269,7 +271,7 @@ final class RewriteFigureTagsClassTest extends TestCase
         $class = new \ReflectionClass('mvbplugins\fslightbox\RewriteFigureTags');
         $privateMethod = $class->getMethod('prepare');
         $privateMethod->setAccessible(TRUE);
-        
+
 
         $privateProp1 = new \ReflectionProperty("mvbplugins\\fslightbox\RewriteFigureTags", "doRewrite");
         $privateProp1->setAccessible(true);
@@ -317,7 +319,7 @@ final class RewriteFigureTagsClassTest extends TestCase
         $prepare = $class->getMethod('prepare');
         $prepare->setAccessible(TRUE);
 
-        $tested = new mvbplugins\fslightbox\RewriteFigureTags();
+        $tested = new mvbplugins\fslightbox\RewriteFigureTags('/tests/phpunit/testdata/plugin-settings-body.json');
         $prepare->invoke($tested);
 
         [$result1, $result2] = $privateMethod->invoke($tested, $inpclass);
@@ -336,8 +338,8 @@ final class RewriteFigureTagsClassTest extends TestCase
         $privateMethod->setAccessible(TRUE);
 
         $tested = new mvbplugins\fslightbox\RewriteFigureTags();
-        
-        $out = $privateMethod->invoke($tested, new stdClass() );
+
+        $out = $privateMethod->invoke($tested, new stdClass());
         $this->assertEquals(false, $out);
 
         $dom = new DOMDocument('1.0', 'utf-8');
@@ -350,19 +352,19 @@ final class RewriteFigureTagsClassTest extends TestCase
         $element->appendChild($element2);
         $element2->appendChild($element3);
 
-        $out = $privateMethod->invoke($tested, $dom );
+        $out = $privateMethod->invoke($tested, $dom);
         $this->assertEquals(false, $out);
 
         $html = $dom->saveHTML();
         $html = preg_replace("/\r|\n/", "", $html);
-        $this->assertEquals( '<figure><div><img></div></figure>', $html);
+        $this->assertEquals('<figure><div><img></div></figure>', $html);
 
         $dom = new \IvoPetkov\HTML5DOMDocument();
         $content = '<figure class="featured-media"><div class="featured-media-inner section-inner"><img width="1200" height="904" src="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" fetchpriority="high" srcset="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg 2560w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-300x226.jpg 300w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1024x771.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-768x578.jpg 768w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1536x1157.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-2048x1542.jpg 2048w" sizes="(max-width: 1200px) 100vw, 1200px" /></div><!-- .featured-media-inner --></figure><!-- .featured-media -->';
         $dom->loadHTML($content, 67108864);
         $img = $dom->querySelectorAll('img')[0];
 
-        $out = $privateMethod->invoke($tested, $img );
+        $out = $privateMethod->invoke($tested, $img);
         $this->assertEquals(true, $out);
     }
 
@@ -370,50 +372,72 @@ final class RewriteFigureTagsClassTest extends TestCase
     {
         return [
             /* omitted because special treatment for postie-image-div removed
-			['<div class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></div>', 
-			 '<div class="postie-image-div"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></div>'],
-			
-			['<div class="postie-image-div"><a href="https://www.berg-reise-foto.de/"><img class="postie-image" style="border: none;" title="none" src="https://www.berg-reise-foto.de/" alt="none"></a></div>', 
-			 '<div class="postie-image-div"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="https://www.berg-reise-foto.de/"><img class="postie-image" style="border: none;" title="none" src="https://www.berg-reise-foto.de/" alt="none"></a></div>'],
-			*/
-            ['<span class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></span>', 
-			 '<span class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></span>'],
-			
-			['<figure class="wp-block-video"><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"></video></figure>',
-            '<figure class="wp-block-video"><a data-fslightbox="1" data-type="video" aria-label="Open fullscreen lightbox with current video" href="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"><div class="yt-button-simple-fslb-mvb"></div></a><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"></video></figure>'],
-			 
-             ['<figure class="wp-block-video"><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4" poster="test.jpg"></video></figure>',
-             '<figure class="wp-block-video"><a data-fslightbox="1" data-type="video" aria-label="Open fullscreen lightbox with current video" data-thumb="test.jpg" href="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"><div class="yt-button-simple-fslb-mvb"></div></a><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4" poster="test.jpg"></video></figure>'],
-			
-			['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-			 '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>'], 
+            ['<div class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></div>', 
+             '<div class="postie-image-div"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></div>'],
             
-			['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>',
-			 '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>'], 
-			
-			['<figure class="wp-block-image size-large is-style-default"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>',
-			  '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>'], 
-			
-            ['<div class="wp-block-image size-large is-style-default"><figure class="aligncenter"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>',
-			 '<div class="wp-block-image size-large is-style-default"><figure class="aligncenter"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>'], 
-			
-            ['<div class="postie-image"><figure class="aligncenter"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>',
-			 '<div class="postie-image"><figure class="aligncenter"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>'], 
-			 
-            ['<figure class="wp-block-image"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>',
-			 '<figure class="wp-block-image"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Hier gehts nach Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>'], 
-            
+            ['<div class="postie-image-div"><a href="https://www.berg-reise-foto.de/"><img class="postie-image" style="border: none;" title="none" src="https://www.berg-reise-foto.de/" alt="none"></a></div>', 
+             '<div class="postie-image-div"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="https://www.berg-reise-foto.de/"><img class="postie-image" style="border: none;" title="none" src="https://www.berg-reise-foto.de/" alt="none"></a></div>'],
+            */
             [
-            '<figure class="wp-block-image"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>',
-            '<figure class="wp-block-image"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Hier gehts nach Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>'
+                '<span class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></span>',
+                '<span class="postie-image-div"><a href="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247.jpg"><img class="postie-image" style="border: none;" title="PSX_20181225_174247.jpg" src="https://www.berg-reise-foto.de/smrtzl/uploads/2018/12/PSX_20181225_174247-150x150.jpg" alt="PSX_20181225_174247.jpg"></a></span>'
             ],
-            
-            ['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-			 '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>'], 
-            
-            ['<figure class="featured-media"><div class="featured-media-inner section-inner"><img width="1200" height="904" src="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" fetchpriority="high" srcset="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg 2560w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-300x226.jpg 300w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1024x771.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-768x578.jpg 768w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1536x1157.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-2048x1542.jpg 2048w" sizes="(max-width: 1200px) 100vw, 1200px" /></div><!-- .featured-media-inner --></figure><!-- .featured-media -->',
-             '<figure class="featured-media"><div class="featured-media-inner section-inner"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg"><img width="1200" height="904" src="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" fetchpriority="high" srcset="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg 2560w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-300x226.jpg 300w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1024x771.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-768x578.jpg 768w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1536x1157.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-2048x1542.jpg 2048w" sizes="(max-width: 1200px) 100vw, 1200px"></a></div><!-- .featured-media-inner --></figure><!-- .featured-media -->'],
-            
+
+            [
+                '<figure class="wp-block-video"><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"></video></figure>',
+                '<figure class="wp-block-video"><a data-fslightbox="1" data-type="video" aria-label="Open fullscreen lightbox with current video" href="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"><div class="yt-button-simple-fslb-mvb"></div></a><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"></video></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-video"><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4" poster="test.jpg"></video></figure>',
+                '<figure class="wp-block-video"><a data-fslightbox="1" data-type="video" aria-label="Open fullscreen lightbox with current video" data-thumb="test.jpg" href="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4"><div class="yt-button-simple-fslb-mvb"></div></a><video controls src="http://localhost/wordpress/wp-content/uploads/2022/04/sample-mp4-file.mp4" poster="test.jpg"></video></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-image size-large is-style-default"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure>'
+            ],
+
+            [
+                '<div class="wp-block-image size-large is-style-default"><figure class="aligncenter"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>',
+                '<div class="wp-block-image size-large is-style-default"><figure class="aligncenter"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>'
+            ],
+
+            [
+                '<div class="postie-image"><figure class="aligncenter"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>',
+                '<div class="postie-image"><figure class="aligncenter"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035"></a><figcaption>Italien</figcaption></figure></div>'
+            ],
+
+            [
+                '<figure class="wp-block-image"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>',
+                '<figure class="wp-block-image"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Hier gehts nach Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-image"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>',
+                '<figure class="wp-block-image"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" data-caption="Hier gehts nach Italien" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"></a><figcaption>Hier gehts nach <a href="link-irgenwohin">Italien</a></figcaption></figure>'
+            ],
+
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>'
+            ],
+
+            [
+                '<figure class="featured-media"><div class="featured-media-inner section-inner"><img width="1200" height="904" src="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" fetchpriority="high" srcset="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg 2560w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-300x226.jpg 300w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1024x771.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-768x578.jpg 768w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1536x1157.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-2048x1542.jpg 2048w" sizes="(max-width: 1200px) 100vw, 1200px" /></div><!-- .featured-media-inner --></figure><!-- .featured-media -->',
+                '<figure class="featured-media"><div class="featured-media-inner section-inner"><a data-fslightbox="1" data-type="image" aria-label="Open fullscreen lightbox with current image" href="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg"><img width="1200" height="904" src="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="" decoding="async" fetchpriority="high" srcset="http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-scaled.jpg 2560w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-300x226.jpg 300w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1024x771.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-768x578.jpg 768w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-1536x1157.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2023/04/PXL_20230414_134820368-2048x1542.jpg 2048w" sizes="(max-width: 1200px) 100vw, 1200px"></a></div><!-- .featured-media-inner --></figure><!-- .featured-media -->'
+            ],
+
         ];
     }
 
@@ -427,13 +451,14 @@ final class RewriteFigureTagsClassTest extends TestCase
             ["not-in-array-class", false, false],
         ];
     }
-    
+
     public function htmlProviderNoImage(): array
     {
         return [
-            ['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-             '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-			],
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+            ],
 
         ];
     }
@@ -477,9 +502,10 @@ final class RewriteFigureTagsClassTest extends TestCase
     public function htmlProviderNoPost(): array
     {
         return [
-            ['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-             '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-			],
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+            ],
 
         ];
     }
@@ -511,9 +537,10 @@ final class RewriteFigureTagsClassTest extends TestCase
     public function htmlProviderExludeID(): array
     {
         return [
-            ['<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-             '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
-			],
+            [
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+                '<figure class="wp-block-image size-large is-style-default"><a href="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg"><img loading="lazy" width="1024" height="646" src="http://127.0.0.1/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg" alt="" class="wp-image-5035" srcset="http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1024x646.jpg 1024w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-300x189.jpg 300w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-768x485.jpg 768w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-1536x969.jpg 1536w, http://localhost/wordpress/wp-content/uploads/2020/12/GanzneuesBild-2048x1292.jpg 2048w" sizes="(max-width: 1024px) 100vw, 1024px"></a></figure>',
+            ],
 
         ];
     }
@@ -540,5 +567,5 @@ final class RewriteFigureTagsClassTest extends TestCase
         $result = $tested->changeFigureTagsInContent($htmlin);
         $this->assertEquals($expected, $result);
     }
-    
+
 }

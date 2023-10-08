@@ -5,7 +5,6 @@ Achtung: PHPunit ist installiert in ..\inactive-mu-plugins\vendor\bin\phpunit
 Aufruf eines TestCase 
     ..\inactive-mu-plugins\vendor\bin\phpunit --filter test_RewriteClass_1
 
-TODO: Update Readme
 phpstan : vendor/bin/phpstan analyse .\classes\RewriteFigureTagsClass.php --memory-limit=1G
 phpunit: ..\inactive-mu-plugins\vendor\bin\phpunit
 phpcs -p .\classes\RewriteFigureTagsClass.php --standard=PHPCompatibility --runtime-set testVersion 7.4
