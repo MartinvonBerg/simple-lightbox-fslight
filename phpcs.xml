@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="Custom ruleset">
+    <description>My rules for PHP CodeSniffer</description>
+
+    <!-- Run against the PHPCompatibility ruleset -->
+    <rule ref="PHPCompatibility"/>
+
+    <!-- Run against a second ruleset -->
+    <rule ref="PSR12"/>
+
+</ruleset>

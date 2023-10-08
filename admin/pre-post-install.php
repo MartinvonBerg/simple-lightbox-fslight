@@ -4,7 +4,7 @@
  *
  * Version:           2.0.0
  * Requires at least: 5.9
- * Requires PHP       7.3
+ * Requires PHP       7.4
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0
@@ -122,7 +122,8 @@ function savePluginFiles(array $info): bool
     // create directory
     if (!is_dir($destFolder)) {
         $result = mkdir($destFolder, 0777, true);
-        if (!$result) return false;
+        if (!$result)
+            return false;
     }
 
     // save the settings './plugin-settings.json'
@@ -154,7 +155,7 @@ function restorePluginFiles(): bool
 {
     $success = false;
     $sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
-    $destFolder =   \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
+    $destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
 
     // check directories. All should be available.
     if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
@@ -206,7 +207,8 @@ function xcopy(string $source, string $dest, int $permissions = 0777): bool
     // Make destination directory
     if (!is_dir($dest)) {
         $result = mkdir($dest, 0777, true);
-        if (!$result) return false;
+        if (!$result)
+            return false;
     }
 
     // Loop through the folder

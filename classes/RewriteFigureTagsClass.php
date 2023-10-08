@@ -4,7 +4,7 @@
  *
  * Version:           2.0.0
  * Requires at least: 5.9
- * Requires PHP       7.3
+ * Requires PHP       7.4
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0
@@ -80,30 +80,30 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     private $includedTags = array();
 
     */
-	// PHP 7.4 version
-	protected string $posttype = '';
-	protected string $siteUrl  = '';
-	protected bool $doRewrite = false;
-	protected bool $hrefEmpty = false;
-	protected bool $hrefMedia = false;
-	protected string $plugin_main_dir = '';
+    // PHP 7.4 version
+    protected string $posttype = '';
+    protected string $siteUrl = '';
+    protected bool $doRewrite = false;
+    protected bool $hrefEmpty = false;
+    protected bool $hrefMedia = false;
+    protected string $plugin_main_dir = '';
     protected int $nFound = 0;
     protected bool $want_to_modify_body = false;
-    	
+
     /**
      * @var hrefTypes
      */
-    protected array $hrefTypes = [ 'Empty', 'Media' ];
+    protected array $hrefTypes = ['Empty', 'Media'];
 
     /**
      * @var postTypes
      */
-    protected array $postTypes = [ 'page', 'post',  'home', 'front', ];
+    protected array $postTypes = ['page', 'post', 'home', 'front',];
 
     /**
      * @var cssClassesToSearch
      */
-    protected array $cssClassesToSearch = [ 'wp-block-image','wp-block-media-text', 'wp-block-video', 'postie-image' ];
+    protected array $cssClassesToSearch = ['wp-block-image', 'wp-block-media-text', 'wp-block-video', 'postie-image'];
 
     /**
      * @var excludeIDs
@@ -115,35 +115,36 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      */
     protected array $includedTags = [];
 
-    
+
     /**
      * Do settings for the class and Plugin. Load from json-settings-file.
      */
-    public function __construct( ?string $file = null )
+    public function __construct(?string $file = null)
     {
-        $this->plugin_main_dir  = dirname(__DIR__, 1);
-        $this->siteUrl          = \get_site_url();
+        $this->plugin_main_dir = dirname(__DIR__, 1);
+        $this->siteUrl = \get_site_url();
 
         // load and parse settings from file plugin-settings.json in main directory
-        if ( \is_null($file) ) {
+        if (\is_null($file)) {
             $path = $this->plugin_main_dir . '/plugin-settings.json';
         } else {
             $path = $this->plugin_main_dir . $file;
         }
 
         if (is_file($path)) {
-            $settings                 = strval(file_get_contents($path, false));
-            $settings                 = \json_decode($settings, true);
-            $this->hrefTypes          = \key_exists('hrefTypes', $settings) ? $settings['hrefTypes'] : $this->hrefTypes;
-            $this->postTypes          = \key_exists('postTypes', $settings) ? $settings['postTypes'] : $this->postTypes;
+            $settings = strval(file_get_contents($path, false));
+            $settings = \json_decode($settings, true);
+            $this->hrefTypes = \key_exists('hrefTypes', $settings) ? $settings['hrefTypes'] : $this->hrefTypes;
+            $this->postTypes = \key_exists('postTypes', $settings) ? $settings['postTypes'] : $this->postTypes;
             $this->cssClassesToSearch = \key_exists('cssClassesToSearch', $settings) ? $settings['cssClassesToSearch'] : $this->cssClassesToSearch;
-            $this->excludeIds         = \key_exists('excludeIDs', $settings) ? $settings['excludeIDs'] : $this->excludeIds;
+            $this->excludeIds = \key_exists('excludeIDs', $settings) ? $settings['excludeIDs'] : $this->excludeIds;
 
             // extract $want_to_modify_body from settings
             if (\key_exists('rewriteScope', $settings)) {
                 $this->want_to_modify_body = $settings['rewriteScope'] === 'body';
             }
-        };
+        }
+        ;
 
         foreach ($this->hrefTypes as $type) {
             switch (strtolower($type)) {
@@ -169,9 +170,9 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
         // prepare rewrite only for posts that are in settings and only for front-end
         $postID = (int) \get_the_ID();
         $exclude = \in_array($postID, $this->excludeIds, true);
-        $this->posttype         = strval(\get_post_type());
-        $this->doRewrite        = in_array($this->posttype, $this->postTypes, true) && !$exclude && !is_admin(); // TODO && !wp_doing_ajax(); REST-API-request???
-        $this->nFound           = 0;
+        $this->posttype = strval(\get_post_type());
+        $this->doRewrite = in_array($this->posttype, $this->postTypes, true) && !$exclude && !is_admin(); // TODO && !wp_doing_ajax(); REST-API-request???
+        $this->nFound = 0;
         return $this->doRewrite;
     }
 
@@ -256,7 +257,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * @param  string $content the html to rewrite
      * @return string the rewritten html $content
      */
-    public function rewrite_body_modify_content( string $content) :string
+    public function rewrite_body_modify_content(string $content): string
     {
         //modify $content
         if ($this->prepare()) {
@@ -320,9 +321,9 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
         $this->includedTags['<!DOCTYPE html>'] = strpos($content, '<!DOCTYPE html>') !== false; // usually not in passed html
         $this->includedTags['<html'] = strpos($content, '<html') !== false; // usually not in passed html
         $this->includedTags['</html>'] = strpos($content, '</html>') !== false;
-        $this->includedTags['<head ']  = strpos($content, '<head ') !== false; // usually not in passed html
+        $this->includedTags['<head '] = strpos($content, '<head ') !== false; // usually not in passed html
         $this->includedTags['</head>'] = strpos($content, '</head>') !== false;
-        $this->includedTags['<body']  = strpos($content, '<body') !== false; // usually not in passed html
+        $this->includedTags['<body'] = strpos($content, '<body') !== false; // usually not in passed html
         $this->includedTags['</body>'] = strpos($content, '</body>') !== false;
 
         // rewrite HTML code with figures
@@ -349,44 +350,46 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
         foreach ($allFigures as $figure) {
 
-            $class                  = $figure->getAttribute('class');
-            $tagType                = $figure->tagName;
+            $class = $figure->getAttribute('class');
+            $tagType = $figure->tagName;
             [$classFound, $isVideo, $isEmbed] = $this->findCssClass($class);
-            $isMediaFile            = false;
-            $hasHref                = false;
-            $item                   = null;
-            $dataType               = '';
-            $videoThumb             = null;
-            $hrefParent             = null;
-            $hasDivInFigure         = false; // 2023-09: new decision for figures with structure not regarded in first development.
+            $isMediaFile = false;
+            $hasHref = false;
+            $item = null;
+            $dataType = '';
+            $videoThumb = null;
+            $hrefParent = null;
+            $hasDivInFigure = false; // 2023-09: new decision for figures with structure not regarded in first development.
+            $hasWPLightbox = false;
 
             if (!$classFound) {
                 $classFound = $this->parentFindCssClass($figure);
             }
 
-            if ($classFound) {
+            if ($classFound && !$hasWPLightbox) {
                 // provide item, $dataType, $isMediaFile, $hasHref from $figure, $classFound, $isVideo
                 if (!$isVideo) {
-                    $item     = $figure->querySelector('img');
+                    $item = $figure->querySelector('img');
                     $dataType = 'image';
 
-                    $href    = null;
-                    $href    = $figure->querySelector('a');
+                    $href = null;
+                    $href = $figure->querySelector('a');
                     if (!\is_null($href)) {
-                        $hrefParent   = $href->parentNode;
+                        $hrefParent = $href->parentNode;
                     }
                     $hasHref = \is_null($href) ? false : true;
 
                     if ($hasHref) {
-                        $href         = $href->getAttribute('href');
+                        $href = $href->getAttribute('href');
                         if ($hrefParent->tagName === 'figcaption') {
                             $hasHref = false;
                         }
-                        $header       = \wp_remote_head($href, array('timeout' => 2));
+                        $header = \wp_remote_head($href, array('timeout' => 2));
                         $content_type = \wp_remote_retrieve_header($header, 'content-type');
-                        $isMediaFile  = \strpos($content_type, 'image');
-                        $hasSiteUrl   = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
-                        $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
+                        gettype($content_type) === 'array' ? $content_type = implode(' ', $content_type) : null;
+                        $isMediaFile = \strpos($content_type, 'image');
+                        $hasSiteUrl = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
+                        $hasSiteUrl = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
                         if (($isMediaFile !== false) && ($hasSiteUrl !== false)) {
                             $isMediaFile = true;
                         }
@@ -394,8 +397,8 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                     $hasDivInFigure = $this->hasDivInFigure($item);
 
                 } elseif (!$isEmbed) {
-                    $item     = $figure->querySelector('video');
-                    $videoThumb   = $item->getAttribute('poster');
+                    $item = $figure->querySelector('video');
+                    $videoThumb = $item->getAttribute('poster');
                     $dataType = 'video';
                 } elseif ($isEmbed) {
                     $item = $figure->querySelector('iframe');
@@ -407,7 +410,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
                     $caption = $figure->querySelector('figcaption');
 
-                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                    $a = $this->classCreateElement($dom, $dataType, $caption, $item);
                     $a->appendChild($item);
 
                     $newfigure = $dom->createElement($tagType);
@@ -421,10 +424,10 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 }
                 // new method for featured images in header with tag sequence: figure-div-img. This is a new case in 2023-09.
                 elseif (!is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && $hasDivInFigure) {
-                
+
                     $caption = $figure->querySelector('figcaption');
-                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
-                    
+                    $a = $this->classCreateElement($dom, $dataType, $caption, $item);
+
                     $newitem = $item->cloneNode(true);
                     $a->appendChild($newitem); // this MOVES the $item from $figure to $a! Is this a bug?
 
@@ -435,7 +438,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
                 elseif (!is_null($item) && $isVideo && !$isEmbed) {
 
                     $caption = $figure->querySelector('figcaption');
-                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item, $videoThumb);
+                    $a = $this->classCreateElement($dom, $dataType, $caption, $item, $videoThumb);
 
                     // create the button to open the lightbox
                     $lbdiv = $dom->createElement('div');
@@ -510,7 +513,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             }
             // final clean-up for closing tags
             $content = preg_replace("/\r|\n/", "", $content);
-            $content = str_replace('>>', '', $content);
+            !is_null($content) ? $content = str_replace('>>', '', $content) : $content = $originalContent;
         }
 
         return $content;
@@ -519,29 +522,30 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     /**
      * Create the HTML5DOMElement with A-Tag and attributes
      *
-     * @param  object      $dom the dom-object to which the element shall be appended
+     * @param  \IvoPetkov\HTML5DOMDocument   $dom the dom-object to which the element shall be appended
      * @param  string      $dataType either image or video type
-     * @param  object|null $caption the caption of the image
-     * @param  object      $item theo originating item in the figure which is being processed
+     * @param  \IvoPetkov\HTML5DOMElement|null $caption the caption of the image
+     * @param  \IvoPetkov\HTML5DOMElement      $item theo originating item in the figure which is being processed
      * @param  string|null $videoThumb the video thumbnail
-     * @return object      the new generated A-Tag asHTML5DOMElement
+     * @return \DOMElement      the new generated A-Tag as \IvoPetkov\HTML5DOMElement written as \DOMElement for PHPStan LVL 8
      */
-    private function classCreateElement( object $dom, string $dataType, &$caption, object &$item, ?string $videoThumb='') :object {
+    private function classCreateElement(\IvoPetkov\HTML5DOMDocument $dom, string $dataType, &$caption, \IvoPetkov\HTML5DOMElement &$item, ?string $videoThumb = ''): \DOMElement
+    {
         $a = $dom->createElement('a');
         $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
         $a->setAttribute('data-type', $dataType);
         $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
-            
+
         if (!is_null($caption)) {
-            $a->setAttribute('data-caption', $caption->getNodeValue() );
+            $a->setAttribute('data-caption', $caption->getNodeValue());
         }
-    
+
         if (!empty($videoThumb)) {
             $a->setAttribute('data-thumb', $videoThumb);
         }
 
         $a->setAttribute('href', $item->getAttribute('src'));
-    
+
         return $a;
     }
 
@@ -551,11 +555,13 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * @param  object  $item
      * @return boolean
      */
-    private function hasDivInFigure(object $item): bool {
+    private function hasDivInFigure(object $item): bool
+    {
         // Check if $item is a DOMNode
         if (get_class($item) === 'IvoPetkov\HTML5DOMElement' && $item->tagName === 'img') {
             // Check if $item has a <div> tag in its parents
-        } else return false;
+        } else
+            return false;
 
         // Start from the parent node
         $parent = $item->parentNode;
@@ -567,8 +573,10 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             }
 
             // Check if the parent node contains a <div> tag
-            if ($parent->tagName === 'div') {
-                return true; // Found a <div> tag in parents
+            // phpstan-ignore-line: is OK because $parent is not DOMNode but IvoPetkov\HTML5DOMElement.
+            if ($parent->tagName === 'div') { // @phpstan-ignore-line
+                // Found a <div> tag in parents
+                return true;
             }
 
             // Move up to the next parent node
@@ -583,14 +591,14 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * Find the Css-Class from settings in the class-attribute.
      *
      * @param string $class The class-attribute as a string.
-     * @return array{bool,bool} An array containing a boolean indicating whether the class was found and a boolean indicating whether it is a video class.
+     * @return array{bool,bool,bool} An array containing a boolean indicating whether the class was found and a boolean indicating whether it is a video class.
      */
     private function findCssClass(string $class): array
     {
         $classFound = false;
-        $isVideo    = false;
+        $isVideo = false;
         $isEmbed = false;
-        $search     = '';
+        $search = '';
 
         foreach ($this->cssClassesToSearch as $search) {
             $classFound = 0;
@@ -603,11 +611,13 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 
         if (((strpos($search, 'video') !== false) || (strpos($search, 'youtube') !== false)) && $classFound) { // works only because $search is set to last key after break in for-loop
             $isVideo = true;
-        };
+        }
+        ;
 
         if ($isVideo && (strpos($search, 'youtube') !== false) && $classFound) { // works only because $search is set to last key after break in for-loop
             $isEmbed = true;
-        };
+        }
+        ;
 
         return array($classFound, $isVideo, $isEmbed);
     }
@@ -615,18 +625,18 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     /**
      * Find the Css-Class in parent of the figure as DOM-Element.
      *
-     * @param  object $figure the class-attribute as DOM-Object
+     * @param  \IvoPetkov\HTML5DOMElement $figure the class-attribute as DOM-Object
      * @return bool
      */
-    private function parentFindCssClass(object $figure): bool
+    private function parentFindCssClass(\IvoPetkov\HTML5DOMElement $figure): bool
     {
         $classFound = false;
-        $search     = '';
-        $parent     = $figure->parentNode;
+        $search = '';
+        $parent = $figure->parentNode;
         if (is_null($parent)) {
             return $classFound;
         }
-        $class      = $parent->getAttribute('class');
+        $class = $parent->getAttribute('class'); // @phpstan-ignore-line
 
         foreach ($this->cssClassesToSearch as $search) {
             $classFound = 0;
