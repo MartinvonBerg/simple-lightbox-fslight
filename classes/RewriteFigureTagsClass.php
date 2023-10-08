@@ -35,12 +35,13 @@ interface RewriteFigureTagsInterface
  * @phpstan-type postTypes array{string}
  * @phpstan-type cssClassesToSearch array{string}
  * @phpstan-type excludeIDs array{integer}
+ * @phpstan-type includedTags array<string, bool>
  */
 final class RewriteFigureTags implements RewriteFigureTagsInterface
 {
 
     // --------------- settings ----------------------------------------
-    // PHP 7.3 version :: no type definition
+    /* PHP 7.3 version :: no type definition
     protected $posttype        = '';
     protected $siteUrl         = '';
     protected $doRewrite       = false;
@@ -78,7 +79,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     private $want_to_modify_body = false;
     private $includedTags = array();
 
-    /*
+    */
 	// PHP 7.4 version
 	protected string $posttype = '';
 	protected string $siteUrl  = '';
@@ -86,29 +87,35 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 	protected bool $hrefEmpty = false;
 	protected bool $hrefMedia = false;
 	protected string $plugin_main_dir = '';
-	*/
+    protected int $nFound = 0;
+    protected bool $want_to_modify_body = false;
+    	
     /**
      * @var hrefTypes
      */
-    // protected array $hrefTypes = [ 'Empty', 'Media' ];
+    protected array $hrefTypes = [ 'Empty', 'Media' ];
 
     /**
      * @var postTypes
      */
-    // protected array $postTypes = [ 'page', 'post',  'home', 'front', ];
-    // 'attachment', 'archive', 'date', 'author', 'tag', 'category'
+    protected array $postTypes = [ 'page', 'post',  'home', 'front', ];
 
     /**
      * @var cssClassesToSearch
      */
-    // protected array $cssClassesToSearch = [ 'block-image','media-text', 'block-video', 'postie-image' ];
+    protected array $cssClassesToSearch = [ 'wp-block-image','wp-block-media-text', 'wp-block-video', 'postie-image' ];
 
     /**
      * @var excludeIDs
      */
-    //  protected array $excludeIds = array();
-    // some are missing here
+    protected array $excludeIds = [0];
 
+    /**
+     * @var includedTags
+     */
+    protected array $includedTags = [];
+
+    
     /**
      * Do settings for the class and Plugin. Load from json-settings-file.
      */
@@ -354,134 +361,135 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $hasDivInFigure         = false; // 2023-09: new decision for figures with structure not regarded in first development.
 
             if (!$classFound) {
-                $classInParent = $this->parentFindCssClass($figure);
-                $classFound    = $classInParent;
+                $classFound = $this->parentFindCssClass($figure);
             }
 
-            // provide item, $dataType, $isMediaFile, $hasHref from $figure, $classFound, $isVideo
-            if ($classFound && !$isVideo) {
-                $item     = $figure->querySelector('img');
-                $dataType = 'image';
+            if ($classFound) {
+                // provide item, $dataType, $isMediaFile, $hasHref from $figure, $classFound, $isVideo
+                if (!$isVideo) {
+                    $item     = $figure->querySelector('img');
+                    $dataType = 'image';
 
-                $href    = null;
-                $href    = $figure->querySelector('a');
-                if (!\is_null($href)) {
-                    $hrefParent   = $href->parentNode;
-                }
-                $hasHref = \is_null($href) ? false : true;
-
-                if ($hasHref) {
-                    $href         = $href->getAttribute('href');
-                    if ($hrefParent->tagName === 'figcaption') {
-                        $hasHref = false;
+                    $href    = null;
+                    $href    = $figure->querySelector('a');
+                    if (!\is_null($href)) {
+                        $hrefParent   = $href->parentNode;
                     }
-                    $header       = \wp_remote_head($href, array('timeout' => 2));
-                    $content_type = \wp_remote_retrieve_header($header, 'content-type');
-                    $isMediaFile  = \strpos($content_type, 'image');
-                    $hasSiteUrl   = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
-                    $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
-                    if (($isMediaFile !== false) && ($hasSiteUrl !== false)) {
-                        $isMediaFile = true;
+                    $hasHref = \is_null($href) ? false : true;
+
+                    if ($hasHref) {
+                        $href         = $href->getAttribute('href');
+                        if ($hrefParent->tagName === 'figcaption') {
+                            $hasHref = false;
+                        }
+                        $header       = \wp_remote_head($href, array('timeout' => 2));
+                        $content_type = \wp_remote_retrieve_header($header, 'content-type');
+                        $isMediaFile  = \strpos($content_type, 'image');
+                        $hasSiteUrl   = \strpos($href, $this->siteUrl); // only show local files in lightbox (except YouTube videos)
+                        $hasSiteUrl   = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
+                        if (($isMediaFile !== false) && ($hasSiteUrl !== false)) {
+                            $isMediaFile = true;
+                        }
                     }
+                    $hasDivInFigure = $this->hasDivInFigure($item);
+
+                } elseif (!$isEmbed) {
+                    $item     = $figure->querySelector('video');
+                    $videoThumb   = $item->getAttribute('poster');
+                    $dataType = 'video';
+                } elseif ($isEmbed) {
+                    $item = $figure->querySelector('iframe');
+                    $dataType = 'video';
                 }
-                $hasDivInFigure = $this->hasDivInFigure($item);
 
-            } elseif ($classFound && $isVideo && !$isEmbed) {
-                $item     = $figure->querySelector('video');
-                $videoThumb   = $item->getAttribute('poster');
-                $dataType = 'video';
-            } elseif ($classFound && $isVideo && $isEmbed) {
-                $item = $figure->querySelector('iframe');
-                $dataType = 'video';
-            }
+                // create new dom-element and append to dom
+                if (!is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && !$hasDivInFigure) {
 
-            // create new dom-element and append to dom
-            if ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && !$hasDivInFigure) {
+                    $caption = $figure->querySelector('figcaption');
 
-                $caption = $figure->querySelector('figcaption');
+                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                    $a->appendChild($item);
 
-                $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
-                $a->appendChild($item);
+                    $newfigure = $dom->createElement($tagType);
+                    $newfigure->setAttribute('class', $class);
+                    $newfigure->appendChild($a);
 
-                $newfigure = $dom->createElement($tagType);
-                $newfigure->setAttribute('class', $class);
-                $newfigure->appendChild($a);
+                    !is_null($caption) ? $newfigure->appendChild($caption) : null;
 
-                !is_null($caption) ? $newfigure->appendChild($caption) : null;
-
-                $figure->parentNode->replaceChild($newfigure, $figure);
-                $this->nFound += 1;
-            }
-            // new method for featured images in header with tag sequence: figure-div-img. This is a new case in 2023-09.
-            elseif ($classFound && !is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && $hasDivInFigure) {
-               
-                $caption = $figure->querySelector('figcaption');
-                $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                    $figure->parentNode->replaceChild($newfigure, $figure);
+                    $this->nFound += 1;
+                }
+                // new method for featured images in header with tag sequence: figure-div-img. This is a new case in 2023-09.
+                elseif (!is_null($item) && ((!$hasHref && $this->hrefEmpty) || ($isMediaFile && $this->hrefMedia)) && !$isVideo && $hasDivInFigure) {
                 
-                $newitem = $item->cloneNode(true);
-                $a->appendChild($newitem); // this MOVES the $item from $figure to $a! Is this a bug?
+                    $caption = $figure->querySelector('figcaption');
+                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item);
+                    
+                    $newitem = $item->cloneNode(true);
+                    $a->appendChild($newitem); // this MOVES the $item from $figure to $a! Is this a bug?
 
-                $item->parentNode->replaceChild($a, $item);
-                $this->nFound += 1;
-            }
-            // handle html5 videos here
-            elseif (($classFound) && !is_null($item) && $isVideo && !$isEmbed) {
+                    $item->parentNode->replaceChild($a, $item);
+                    $this->nFound += 1;
+                }
+                // handle html5 videos here
+                elseif (!is_null($item) && $isVideo && !$isEmbed) {
 
-                $caption = $figure->querySelector('figcaption');
-                $a = $this->classCreateElement( $dom, $dataType, $caption, $item, $videoThumb);
+                    $caption = $figure->querySelector('figcaption');
+                    $a = $this->classCreateElement( $dom, $dataType, $caption, $item, $videoThumb);
 
-                // create the button to open the lightbox
-                $lbdiv = $dom->createElement('div');
-                $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
-                $a->appendChild($lbdiv);
+                    // create the button to open the lightbox
+                    $lbdiv = $dom->createElement('div');
+                    $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
+                    $a->appendChild($lbdiv);
 
-                $newfigure = $dom->createElement($tagType);
-                $newfigure->setAttribute('class', $class);
-                $newfigure->appendChild($a);
-                $newfigure->appendChild($item);
+                    $newfigure = $dom->createElement($tagType);
+                    $newfigure->setAttribute('class', $class);
+                    $newfigure->appendChild($a);
+                    $newfigure->appendChild($item);
 
-                $figure->parentNode->replaceChild($newfigure, $figure);
-                $this->nFound += 1;
-            }
-            // handle YouTube Videos here
-            elseif (($classFound) && !is_null($item) && $isVideo && $isEmbed) {
+                    $figure->parentNode->replaceChild($newfigure, $figure);
+                    $this->nFound += 1;
+                }
+                // handle YouTube Videos here
+                elseif (!is_null($item) && $isVideo && $isEmbed) {
 
-                $a = $dom->createElement('a');
-                $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!   //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
-                $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
+                    $a = $dom->createElement('a');
+                    $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!   //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
+                    $a->setAttribute('aria-label', 'Open fullscreen lightbox with current ' . $dataType);
 
-                $href = $item->getAttribute('src');
-                $ytHref = $href;
-                $ytHref = \str_replace('youtube.com', 'youtube-nocookie.com', $ytHref);
-                $ytHref = \str_replace('feature=oembed', 'feature=oembed&enablejsapi=1', $ytHref);
+                    $href = $item->getAttribute('src');
+                    $ytHref = $href;
+                    $ytHref = \str_replace('youtube.com', 'youtube-nocookie.com', $ytHref);
+                    $ytHref = \str_replace('feature=oembed', 'feature=oembed&enablejsapi=1', $ytHref);
 
-                $item->setAttribute('src', $ytHref);
+                    $item->setAttribute('src', $ytHref);
 
-                $href = explode('?', $href)[0];
-                $a->setAttribute('href', $href);
+                    $href = explode('?', $href)[0];
+                    $a->setAttribute('href', $href);
 
-                // get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
-                $ytID = explode('/', $href);
-                $ytID = end($ytID);
-                $videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
-                // Get the video thumbnail. Use get_headers() function
-                $headers = @get_headers($videoThumbUrl);
-                // Use condition to check the existence of URL
-                $headers && strpos($headers[0], '200') ? $a->setAttribute('data-thumb', $videoThumbUrl) : null;
+                    // get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
+                    $ytID = explode('/', $href);
+                    $ytID = end($ytID);
+                    $videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
+                    // Get the video thumbnail. Use get_headers() function
+                    $headers = @get_headers($videoThumbUrl);
+                    // Use condition to check the existence of URL
+                    $headers && strpos($headers[0], '200') ? $a->setAttribute('data-thumb', $videoThumbUrl) : null;
 
-                // create the button to open the lightbox
-                $lbdiv = $dom->createElement('div');
-                $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
+                    // create the button to open the lightbox
+                    $lbdiv = $dom->createElement('div');
+                    $lbdiv->setAttribute('class', 'yt-button-simple-fslb-mvb');
 
-                $a->appendChild($lbdiv);
+                    $a->appendChild($lbdiv);
 
-                $newfigure = $dom->createElement($tagType);
-                $newfigure->setAttribute('class', $class);
-                $newfigure->appendChild($a);
-                $newfigure->appendChild($item);
+                    $newfigure = $dom->createElement($tagType);
+                    $newfigure->setAttribute('class', $class);
+                    $newfigure->appendChild($a);
+                    $newfigure->appendChild($item);
 
-                $figure->parentNode->replaceChild($newfigure, $figure);
-                $this->nFound += 1;
+                    $figure->parentNode->replaceChild($newfigure, $figure);
+                    $this->nFound += 1;
+                }
             }
         }
 
@@ -513,7 +521,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      *
      * @param  object      $dom the dom-object to which the element shall be appended
      * @param  string      $dataType either image or video type
-     * @param  [type]      $caption the caption of the image
+     * @param  object|null $caption the caption of the image
      * @param  object      $item theo originating item in the figure which is being processed
      * @param  string|null $videoThumb the video thumbnail
      * @return object      the new generated A-Tag asHTML5DOMElement
@@ -614,7 +622,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
     {
         $classFound = false;
         $search     = '';
-        $parent     = $figure->parentNode; // @phpstan-ignore-line
+        $parent     = $figure->parentNode;
         if (is_null($parent)) {
             return $classFound;
         }
