@@ -191,7 +191,7 @@ function xcopy(string $source, string $dest, int $permissions = 0777): bool
 {
     $sourceHash = hashDirectory($source);
     // Check for symlinks
-    if (is_link($source)) {
+    if (is_link($source) && readlink($source)!==false) {
         return symlink(readlink($source), $dest);
     }
 

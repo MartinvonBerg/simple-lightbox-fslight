@@ -320,7 +320,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
             $videoThumb = null;
             $hrefParent = null;
             $hasDivInFigure = false; // 2023-09: new decision for figures with structure not regarded in first development.
-            $hasWPLightbox = false; // preparation for WP 6.4
+            $hasWPLightbox = strpos($class, 'wp-lightbox') !== false; // preparation for WP 6.4 with simple CSS lightbox. TODO: Re-test with release.
 
             if (!$classFound) {
                 $classFound = $this->parentFindCssClass($figure);
@@ -487,9 +487,9 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
      * @param  \IvoPetkov\HTML5DOMElement|null $caption the caption of the image
      * @param  \IvoPetkov\HTML5DOMElement      $item theo originating item in the figure which is being processed
      * @param  string|null $videoThumb the video thumbnail
-     * @return \DOMElement      the new generated A-Tag as \IvoPetkov\HTML5DOMElement written as \DOMElement for PHPStan LVL 8
+     * @return \IvoPetkov\HTML5DOMElement|false      the new generated A-Tag as \IvoPetkov\HTML5DOMElement written as \DOMElement for PHPStan LVL 8
      */
-    private function classCreateElement(\IvoPetkov\HTML5DOMDocument $dom, string $dataType, &$caption, \IvoPetkov\HTML5DOMElement &$item, ?string $videoThumb = ''): \DOMElement
+    private function classCreateElement(\IvoPetkov\HTML5DOMDocument $dom, string $dataType, &$caption, \IvoPetkov\HTML5DOMElement &$item, ?string $videoThumb = ''): \IvoPetkov\HTML5DOMElement|false
     {
         $a = $dom->createElement('a');
         $a->setAttribute('data-fslightbox', '1'); // Mind: This is used in javascript, too!
