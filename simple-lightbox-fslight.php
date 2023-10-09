@@ -8,7 +8,7 @@
  * Description:       An easy way to create lightbox effect for WordPress Gutenberg images, galleries and Media-Text-Block. Settings provided with json-File in Plugin-Folder, see there and Readme.
  * Version:           2.0.0
  * Requires at least: 5.9
- * Requires PHP       7.4
+ * Requires PHP:      7.4
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0

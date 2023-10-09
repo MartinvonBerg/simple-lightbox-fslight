@@ -4,7 +4,7 @@
  *
  * Version:           2.0.0
  * Requires at least: 5.9
- * Requires PHP       7.4
+ * Requires PHP:      7.4
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0
@@ -73,7 +73,7 @@ function save_settings_before_upgrade_callback(mixed $return, array $plugin)
         $success = savePluginFiles($pluginUnmodiefied);
 
         if (!$success) {
-            \activate_plugin($plugin, true);
+            \activate_plugin($plugin);
             return new \WP_Error('bad_request', 'Update skipped. Could not save Plugin files.');
         }
     }
@@ -87,7 +87,6 @@ function save_settings_before_upgrade_callback(mixed $return, array $plugin)
  * @param mixed $response The response from the callback.
  * @param array $hook_extra The extra data from the callback.
  * @param mixed $result The result of the callback.
- * @throws WP_Error If the plugin settings could not be restored.
  * @return mixed The modified result.
  */
 function restore_settings_after_upgrade_callback($response, array $hook_extra, mixed $result)
@@ -95,8 +94,8 @@ function restore_settings_after_upgrade_callback($response, array $hook_extra, m
     // check if plugin is simple-lightbox-fslight
     if ($result["destination_name"] === 'simple-lightbox-fslight') {
         $success = restorePluginFiles();
-        if ((!$success)) {
-            return new \WP_Error('Error', 'Could not restore Plugin Settings.');
+        if (!$success) {
+            // do nothing
         } else {
             $plugin = $hook_extra['plugin'];
             $success = \activate_plugin($plugin);
@@ -148,28 +147,25 @@ function savePluginFiles(array $info): bool
 /**
  * Restores the plugin files.
  *
- * @throws Exception if the source or destination folder is not available.
  * @return bool true if the plugin files are successfully restored, false otherwise.
  */
 function restorePluginFiles(): bool
 {
-    $success = false;
     $sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
     $destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
 
-    // check directories. All should be available.
+    // check directories. All should be available. Does not work for first install.
+    /*
     if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
         return false;
     }
-
+    */
     // restore the settings './plugin-settings.json'
     $path = $sourceFolder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
     if (\is_file($path)) {
         $savePath = $destFolder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
         $success = xcopy($path, $savePath);
-    } else {
-        return false;
-    }
+    } 
 
     // restore the folder './js/fslightbox-paid
     $path = $sourceFolder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
@@ -178,7 +174,7 @@ function restorePluginFiles(): bool
         $success = xcopy($path, $savePath);
     }
 
-    return $success;
+    return true;
 }
 
 /**
@@ -234,10 +230,9 @@ function xcopy(string $source, string $dest, int $permissions = 0777): bool
  * Recursively hashes the contents of a directory. In case of coping a directory inside itself, there is a need to hash check the directory otherwise and infinite loop of coping is generated.
  *
  * @param string $directory The path to the directory.
- * @throws Exception If the specified directory does not exist.
- * @return string The MD5 hash of the directory contents.
+ * @return string|false The MD5 hash of the directory contents.
  */
-function hashDirectory(string $directory): string
+function hashDirectory(string $directory): string|false
 {
     if (!is_dir($directory)) {
         return false;

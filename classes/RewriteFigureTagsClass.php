@@ -4,7 +4,7 @@
  *
  * Version:           2.0.0
  * Requires at least: 5.9
- * Requires PHP       7.4
+ * Requires PHP:      7.4
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0
@@ -41,46 +41,6 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface
 {
 
     // --------------- settings ----------------------------------------
-    /* PHP 7.3 version :: no type definition
-    protected $posttype        = '';
-    protected $siteUrl         = '';
-    protected $doRewrite       = false;
-    protected $hrefEmpty       = false;
-    protected $hrefMedia       = false;
-    protected $plugin_main_dir = '';
-
-    protected $hrefTypes = array(
-        'Empty',
-        'Media',
-    );
-
-    protected $postTypes = array(
-        'page',
-        'post',
-        // 'attachment',
-        'home',
-        'front',
-        // 'archive',
-        // 'date',
-        // 'author',
-        // 'tag',
-        // 'category',
-    );
-
-    protected $cssClassesToSearch = array(
-        'wp-block-image',
-        'wp-block-media-text',
-        'wp-block-video',
-        'postie-image',
-    );
-
-    protected $excludeIds = array();
-    private $nFound = 0;
-    private $want_to_modify_body = false;
-    private $includedTags = array();
-
-    */
-    // PHP 7.4 version
     protected string $posttype = '';
     protected string $siteUrl = '';
     protected bool $doRewrite = false;
