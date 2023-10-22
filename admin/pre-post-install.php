@@ -20,7 +20,9 @@ add_filter( 'upgrader_pre_install', '\mvbplugins\fslightbox\save_settings_before
 add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_after_upgrade_callback', 10, 3 );
 
 /**
- * handle pre install hook : save the settings to a seperate folder in WP-Plugin Directory.
+ * handle pre install hook : save the settings to a seperate folder in WP-Plugin Directory. 
+ * Fail silently in most cases. Only report an error and skip Plugin update if saving of files fails.
+ * 
  * @source https://stackoverflow.com/questions/56179399/wordpress-run-function-before-plugin-is-updating handle pre install hook
  * @param  mixed $return
  * @param  array $plugin
@@ -28,51 +30,47 @@ add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_af
  */
 function save_settings_before_upgrade_callback( $return, $plugin ) {
 	/* $plugin = Array
-												 (
-													 [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
-													 [temp_backup] => Array
-														 (
-															 [slug] => simple-lightbox-fslight
-															 [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
-															 [dir] => plugins
-														 )
+											  (
+												  [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
+												  [temp_backup] => Array
+													  (
+														  [slug] => simple-lightbox-fslight
+														  [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
+														  [dir] => plugins
+													  )
 
-												 )
-												 */
+											  )
+											  */
 	$pluginUnmodiefied = $plugin;
-	$slug = 'simple-lightbox-fslight';
+	$slug = 'simple-lightbox-fslight'; // TODO ??? expected slug.
 
 	//Bypass on active WP-Errors.
 	if ( \is_wp_error( $return ) ) {
 		return $return;
 	}
 
-	// Bypass if not the intended plugin. Install all other Plugins regularly.
-	if ( key_exists( 'temp_backup', $plugin ) && $plugin['temp_backup']['slug'] !== $slug ) {
-		return $return;
-	}
+	// Do only for the intended plugin. Install all other Plugins regularly and skip this if.
+	if ( key_exists( 'plugin', $plugin ) && key_exists( 'temp_backup', $plugin ) && $plugin['temp_backup']['slug'] === $slug ) {
 
-	// return with WP_Error if variable $plugin is not correct.
-	$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
-	if ( empty( $plugin ) ) {
-		return new \WP_Error( 'bad_request', 'bad_request' ); // The Plugin won't be updated with that response.
-	}
+		// return $return if variable $plugin is not correct.
+		$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
 
-	// When in cron (background updates) don't deactivate the plugin, as we require a browser to reactivate it. Plugin will be updated!
-	if ( \is_plugin_active( $plugin ) && ! \wp_doing_cron() ) {
-		//You can play with plugin zip download over here
-		//Deactivate the plugin silently, Prevent deactivation hooks from running.
-		\deactivate_plugins( $plugin, true );
-	}
+		if ( empty( $plugin ) ) {
+			return $return; // The Plugin won't be updated with that response. (Somewhat useless here)
+		}
 
-	// Now save the settings './plugin-settings.json' and the folder './js/fslightbox-paid'
-	if ( isset( $pluginUnmodiefied['temp_backup']['slug'] ) && $pluginUnmodiefied['temp_backup']['slug'] === $slug ) {
+		// When in cron (background updates) don't deactivate the plugin, as we require a browser to reactivate it. Plugin will be updated!
+		if ( \is_plugin_active( $plugin ) && ! \wp_doing_cron() ) {
+			//Deactivate the plugin silently, Prevent deactivation hooks from running.
+			\deactivate_plugins( $plugin, true );
+		}
 
+		// Now save the settings './plugin-settings.json' and the folder './js/fslightbox-paid'
 		$success = savePluginFiles( $pluginUnmodiefied );
 
 		if ( ! $success ) {
 			\activate_plugin( $plugin );
-			return new \WP_Error( 'bad_request', 'Update skipped. Could not save Plugin files.' );
+			return new \WP_Error( 'bad_request', 'Update skipped. Could not save Plugin files (plugin-settings.json, fslightbox-paid).' );
 		}
 	}
 
@@ -80,16 +78,16 @@ function save_settings_before_upgrade_callback( $return, $plugin ) {
 }
 
 /**
- * Restores the settings and js-paid files after an upgrade callback.
+ * Restores the settings and js-paid files after an upgrade callback. Will fail silently.
  *
  * @param mixed $response The response from the callback.
  * @param array $hook_extra The extra data from the callback.
  * @param mixed $result The result of the callback.
- * @return mixed The modified result.
+ * @return mixed The unchanged result.
  */
 function restore_settings_after_upgrade_callback( $response, $hook_extra, $result ) {
 	// check if plugin is simple-lightbox-fslight
-	if ( key_exists( 'destination_name', $result ) && $result["destination_name"] === 'simple-lightbox-fslight' ) {
+	if ( key_exists( 'destination_name', $result ) && $result["destination_name"] === 'simple-lightbox-fslight' ) { // TODO ??? set $slug
 
 		$success = restorePluginFiles();
 
@@ -97,6 +95,8 @@ function restore_settings_after_upgrade_callback( $response, $hook_extra, $resul
 			$plugin = $hook_extra['plugin'];
 			$success = \activate_plugin( $plugin );
 		}
+
+		// TODO: give an admin notice here, if something fails.
 	}
 	return $result;
 }
@@ -139,7 +139,7 @@ function savePluginFiles( $info ) {
 	$path = $sourceFolder . 'js/fslightbox-paid';
 	if ( \is_dir( $path ) ) {
 		$savePath = $destFolder . \DIRECTORY_SEPARATOR . '/fslightbox-paid';
-		$success = xcopy( $path, $savePath );
+		$success = $success && xcopy( $path, $savePath );
 	}
 
 	return $success;
@@ -152,14 +152,14 @@ function savePluginFiles( $info ) {
  */
 function restorePluginFiles() {
 	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight'; // TODO ??? set $slug
 
 	// check directories. All should be available. Does not work for first install.
 	/*
-												 if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
-													 return false;
-												 }
-												 */
+									 if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
+										 return false;
+									 }
+									 */
 	// restore the settings './plugin-settings.json'
 	$path = $sourceFolder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
 	if ( \is_file( $path ) ) {
@@ -171,10 +171,10 @@ function restorePluginFiles() {
 	$path = $sourceFolder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
 	if ( \is_dir( $path ) ) {
 		$savePath = $destFolder . \DIRECTORY_SEPARATOR . 'js/fslightbox-paid';
-		$success = xcopy( $path, $savePath );
+		$success = $success && xcopy( $path, $savePath );
 	}
 
-	return true;
+	return $success;
 }
 
 /**
