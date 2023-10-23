@@ -30,17 +30,17 @@ add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_af
  */
 function save_settings_before_upgrade_callback( $return, $plugin ) {
 	/* $plugin = Array
-											  (
-												  [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
-												  [temp_backup] => Array
-													  (
-														  [slug] => simple-lightbox-fslight
-														  [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
-														  [dir] => plugins
-													  )
+																			   (
+																				   [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
+																				   [temp_backup] => Array
+																					   (
+																						   [slug] => simple-lightbox-fslight
+																						   [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
+																						   [dir] => plugins
+																					   )
 
-											  )
-											  */
+																			   )
+																			   */
 	$pluginUnmodiefied = $plugin;
 	$slug = 'simple-lightbox-fslight'; // TODO ??? expected slug.
 
@@ -96,7 +96,21 @@ function restore_settings_after_upgrade_callback( $response, $hook_extra, $resul
 			$success = \activate_plugin( $plugin );
 		}
 
-		// TODO: give an admin notice here, if something fails.
+		// Give an admin notice here, if something fails.
+		if ( ! $success || is_wp_error( $success ) ) {
+			add_action(
+				'admin_notices',
+				function () {
+					?>
+				<div class="notice notice-error is-dismissible">
+					<p>
+						<?php esc_html_e( 'Simple Lightbox Fslight: Could not restore files after Plugin Update (Ignore this message if installed for the first time)', 'simple-lightbox-fslight' ); ?>
+					</p>
+				</div>
+				<?php
+				}
+			);
+		}
 	}
 	return $result;
 }
@@ -135,7 +149,7 @@ function savePluginFiles( $info ) {
 		return false;
 	}
 
-	// save the folder './js/fslightbox-paid
+	// save the folder './js/fslightbox-paid. Will fail silently.
 	$path = $sourceFolder . 'js/fslightbox-paid';
 	if ( \is_dir( $path ) ) {
 		$savePath = $destFolder . \DIRECTORY_SEPARATOR . '/fslightbox-paid';
@@ -153,15 +167,11 @@ function savePluginFiles( $info ) {
 function restorePluginFiles() {
 	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
 	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight'; // TODO ??? set $slug
+	$success = false;
 
-	// check directories. All should be available. Does not work for first install.
-	/*
-									 if (!is_dir($sourceFolder) || !is_dir($destFolder)) {
-										 return false;
-									 }
-									 */
 	// restore the settings './plugin-settings.json'
 	$path = $sourceFolder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
+
 	if ( \is_file( $path ) ) {
 		$savePath = $destFolder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
 		$success = xcopy( $path, $savePath );
@@ -169,6 +179,7 @@ function restorePluginFiles() {
 
 	// restore the folder './js/fslightbox-paid
 	$path = $sourceFolder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
+
 	if ( \is_dir( $path ) ) {
 		$savePath = $destFolder . \DIRECTORY_SEPARATOR . 'js/fslightbox-paid';
 		$success = $success && xcopy( $path, $savePath );
