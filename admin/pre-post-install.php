@@ -30,19 +30,20 @@ add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_af
  */
 function save_settings_before_upgrade_callback( $return, $plugin ) {
 	/* $plugin = Array
-																			   (
-																				   [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
-																				   [temp_backup] => Array
-																					   (
-																						   [slug] => simple-lightbox-fslight
-																						   [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
-																						   [dir] => plugins
-																					   )
+																										  (
+																											  [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
+																											  [temp_backup] => Array
+																												  (
+																													  [slug] => simple-lightbox-fslight
+																													  [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
+																													  [dir] => plugins
+																												  )
 
-																			   )
-																			   */
+																										  )
+																										  */
 	$pluginUnmodiefied = $plugin;
-	$slug = 'simple-lightbox-fslight'; // TODO ??? expected slug.
+	$slug = 'simple-lightbox-fslight'; // expected slug shall be the slug given by wordpress.org. 
+	// using this: $slug = plugin_basename( __FILE__ ) would give a valid slug for every plugin. So the code would run for every plugin.
 
 	//Bypass on active WP-Errors.
 	if ( \is_wp_error( $return ) ) {
@@ -87,7 +88,7 @@ function save_settings_before_upgrade_callback( $return, $plugin ) {
  */
 function restore_settings_after_upgrade_callback( $response, $hook_extra, $result ) {
 	// check if plugin is simple-lightbox-fslight
-	if ( key_exists( 'destination_name', $result ) && $result["destination_name"] === 'simple-lightbox-fslight' ) { // TODO ??? set $slug
+	if ( key_exists( 'destination_name', $result ) && $result["destination_name"] === 'simple-lightbox-fslight' ) {
 
 		$success = restorePluginFiles();
 
@@ -166,7 +167,7 @@ function savePluginFiles( $info ) {
  */
 function restorePluginFiles() {
 	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight'; // TODO ??? set $slug
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
 	$success = false;
 
 	// restore the settings './plugin-settings.json'

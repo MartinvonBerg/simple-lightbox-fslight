@@ -4,7 +4,7 @@ Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
-Tested up to: 6.3
+Tested up to: 6.4
 Stable tag: 2.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -15,8 +15,13 @@ Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries an
 
 == Description ==
 
+ATTENTION: I’m sorry to say that V1.5.0 of the plugin will crash your website in some cases. So, please backup your plugin-settings.json and the paid version of fslightbox again. The backup-restore process will not work reliably.
+If your website crashes: Login with ftp, backup your plugin-settings.json and paid version of fslightbox, delete the plugin folder in ../wp-content/plugins and finally delete the file .maintenance in your html-Folder (where wp-config.php is.). 
+
+For new users: If you install the Plugin for the first time this won’t happen for your site. 
+
 Provides an easy was to add a Lightbox to Gutenberg videos, Youtube-Videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
-The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V1.5.0)
+The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V2.0.0)
 E.g., just create gallery by using Gutenberg gallery block and use lightbox gallery effect powered by fslightbox.js.
 
 NEW: Added support for the complete HTML-body-code to the page (inbetween body tags). This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
@@ -65,7 +70,7 @@ Yes. Lightbox is fully responsive - it scales to every device.
 No. Plugin just uses fslightbox.js. Free or paid version optionally.
 
 = Does the plugin backup and restore my plugin-settings.json and my paid Version of fslightbox? =
-Yes, the Update to 1.5.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the php-files have to be on your server already. So, with this update it is the last time you have to save your files in advance. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V1.5.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
+Yes, the Update to 2.0.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the php-files have to be on your server already. So, with this update it is the last time you have to save your files in advance. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V2.0.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
 
 = With Youtube-Videos the Browser Console shows Javascript Errors. It it a Problem? =
 Yes, there are errors shown like "The service worker navigation preload request was cancelled before 'preloadResponse' settled. If you intend to use 'preloadResponse', use waitUntil() or respondWith() to wait for the promise to settle". This issue is not solvable by me. If you dislike it: Just delete the JS-File ```simple-lightbox.min.js```. The Video Sync will no longer work after that.
@@ -75,18 +80,21 @@ Yes, there are errors shown like "The service worker navigation preload request 
 1. Example lightbox.
 
 == Upgrade Notice ==
-Upgrade to 1.5.0+ if you want support for Youtube Videos or want to have your settings restored automatically. Otherwise no upgrade is required. Version 1.3.1 is yet sufficient.
+Upgrade to 2.0.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
 
 = V2.0.0 =
 Breaking Changes:
 - NEW: Minimum PHP Version is now 7.4
-- NEW: added an option to handle the complete HTML code inbetween the Body tags
-- BUGFIX: changed code for HTML5Videos to be compatible with W3C standards. Will add the Button Icon on the Top Left.
+- NEW: added an option to handle the complete HTML code inbetween the Body tags (not only the_content)
+- NEW: for WP 6.4: Do not open the lightbox where the new WP lightbox was activated.
+- BUGFIX: changed process for backup and restore of plugin files. V1.5.0 did not work in all cases and caused PHP fatal errors in some cases.
+- BUGFIX: changed code for HTML5Videos to be compatible with W3C standards. Will add a Button Icon on the Top Left.
+- 
 - removed handling of Postie-images (was my private use)
 - Code Refactoring of Main Class
-- Updated JS to pause Videos on Slide change
+- Updated JS to pause Videos on Slide change (only paid version of fsligthbox will support this)
 - Updated PHPDocBlocks for PHPUnit Tests, PHPStan Level 6 and PHPCS
 
 = 1.5.0 =
