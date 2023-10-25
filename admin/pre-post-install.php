@@ -24,22 +24,22 @@ add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_af
  * Fail silently in most cases. Only report an error and skip Plugin update if saving of files fails.
  * 
  * @source https://stackoverflow.com/questions/56179399/wordpress-run-function-before-plugin-is-updating handle pre install hook
- * @param  mixed $return
- * @param  array $plugin
- * @return mixed $return
+ * @param  mixed $return The return value from the previous function (type is actually unknown)
+ * @param  array $plugin An array that stores information about the updated plugin
+ * @return mixed $return 
  */
 function save_settings_before_upgrade_callback( $return, $plugin ) {
 	/* $plugin = Array
-																										  (
-																											  [plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
-																											  [temp_backup] => Array
-																												  (
-																													  [slug] => simple-lightbox-fslight
-																													  [src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
-																													  [dir] => plugins
-																												  )
+		(
+			[plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
+			[temp_backup] => Array
+				(
+					[slug] => simple-lightbox-fslight
+					[src] => C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs/wp-content/plugins
+					[dir] => plugins
+				)
 
-																										  )
+		)
 																										  */
 	$pluginUnmodiefied = $plugin;
 	$slug = 'simple-lightbox-fslight'; // expected slug shall be the slug given by wordpress.org. 
@@ -126,7 +126,7 @@ function restore_settings_after_upgrade_callback( $response, $hook_extra, $resul
 function savePluginFiles( $info ) {
 	$success = false;
 	$destFolder = 'simple-lightbox-fslight-backup';
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . $destFolder;
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . $destFolder; // @phpstan-ignore-line
 
 	if ( isset( $info['temp_backup']['src'] ) && isset( $info['temp_backup']['slug'] ) ) {
 		$sourceFolder = $info['temp_backup']['src'] . \DIRECTORY_SEPARATOR . $info['temp_backup']['slug'] . \DIRECTORY_SEPARATOR;
@@ -166,8 +166,8 @@ function savePluginFiles( $info ) {
  * @return bool true if the plugin files are successfully restored, false otherwise.
  */
 function restorePluginFiles() {
-	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
+	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup'; // @phpstan-ignore-line
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight'; // @phpstan-ignore-line
 	$success = false;
 
 	// restore the settings './plugin-settings.json'
