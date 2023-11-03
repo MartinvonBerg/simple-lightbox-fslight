@@ -300,7 +300,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 			$class = $figure->getAttribute( 'class' );
 			$tagType = $figure->tagName;
-			[ $classFound, $isVideo, $isEmbed ] = $this->findCssClass( $class );
+			[ $classFound, $isVideo, $isYouTube ] = $this->findCssClass( $class );
 			$isMediaFile = false;
 			$hasHref = false;
 			$item = null;
@@ -342,13 +342,13 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 							$isMediaFile = true;
 						}
 					}
-					$hasDivInFigure = $this->hasDivInFigure( $item );
+					$hasDivInFigure = !is_null( $item ) ? $this->hasDivInFigure( $item ) : false;
 
-				} elseif ( ! $isEmbed ) {
+				} elseif ( ! $isYouTube ) {
 					$item = $figure->querySelector( 'video' );
-					$videoThumb = $item->getAttribute( 'poster' );
+					!is_null( $item ) ? $videoThumb = $item->getAttribute( 'poster' ) : $videoThumb = null;
 					$dataType = 'video';
-				} elseif ( $isEmbed ) {
+				} elseif ( $isYouTube ) {
 					$item = $figure->querySelector( 'iframe' );
 					$dataType = 'video';
 				}
@@ -383,7 +383,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 					$this->nFound += 1;
 				}
 				// handle html5 videos here
-				elseif ( ! is_null( $item ) && $isVideo && ! $isEmbed ) {
+				elseif ( ! is_null( $item ) && $isVideo && ! $isYouTube ) {
 
 					$caption = $figure->querySelector( 'figcaption' );
 					$a = $this->classCreateElement( $dom, $dataType, $caption, $item, $videoThumb );
@@ -402,7 +402,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 					$this->nFound += 1;
 				}
 				// handle YouTube Videos here
-				elseif ( ! is_null( $item ) && $isVideo && $isEmbed ) {
+				elseif ( ! is_null( $item ) && $isVideo && $isYouTube ) {
 
 					$a = $dom->createElement( 'a' );
 					$a->setAttribute( 'data-fslightbox', '1' ); // Mind: This is used in javascript, too!   //$a->setAttribute('data-type', $dataType); // Does not work with YouTube
@@ -542,7 +542,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	private function findCssClass( string $class ): array {
 		$classFound = false;
 		$isVideo = false;
-		$isEmbed = false;
+		$isYouTube = false;
 		$search = '';
 
 		foreach ( $this->cssClassesToSearch as $search ) {
@@ -560,11 +560,11 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		;
 
 		if ( $isVideo && ( strpos( $search, 'youtube' ) !== false ) && $classFound ) { // works only because $search is set to last key after break in for-loop
-			$isEmbed = true;
+			$isYouTube = true;
 		}
 		;
 
-		return array( $classFound, $isVideo, $isEmbed );
+		return array( $classFound, $isVideo, $isYouTube );
 	}
 
 	/**
