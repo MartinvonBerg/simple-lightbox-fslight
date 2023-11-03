@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           2.0.0
+ * Version:           2.1.0
  * Requires at least: 5.9
  * Requires PHP:      7.4
  * Author:            Martin von Berg
@@ -618,7 +618,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '2.0.0', true );
+			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '2.1.0', true );
 		}
 	}
 
@@ -633,7 +633,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '2.0.0', 'all' );
+			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '2.1.0', 'all' );
 		}
 	}
 }

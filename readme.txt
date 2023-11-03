@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
 Tested up to: 6.4
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,9 +83,12 @@ You might add "wp-block-embed-flickr" but the lightbox does not open? That is, b
 1. Example lightbox.
 
 == Upgrade Notice ==
-Upgrade to 2.0.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
+Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= V2.1.0 =
+- BUGFIX: PHP Bugfixes to avoid crashes for unsopperted media types.
 
 = V2.0.0 =
 Breaking Changes:
