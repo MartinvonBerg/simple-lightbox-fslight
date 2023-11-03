@@ -10,7 +10,7 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Provides an easy was to add a Lightbox to Gutenberg videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
+Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and Media-with-Text-Blocks. Additionally to Youtube and HTML5 Videos but no other videos. Just install, activate and use it.
 
 
 == Description ==
@@ -20,13 +20,13 @@ If your website crashes: Login with ftp, backup your plugin-settings.json and pa
 
 For new users: If you install the Plugin for the first time this won’t happen for your site. 
 
-Provides an easy was to add a Lightbox to Gutenberg videos, Youtube-Videos, images, galleries and Media-with-Text-Blocks. Just install, activate and use it.
-The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. Available Settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V2.0.0)
-E.g., just create gallery by using Gutenberg gallery block and use lightbox gallery effect powered by fslightbox.js.
+Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and Media-with-Text-Blocks. Additionally to Youtube and HTML5 Videos but no other videos. Other video types like VideoPress, Vimeo etc. are currently NOT supported. 
+The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
+Plugin settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V2.0.0).
 
 NEW: Added support for the complete HTML-body-code to the page (inbetween body tags). This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
 
-The support for HTML-Videos and Youtube-Videos will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
+The support for HTML5-Videos and Youtube-Videos will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 YT-Videos could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
 See live example here: https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-karten/
 
@@ -74,6 +74,9 @@ Yes, the Update to 2.0.0 implements a backup / restore logic for ```plugin-setti
 
 = With Youtube-Videos the Browser Console shows Javascript Errors. It it a Problem? =
 Yes, there are errors shown like "The service worker navigation preload request was cancelled before 'preloadResponse' settled. If you intend to use 'preloadResponse', use waitUntil() or respondWith() to wait for the promise to settle". This issue is not solvable by me. If you dislike it: Just delete the JS-File ```simple-lightbox.min.js```. The Video Sync will no longer work after that.
+
+= Why does it not work with flickr images?
+You might add "wp-block-embed-flickr" but the lightbox does not open? That is, because flicks image blocks contain a link to the image on the flickr website. The Gutenberg block does not have an option to change this. The plugin functionality does NOT change existing links, because this is usually intentionally.
 
 
 == Screenshots ==
