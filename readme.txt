@@ -4,7 +4,7 @@ Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
-Tested up to: 6.4
+Tested up to: 6.5
 Stable tag: 2.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -14,11 +14,6 @@ Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and
 
 
 == Description ==
-
-ATTENTION: I’m sorry to say that V1.5.0 of the plugin will crash your website in some cases. So, please backup your plugin-settings.json and the paid version of fslightbox again. The backup-restore process will not work reliably.
-If your website crashes: Login with ftp, backup your plugin-settings.json and paid version of fslightbox, delete the plugin folder in ../wp-content/plugins and finally delete the file .maintenance in your html-Folder (where wp-config.php is.). 
-
-For new users: If you install the Plugin for the first time this won’t happen for your site. 
 
 Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and Media-with-Text-Blocks. Additionally to Youtube and HTML5 Videos but no other videos. Other video types like VideoPress, Vimeo etc. are currently NOT supported. 
 The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
