@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           2.1.0
+ * Version:           2.1.1
  * Requires at least: 5.9
  * Requires PHP:      7.4
  * Author:            Martin von Berg
@@ -183,7 +183,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 */
 	public function rewrite_body_buffer_start() {
 		ob_start( array( $this, 'rewrite_body_modify_content' ) );
-		add_action( 'wp_footer', array( $this, 'rewrite_body_buffer_stop' ), PHP_INT_MAX, 0 ); // stop at the end of the body tag.
+		add_action( 'wp_footer', array( $this, 'rewrite_body_buffer_stop' ), -10, 0 ); // stop right before the end of the body tag.
 	}
 
 	/**
@@ -618,7 +618,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '2.1.0', true );
+			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '2.1.1', true );
 		}
 	}
 
@@ -633,7 +633,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '2.1.0', 'all' );
+			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '2.1.1', 'all' );
 		}
 	}
 }

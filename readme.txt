@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
 Tested up to: 6.5
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and
 The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
 Plugin settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V2.0.0).
 
-NEW: Added support for the complete HTML-body-code to the page (inbetween body tags). This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
+NEW: Added support for the complete HTML-code to the post, page etc. inbetween body tags and not only the content. This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
 
 The support for HTML5-Videos and Youtube-Videos will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 YT-Videos could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
@@ -35,7 +35,7 @@ The support for Youtube-Videos is working with the given functionality and exten
 Plugin is filtering the content of posts and pages and appends lightbox effect for native Gutenberg-Blocks: Image, Gallery, Media-and-Text, Featured Image, Video and Youtube-Video. It also works for external images or YT-videos that are not on your site.
 
 = What exactly are the preconditions? =
-- It filters the content of the page, post etc (setting: postTypes). Meaning exactly the content that WP stores in the database. (Using the_content filter)
+- It filters the content of the page, post etc (setting: postTypes). Meaning exactly the content that WP stores in the database as content for posts, pages etc. (Using the_content filter)
 - All elements in html figure tags and img tags will be filtered and if its CSS-Class is defined in the plugin-settings.json (setting: cssClassesToSearch).
 
 = Will it work with my page builder, Theme, ACF etc.? =
@@ -73,6 +73,9 @@ Yes, there are errors shown like "The service worker navigation preload request 
 = Why does it not work with flickr images?
 You might add "wp-block-embed-flickr" but the lightbox does not open? That is, because flicks image blocks contain a link to the image on the flickr website. The Gutenberg block does not have an option to change this. The plugin functionality does NOT change existing links, because this is usually intentionally.
 
+= Why does it not work with featured images?
+Featured images are not stored in the database as content. The plugin does usuallay not filter the content of post, page etc. So, add the option "rewriteScope": "body" to the settings.json file. See example settings file in ./settings/plugin-settings-body.json.
+
 
 == Screenshots ==
 1. Example lightbox.
@@ -81,6 +84,9 @@ You might add "wp-block-embed-flickr" but the lightbox does not open? That is, b
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= V2.1.1 =
+- BUGFIX: PHP Bugfixes to avoid incomplete script tag together with rewritescope : body
 
 = V2.1.0 =
 - BUGFIX: PHP Bugfixes to avoid crashes for unsopperted media types.
