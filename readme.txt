@@ -4,7 +4,7 @@ Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
-Tested up to: 6.5
+Tested up to: 6.6
 Stable tag: 2.1.1
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -84,6 +84,9 @@ Featured images are not stored in the database as content. The plugin does usual
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= V2.1.1 =
+- Tested with WP 6.6. No Changes.
 
 = V2.1.1 =
 - BUGFIX: PHP Bugfixes to avoid incomplete script tag together with rewritescope : body
