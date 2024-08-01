@@ -19,7 +19,7 @@ Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and
 The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
 Plugin settings are provided by a JSON-file that may be easily changed and backed-up manually (automatically after V2.0.0).
 
-NEW: Added support for the complete HTML-code to the post, page etc. inbetween body tags and not only the content. This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
+NEW: Added support for the complete HTML-code to the post, page etc. in-between body tags and not only the content. This is an Opt-in. See example settings file in ./settings/plugin-settings-body.json.
 
 The support for HTML5-Videos and Youtube-Videos will add a small red button on the top left of the embedded Youtube-Video which opens the lightbox with that video.
 YT-Videos could be disabled by deleting the line ``` "wp-block-embed-youtube" ``` in the file ```plugin-settings.json```. If you do so please delete the comma at the end of the line before, too!
@@ -67,15 +67,17 @@ No. Plugin just uses fslightbox.js. Free or paid version optionally.
 = Does the plugin backup and restore my plugin-settings.json and my paid Version of fslightbox? =
 Yes, the Update to 2.0.0 implements a backup / restore logic for ```plugin-settings.json``` and the files in ./js/fslightbox-paid. This will work ONLY for all future updates because the php-files have to be on your server already. So, with this update it is the last time you have to save your files in advance. The process creates the folder ```../simple-lightbox-fslight-backup``` in you Plugin-Directory which won't be deleted after Update. If you want the backup-restore process running with the Update to V2.0.0 you have to manually copy the files ```simple-lightbox-fslight.php``` and ```./admin/pre-post-install.php``` from Github via ftp to your server. The backup / restore logic won't work if you install the Plugin manually as zip-File.
 
-= With Youtube-Videos the Browser Console shows Javascript Errors. It it a Problem? =
+= With Youtube-Videos the Browser Console shows Javascript Errors. Is it a Problem? =
 Yes, there are errors shown like "The service worker navigation preload request was cancelled before 'preloadResponse' settled. If you intend to use 'preloadResponse', use waitUntil() or respondWith() to wait for the promise to settle". This issue is not solvable by me. If you dislike it: Just delete the JS-File ```simple-lightbox.min.js```. The Video Sync will no longer work after that.
 
 = Why does it not work with flickr images?
-You might add "wp-block-embed-flickr" but the lightbox does not open? That is, because flicks image blocks contain a link to the image on the flickr website. The Gutenberg block does not have an option to change this. The plugin functionality does NOT change existing links, because this is usually intentionally.
+You might add "wp-block-embed-flickr" but the lightbox does not open? That is, because flickr image blocks contain a link to the image on the flickr website. The Gutenberg block does not have an option to change this. The plugin functionality does NOT change existing links, because this is usually intentionally.
 
 = Why does it not work with featured images?
 Featured images are not stored in the database as content. The plugin does usuallay not filter the content of post, page etc. So, add the option "rewriteScope": "body" to the settings.json file. See example settings file in ./settings/plugin-settings-body.json.
 
+= Does it work with AVIF image format?
+Yes, it does!
 
 == Screenshots ==
 1. Example lightbox.
@@ -86,18 +88,18 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 == Changelog ==
 
 = V2.1.1 =
-- Tested with WP 6.6. No Changes.
+- Tested with WP 6.6. No Changes. Tested with AVIF-Images: Works!
 
 = V2.1.1 =
 - BUGFIX: PHP Bugfixes to avoid incomplete script tag together with rewritescope : body
 
 = V2.1.0 =
-- BUGFIX: PHP Bugfixes to avoid crashes for unsopperted media types.
+- BUGFIX: PHP Bugfixes to avoid crashes for unsupported media types.
 
 = V2.0.0 =
 Breaking Changes:
 - NEW: Minimum PHP Version is now 7.4
-- NEW: added an option to handle the complete HTML code inbetween the Body tags (not only the_content)
+- NEW: added an option to handle the complete HTML code in-between the Body tags (not only the_content)
 - NEW: for WP 6.4: Do not open the lightbox where the new WP lightbox was activated.
 - BUGFIX: changed process for backup and restore of plugin files. V1.5.0 did not work in all cases and caused PHP fatal errors in some cases.
 - BUGFIX: changed code for HTML5Videos to be compatible with W3C standards. Will add a Button Icon on the Top Left.
