@@ -138,8 +138,12 @@
             }
         }
     }
-
-    fsLightboxInstances['1'].props.onOpen = handleOnOpen;
-    fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange; // not available in free version of fslightbox
+    try {
+        fsLightboxInstances['1'].props.onOpen = handleOnOpen;
+        fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange; // not available in free version of fslightbox
+    } catch (error) {
+        // If there's an error, log the error message
+        console.error(error.message);
+    }
 
 })(window, document);
