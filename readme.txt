@@ -4,8 +4,8 @@ Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
-Tested up to: 6.7
-Stable tag: 2.1.1
+Tested up to: 6.8
+Stable tag: 2.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -86,6 +86,10 @@ Yes, it does!
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= 2.2.0 =
+- Update of fslightbox.js (basic, free version) to 3.5.1.
+- Tested basic and pro with WP 6.8. No Changes. 
 
 = V2.1.1 =
 - Tested with WP 6.7. No Changes. Tested with AVIF-Images: Works!
