@@ -88,7 +88,7 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 == Changelog ==
 
 = 2.2.0 =
-- Update of fslightbox.js (basic, free version) to 3.5.1.
+- Update of fslightbox.js (basic, free version) to 3.6.0. and pro to 3.8.0.
 - Tested basic and pro with WP 6.8. No Changes. 
 
 = V2.1.1 =
