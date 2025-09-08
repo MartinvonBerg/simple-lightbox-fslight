@@ -19,16 +19,16 @@ final class ProPostInstallFunctionsTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function test_restore_files() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+	public function test_restore_files_1() {
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->restorePluginFiles();
 		$this->assertEquals( true, $result );
 	}
 
-	public function test_restore_files2() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+	public function test_restore_files_2() {
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'is_file' )
 			->once()
@@ -44,7 +44,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_restore_settings() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->restore_settings_after_upgrade_callback( '', '', [ 'error' ] );
@@ -52,7 +52,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_restore_settings2() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'is_file' )
 			->once()
@@ -68,7 +68,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_restore_settings3() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->restore_settings_after_upgrade_callback( '', [ '' => '' ], [ 'destination_name' => 'simple-lightbox-fslight' ] );
@@ -76,7 +76,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_restore_settings4() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'activate_plugin' )
 			->once()
@@ -98,7 +98,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_save_files1() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->savePluginFiles( [] );
@@ -106,7 +106,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_save_files2() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->savePluginFiles( [ 'temp_backup' => [ 'src' => '', 'slug' => '' ] ] );
@@ -114,18 +114,18 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_save_files3() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->savePluginFiles( [ 'temp_backup' =>
-			[ 'src' => 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins',
+			[ 'src' => 'C:\wamp64\www\wordpress\wp-content\plugins',
 				'slug' => 'simple-lightbox-fslight'
 			] ] );
 		$this->assertEquals( true, $result );
 	}
 
 	public function test_save_files4() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'is_file' )
 			->once()
@@ -133,14 +133,14 @@ final class ProPostInstallFunctionsTest extends TestCase {
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
 		$result = $tested->savePluginFiles( [ 'temp_backup' =>
-			[ 'src' => 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins',
+			[ 'src' => PLUGIN_DIR . '',
 				'slug' => 'simple-lightbox-fslight'
 			] ] );
 		$this->assertEquals( false, $result );
 	}
 
 	public function test_save_settings1() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'is_wp_error' )
 			->once()
@@ -153,7 +153,7 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_save_settings2() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		expect( 'is_wp_error' )
 			->once()
@@ -166,8 +166,8 @@ final class ProPostInstallFunctionsTest extends TestCase {
 	}
 
 	public function test_save_settings3() {
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\tests\src\WrapPrePostInstallFunctions.php';
-		include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-includes\class-wp-error.php';
+		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
+		include_once 'C:\wamp64\www\wordpress\wp-includes\class-wp-error.php';
 
 		expect( 'is_wp_error' )
 			->once()

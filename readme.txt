@@ -5,8 +5,8 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 5.9
 Tested up to: 6.8
-Stable tag: 2.2.0
-Requires PHP: 7.4
+Stable tag: 3.0.0
+Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,8 @@ Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and
 
 
 == Description ==
+
+** !!! Upgrade only if your server uses PHP 8.0++. Do NOT upgrade if it still uses PHP 7.4. !!! **
 
 Provides an easy was to add a Lightbox to Images in Gutenberg image, gallery and Media-with-Text-Blocks. Additionally to Youtube and HTML5 Videos but no other videos. Other video types like VideoPress, Vimeo etc. are currently NOT supported. 
 The Javascript library fslightbox.js is used for that. You even may use the paid version of fslightbox.js. 
@@ -83,9 +85,15 @@ Yes, it does!
 1. Example lightbox.
 
 == Upgrade Notice ==
+Upgrade only if your servers uses PHP 8.0++. Do NOT upgrade if you still use PHP 7.4.
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= 3.0.0 =
+- Updated PHP-Lib html5-dom-document-php to V2.8.1 which requires PHP 8.* so increased the min PHP Version to 8.0.
+- Update of fslightbox.js (basic, free version) to 3.7.4. and pro to 3.8.3.
+- Test with WP 6.8.2. Updated files for PHPUnit-Tests. All Tests ran OK.
 
 = 2.2.0 =
 - Update of fslightbox.js (basic, free version) to 3.6.0. and pro to 3.8.0.

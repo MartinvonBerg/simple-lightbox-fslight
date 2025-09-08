@@ -1,7 +1,7 @@
 <?php
 namespace mvbplugins\fslightbox;
 
-include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\admin\pre-post-install.php';
+include_once PLUGIN_DIR . '\admin\pre-post-install.php';
 
 /**
  * wrapper class for functions in included file

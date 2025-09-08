@@ -1,9 +1,9 @@
 <?php
 /**
  * Helper functions for the Plugin Update Process to backup and restore plugin-settings.json and fslightbox paid files.
- * Version:           2.1.1
+ * Version:           3.0.0
  * Requires at least: 5.9
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0

@@ -20,9 +20,10 @@ if ( ! defined( 'PLUGIN_ABSPATH' ) ) {
 }
 
 // define fake WP_PLUGIN_DIR
-if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
+#if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
 	define( 'WP_PLUGIN_DIR', dirname(__DIR__, 3));
-}
+	echo WP_PLUGIN_DIR;
+#}
 
 if ( ! defined( 'WP_SITEURL' ) ) {
 	define( 'WP_SITEURL', 'http://localhost/wordpress');
@@ -32,6 +33,10 @@ if ( ! defined( 'WP_PLUGIN_URL' ) ) {
 	define( 'WP_PLUGIN_URL', WP_SITEURL . '/' . $plugin_rel_dir);
 }
 
-$comp_path = "C:/Users/Martin von Berg/AppData/Roaming/Composer"; // TODO: get the global path
+// change this if the plugin was moved to a different folder
+define ( 'PLUGIN_DIR', 'C:\wamp64\www\wordpress\wp-content\plugins\simple-lightbox-fslight');
 
-require_once $comp_path . '/vendor/autoload.php';
+// $comp_path = "C:/Users/Martin von Berg/AppData/Roaming/Composer"; // TODO: get the global path
+$comp_path = PLUGIN_DIR . "/classes/html5-dom-document-php";
+
+require_once $comp_path . '/autoload.php';

@@ -3,12 +3,12 @@
 use PHPUnit\Framework\TestCase;
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
-use function Brain\Monkey\Functions\stubs;
+//use function Brain\Monkey\Functions\stubs;
 use function Brain\Monkey\Functions\expect;
-use function Brain\Monkey\Actions\expectDone;
-use function Brain\Monkey\Filters\expectApplied;
+//use function Brain\Monkey\Actions\expectDone;
+//use function Brain\Monkey\Filters\expectApplied;
 
-include_once 'C:\Bitnami\wordpress-6.0.1-0\apps\wordpress\htdocs\wp-content\plugins\simple-lightbox-fslight\classes\RewriteFigureTagsClass.php';
+include_once PLUGIN_DIR . '\classes\RewriteFigureTagsClass.php';
 
 final class RewriteFigureTagsClassTest extends TestCase {
 	public function setUp(): void {

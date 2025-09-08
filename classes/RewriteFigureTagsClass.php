@@ -2,9 +2,9 @@
 
 /**
  *
- * Version:           2.1.1
+ * Version:           3.0.0
  * Requires at least: 5.9
- * Requires PHP:      7.4
+ * Requires PHP:      8.0
  * Author:            Martin von Berg
  * Author URI:        https://www.berg-reise-foto.de/software-wordpress-lightroom-plugins/wordpress-plugins-fotos-und-gpx/
  * License:           GPL-2.0
@@ -195,7 +195,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$status = ob_get_status( true );
 		if ( ! empty( $status ) ) {
 			foreach ( $status as $s ) {
-				if ( in_array( 'mvbplugins\fslightbox\RewriteFigureTags::rewrite_body_modify_content', $s, false ) ) {
+				if ( is_array($s) && in_array( 'mvbplugins\fslightbox\RewriteFigureTags::rewrite_body_modify_content', $s, false ) ) {
 					ob_end_flush();
 				}
 			}
@@ -618,7 +618,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '2.1.1', true );
+			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '3.0.0', true );
 		}
 	}
 
@@ -633,7 +633,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '2.1.1', 'all' );
+			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.0.0', 'all' );
 		}
 	}
 }
