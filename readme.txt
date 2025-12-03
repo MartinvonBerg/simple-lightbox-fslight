@@ -3,8 +3,8 @@ Plugin Name: Simple Lightbox with fslightbox
 Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
-Requires at least: 5.9
-Tested up to: 6.8
+Requires at least: 6.0
+Tested up to: 6.9
 Stable tag: 3.0.0
 Requires PHP: 8.0
 License: GPLv2 or later
@@ -93,7 +93,7 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 = 3.0.0 =
 - Updated PHP-Lib html5-dom-document-php to V2.8.1 which requires PHP 8.* so increased the min PHP Version to 8.0.
 - Update of fslightbox.js (basic, free version) to 3.7.4. and pro to 3.8.3.
-- Test with WP 6.8.2. Updated files for PHPUnit-Tests. All Tests ran OK.
+- Test with WP 6.9.0. Updated files for PHPUnit-Tests. All Tests ran OK.
 
 = 2.2.0 =
 - Update of fslightbox.js (basic, free version) to 3.6.0. and pro to 3.8.0.
