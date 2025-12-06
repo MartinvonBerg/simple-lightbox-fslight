@@ -40,3 +40,13 @@ define ( 'PLUGIN_DIR', 'C:\wamp64\www\wordpress\wp-content\plugins\simple-lightb
 $comp_path = PLUGIN_DIR . "/classes/html5-dom-document-php";
 
 require_once $comp_path . '/autoload.php';
+
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
+}
+if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
+	define( 'WEEK_IN_SECONDS', 604800 );
+}
+if ( ! defined( 'MINUTE_IN_SECONDS_IN_SECONDS' ) ) {
+	define( 'MINUTE_IN_SECONDS', 60 );
+}

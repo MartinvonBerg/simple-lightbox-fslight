@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -89,6 +89,16 @@ Upgrade only if your servers uses PHP 8.0++. Do NOT upgrade if you still use PHP
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= 3.1.0 =
+- Updated Class in RewriteFigureTagsClass.php for 'the_content' filter (body still missing) to improve
+    - restriction to frontend page calls ( function prepare(), changeFigureTagsInContent) and early stop if no figures or images are on the page, post etc.
+    - guarantee that the html-code is treated only once (html comment and counter)
+    - function my_enqueue_script upated for paths and logic
+    - error treatment in function parentFindCssClass().
+    - loading of html from dom changed with flags to prevent adding of body, head etc. tags
+    - new function to get the mime type faster and better: hrefImageDetection.php
+    - updated Unit-Tests accordingly.
 
 = 3.0.0 =
 - Updated PHP-Lib html5-dom-document-php to V2.8.1 which requires PHP 8.* so increased the min PHP Version to 8.0.

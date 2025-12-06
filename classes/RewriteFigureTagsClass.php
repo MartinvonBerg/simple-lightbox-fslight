@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           3.0.0
+ * Version:           3.1.0
  * Requires at least: 5.9
  * Requires PHP:      8.0
  * Author:            Martin von Berg
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/html5-dom-document-php/autoload.php';
-const ALLOW_DUPLICATE_IDS = 67108864;
+require_once __DIR__ . '/hrefImageDetection.php';
 
 /**
  * The Command interface declares a method for executing a command.
@@ -72,6 +72,16 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @var includedTags
 	 */
 	protected array $includedTags = [];
+	
+	/**
+	 * @var int called_counter
+	 */
+	public static int $called_counter = 0;
+
+	/**
+	 * @var bool needs_assets
+	 */
+	private bool $needs_assets = false;
 
 
 	/**
@@ -124,10 +134,33 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 */
 	private function prepare(): bool {
 		// prepare rewrite only for posts that are in settings and only for front-end
-		$postID = (int) \get_the_ID();
-		$exclude = \in_array( $postID, $this->excludeIds, true );
-		$this->posttype = strval( \get_post_type() );
-		$this->doRewrite = in_array( $this->posttype, $this->postTypes, true ) && ! $exclude && ! is_admin(); // TODO && !wp_doing_ajax(); REST-API-request???
+		if ( \in_the_loop() ) {
+			$postID = (int) \get_the_ID();
+		} else {
+			$postID = (int) \get_queried_object_id();
+		}
+
+		$exclude = \in_array( $postID, $this->excludeIds, true ); // exclude IDs from settings
+		
+		// // get the post type of current post and check against settings
+    	$ptype = get_post_type( $postID );
+    	$this->posttype = $ptype ? (string) $ptype : '';
+
+		
+ 		//Frontend-Guards
+    	$is_rest = defined( 'REST_REQUEST' ) && REST_REQUEST;
+
+		$this->doRewrite =
+			in_array( $this->posttype, $this->postTypes, true )
+			&& ! $exclude
+			&& ! is_admin()
+			&& ! is_feed()
+			&& ! is_trackback()
+			&& ! $is_rest
+			&& is_singular()
+			//&& in_the_loop() // removed to have it run for body content
+			&& is_main_query();
+
 		$this->nFound = 0;
 		return $this->doRewrite;
 	}
@@ -140,7 +173,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 */
 	public function execute(): bool {
 		if ( ! $this->want_to_modify_body ) {
-			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 10, 1 );
+			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 9999, 1 );
 		} else {
 			//  here for output buffering.
 			$this->changeFigureTagsInBody();
@@ -156,14 +189,26 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return string the rewritten html
 	 */
 	public function changeFigureTagsInContent( string $content ): string {
+		// exit if the content was already rewritten or is currently rewriting
+		if (str_contains($content, 'simple-lightbox-fslight processed figures') || self::$called_counter > 0) {
+			return $content;
+		}
+
+		// exit if no figure or img tag in content
+		if (!str_contains($content, '<figure') && !str_contains($content, '<img')) {
+			return $content;
+		}
+
+		self::$called_counter += 1;
 		if ( $this->prepare() ) {
 			$content = $this->rewriteHTML( $content );
 			// include scripts and styles if rewrite was actually done.
 			if ( $this->nFound > 0 ) {
+				$this->needs_assets = true;
 				$this->my_enqueue_script();
-				$this->my_enqueue_style();
 			}
 		}
+		self::$called_counter -= 1;
 		return $content;
 	}
 
@@ -183,7 +228,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 */
 	public function rewrite_body_buffer_start() {
 		ob_start( array( $this, 'rewrite_body_modify_content' ) );
-		add_action( 'wp_footer', array( $this, 'rewrite_body_buffer_stop' ), -10, 0 ); // stop right before the end of the body tag.
+		add_action( 'wp_footer', array( $this, 'rewrite_body_buffer_stop' ), 9999, 0 ); // stop right before the end of the body tag.
 	}
 
 	/**
@@ -276,23 +321,9 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		// rewrite HTML code with figures
 		$dom = new \IvoPetkov\HTML5DOMDocument();
-		$dom->loadHTML( $content, ALLOW_DUPLICATE_IDS );
+		$dom->loadHTML( $content, \IvoPetkov\HTML5DOMDocument::ALLOW_DUPLICATE_IDS | \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
 
 		$allFigures = $dom->querySelectorAll( 'figure' );
-
-		// append all old imgs in <div><a><img>..</img></a></div> to $allFigures. These are converted to figures.
-		// is done for old images and media-text also!
-		/*
-		$allImgs = $dom->querySelectorAll('img');
-		foreach ($allImgs as $image) {
-			$parent = $image->parentNode->parentNode; // todo: what if there is no a tag? Ignore, because wont't work anyway?
-			$tag    = $parent->tagName;
-			$class  = $parent->getAttribute('class');
-			if (($tag === 'div') && ($class === 'postie-image-div')) { // TODO: add further classes?
-				$allFigures->append($parent);
-			}
-		}
-		*/
 
 		$this->nFound = 0;
 
@@ -332,12 +363,10 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 						if ( $hrefParent->tagName === 'figcaption' ) {
 							$hasHref = false;
 						}
-						$header = \wp_remote_head( $href, array( 'timeout' => 2 ) );
-						$content_type = \wp_remote_retrieve_header( $header, 'content-type' );
-						gettype( $content_type ) === 'array' ? $content_type = implode( ' ', $content_type ) : null;
-						$isMediaFile = \strpos( $content_type, 'image' );
-						$hasSiteUrl = \strpos( $href, $this->siteUrl ); // only show local files in lightbox (except YouTube videos)
-						$hasSiteUrl = true; // all files are shown, even externals. todo: remove this logic? Or keep for further extension?
+						
+						$isMediaFile = $this->isMediaFile( $href );
+						$hasSiteUrl = true; // all files are treated and shown, even externals. Keep this for further extension.
+
 						if ( ( $isMediaFile !== false ) && ( $hasSiteUrl !== false ) ) {
 							$isMediaFile = true;
 						}
@@ -424,6 +453,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 					$videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
 					// Get the video thumbnail. Use get_headers() function
 					$headers = @get_headers( $videoThumbUrl );
+					// TODO: @get_headers() ist blockierend; du setzt den Daumen sowieso optional—mach das per späterem JS oder zwischengespeichert.
 					// Use condition to check the existence of URL
 					$headers && strpos( $headers[0], '200' ) ? $a->setAttribute( 'data-thumb', $videoThumbUrl ) : null;
 
@@ -446,24 +476,11 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		// finally prepare the html to send to browser
 		if ( $this->nFound > 0 ) {
-			$originalContent = $content;
 			$content = $dom->saveHTML();
 
-			// remove html, head, body tags if not in original content
-			foreach ( $this->includedTags as $tag => $inOriginal ) {
-
-				if ( ! $inOriginal && ( strpos( $content, $tag ) !== false ) ) {
-					$content = str_replace( $tag, '', $content );
-				} elseif ( $inOriginal && ( strpos( $content, $tag ) === false ) ) {
-					// new content is wrong: provide original content
-					return $originalContent;
-				}
-			}
-			// final clean-up for closing tags
-			$content = preg_replace( "/\r|\n/", "", $content );
-			! is_null( $content ) ? $content = str_replace( '>>', '', $content ) : $content = $originalContent;
+			// add an html comment to show that fslightbox processed the content
+			$content = "<!-- simple-lightbox-fslight processed figures -->" . $content;
 		}
-
 		return $content;
 	}
 
@@ -577,10 +594,21 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$classFound = false;
 		$search = '';
 		$parent = $figure->parentNode;
+
 		if ( is_null( $parent ) ) {
-			return $classFound;
+			return false;
 		}
-		$class = $parent->getAttribute( 'class' ); // @phpstan-ignore-line
+		
+		// Wenn es keinen Parent gibt oder der Parent kein HTML5DOMElement ist: Abbrechen
+    	if (!$parent instanceof \IvoPetkov\HTML5DOMElement) {
+       		return false;
+    	}
+
+		// Klassen-Attribut holen (leerer String, wenn nicht vorhanden)
+		$class = $parent->getAttribute('class') ?? '';
+		if ($class === '') {
+			return false;
+		}
 
 		foreach ( $this->cssClassesToSearch as $search ) {
 			$classFound = 0;
@@ -594,46 +622,48 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		return $classFound;
 	}
 
+	private function isMediaFile ( string $url ): bool {
+		return href_is_image( $url );
+	}
+
 	// --------------- private functions : Enqueueing ------------------------
 	/**
 	 * Enqueues the fslightbox.js script as basic or paid version, if available.
 	 *
 	 * @return void
 	 */
-	private function my_enqueue_script(): void {
+	public function my_enqueue_script(): void {
+		if ( ! $this->needs_assets ) return;
+
 		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
-		$slug = \WP_PLUGIN_URL . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
 
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/fslightbox-paid/fslightbox.js';
-			wp_enqueue_script( 'fslightbox', $path, array(), '3.6.0', true );
-		}
-
-		$path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
-		if ( is_file( $path ) ) {
-			$path = $slug . '/js/fslightbox-basic/fslightbox.js';
-			wp_enqueue_script( 'fslightbox', $path, array(), '3.4.1', true );
+			\wp_register_script( 'mvb-fslightbox', $path, array(), '3.8.3', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_enqueue_script( 'mvb-fslightbox' );
+		} else {
+			$path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
+			if ( is_file( $path ) ) {
+				$path = $slug . '/js/fslightbox-basic/fslightbox.js';
+				\wp_register_script( 'mvb-fslightbox', $path, array(), '3.7.4', [ 'strategy'  => 'defer', 'in_footer' => true] );
+				\wp_enqueue_script( 'mvb-fslightbox' );
+			}
 		}
 
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			wp_enqueue_script( 'yt-script', $path, array( 'fslightbox' ), '3.0.0', true );
+			\wp_register_script( 'yt-script-mvb-fslightbox', $path, array( 'mvb-fslightbox' ), '3.1.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_enqueue_script( 'yt-script-mvb-fslightbox' );
 		}
-	}
 
-	/**
-	 * Enqueues the simple-fslightbox.css style.
-	 *
-	 * @return void
-	 */
-	private function my_enqueue_style(): void {
 		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
-		$slug = \WP_PLUGIN_URL . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
-
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.0.0', 'all' );
+			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.1.0', 'all' );
 		}
+
+		$this->needs_assets = false;
 	}
 }

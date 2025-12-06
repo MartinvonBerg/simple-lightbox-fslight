@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd" bootstrap="./tests/phpunit/bootstrap.php" backupGlobals="true" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" beStrictAboutTestsThatDoNotTestAnything="true" verbose="true">
-    <coverage pathCoverage='true'>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+    bootstrap="./tests/phpunit/bootstrap.php"
+    backupGlobals="true"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    verbose="true"
+>
+    <coverage pathCoverage="true">
         <include>
-            <directory suffix=".php">./tests/src/</directory>
+            <!-- Normalerweise: Source-Code, nicht Tests -->
+            <directory suffix=".php">./src/</directory>
         </include>
     </coverage>
+
     <testsuites>
+        <!-- Deine reguläre WP-Suite -->
         <testsuite name="My Unit-Test 1">
-            <directory suffix=".php">./tests/phpunit/testcases</directory>
+            <directory suffix="Test.php">./tests/phpunit/testcases</directory>
+            <exclude>./tests/phpunit/testcase_seperated</exclude>
+        </testsuite>
+
+        <!-- Optional: zweite Suite für die separaten Tests (aber OHNE Stubs) -->
+        <testsuite name="href_Test">
+            <directory suffix="Test.php">./tests/phpunit/testcase_seperated</directory>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -1,7 +1,7 @@
 <?php
 /**
  * Helper functions for the Plugin Update Process to backup and restore plugin-settings.json and fslightbox paid files.
- * Version:           3.0.0
+ * Version:           3.1.0
  * Requires at least: 5.9
  * Requires PHP:      8.0
  * Author:            Martin von Berg
