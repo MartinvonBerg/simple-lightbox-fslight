@@ -96,7 +96,7 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
     - guarantee that the html-code is treated only once (html comment and counter)
     - function my_enqueue_script upated for paths and logic
     - error treatment in function parentFindCssClass().
-    - loading of html from dom changed with flags to prevent adding of body, head etc. tags
+    - loading of html from dom changed with wrapper to prevent adding of body, head etc. tags
     - new function to get the mime type faster and better: hrefImageDetection.php
     - updated Unit-Tests accordingly.
 

@@ -16,6 +16,7 @@ abstract class BaseWpTestCase extends TestCase
         setUp();
 
         // === Default-Umfeld ===
+        Functions\when('wp_generate_password')->justReturn('12345678');
         Functions\when('is_feed')->justReturn(false);
         Functions\when('is_trackback')->justReturn(false);
 

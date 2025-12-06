@@ -35,6 +35,7 @@ interface RewriteFigureTagsInterface {
  * @phpstan-type cssClassesToSearch array{string}
  * @phpstan-type excludeIDs array{integer}
  * @phpstan-type includedTags array<string, bool>
+ * @todo improve the hooks and handling for changes in body. 
  */
 final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
@@ -173,7 +174,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 */
 	public function execute(): bool {
 		if ( ! $this->want_to_modify_body ) {
-			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 9999, 1 );
+			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 20, 1 );
 		} else {
 			//  here for output buffering.
 			$this->changeFigureTagsInBody();
@@ -310,20 +311,27 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return string the altered $content of the page post to show in browser
 	 */
 	private function rewriteHTML( string $content ): string {
-		// check for different html tags in content
-		$this->includedTags['<!DOCTYPE html>'] = strpos( $content, '<!DOCTYPE html>' ) !== false; // usually not in passed html
-		$this->includedTags['<html'] = strpos( $content, '<html' ) !== false; // usually not in passed html
-		$this->includedTags['</html>'] = strpos( $content, '</html>' ) !== false;
-		$this->includedTags['<head '] = strpos( $content, '<head ' ) !== false; // usually not in passed html
-		$this->includedTags['</head>'] = strpos( $content, '</head>' ) !== false;
-		$this->includedTags['<body'] = strpos( $content, '<body' ) !== false; // usually not in passed html
-		$this->includedTags['</body>'] = strpos( $content, '</body>' ) !== false;
+		
+		
+		// 1) BOM & XML-PI entfernen (PI taucht in HTML-Fragmenten manchmal als Kommentar wieder auf)
+		$originalContent = $content;
+		$content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+		$content = preg_replace('/<\?xml[^>]*\?>/i', '', $content);
+
+		// 2) Stabiler Wrapper: Du gibst später NUR den Inhalt dieses DIV zurück
+		$wrapId = '__fslbx_wrap_' . wp_generate_password(8, false, false);
+		$html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' 
+				. '<div id="' . $wrapId . '">' . $content . '</div>' 
+				. '</body></html>';
 
 		// rewrite HTML code with figures
 		$dom = new \IvoPetkov\HTML5DOMDocument();
-		$dom->loadHTML( $content, \IvoPetkov\HTML5DOMDocument::ALLOW_DUPLICATE_IDS | \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
+		libxml_use_internal_errors(true);
+		//$dom->loadHTML( $html, \IvoPetkov\HTML5DOMDocument::ALLOW_DUPLICATE_IDS | \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
+		$dom->loadHTML( $html, \IvoPetkov\HTML5DOMDocument::ALLOW_DUPLICATE_IDS | LIBXML_NOERROR | \LIBXML_NOWARNING );
 
-		$allFigures = $dom->querySelectorAll( 'figure' );
+		$container = $dom->getElementById($wrapId);
+		$allFigures = $container->querySelectorAll( 'figure' );
 
 		$this->nFound = 0;
 
@@ -476,12 +484,30 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		// finally prepare the html to send to browser
 		if ( $this->nFound > 0 ) {
-			$content = $dom->saveHTML();
+			if ($container instanceof \IvoPetkov\HTML5DOMElement) {
+				// Variante A: neutral
+				$out = '';
+				foreach ($container->childNodes as $child) {
+						$out .= $dom->saveHTML($child);
+				}
 
-			// add an html comment to show that fslightbox processed the content
-			$content = "<!-- simple-lightbox-fslight processed figures -->" . $content;
+				// Variante B: falls unterstützt
+				//$inner = $container->innerHTML; // direkt nur der Inhalt im Wrapper
+    			//$content = "<!-- simple-lightbox-fslight processed figures -->" . $inner;
+    			//return $content;
+
+				// add an html comment to show that fslightbox processed the content
+				$content = "<!-- simple-lightbox-fslight processed figures -->" . $out;
+				return $content;
+
+			} else {
+				// Fallback: wenn etwas schief ging, Original zurück
+				return $originalContent;
+			}
+		} else {
+			// Fallback: wenn nichts geaendert wurde, Original zurueckgeben
+			return $originalContent;
 		}
-		return $content;
 	}
 
 	/**
