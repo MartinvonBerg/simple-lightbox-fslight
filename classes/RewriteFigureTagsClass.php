@@ -315,8 +315,6 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		
 		// 1) BOM & XML-PI entfernen (PI taucht in HTML-Fragmenten manchmal als Kommentar wieder auf)
 		$originalContent = $content;
-		$content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
-		$content = preg_replace('/<\?xml[^>]*\?>/i', '', $content);
 
 		// 2) Stabiler Wrapper: Du gibst später NUR den Inhalt dieses DIV zurück
 		$wrapId = '__fslbx_wrap_' . wp_generate_password(8, false, false);
