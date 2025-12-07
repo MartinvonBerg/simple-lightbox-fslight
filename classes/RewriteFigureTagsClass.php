@@ -35,7 +35,6 @@ interface RewriteFigureTagsInterface {
  * @phpstan-type cssClassesToSearch array{string}
  * @phpstan-type excludeIDs array{integer}
  * @phpstan-type includedTags array<string, bool>
- * @todo improve the hooks and handling for changes in body. 
  */
 final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
@@ -219,7 +218,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return void
 	 */
 	public function changeFigureTagsInBody() {
-		add_action( 'wp_body_open', array( $this, 'rewrite_body_buffer_start' ), 0 ); // hook to 'template_redirect' for whole html even html-head
+		add_action( 'template_redirect', [ $this, 'rewrite_body_buffer_start' ], 9999, 0 ); // hook to 'template_redirect' for whole html even html-head
 	}
 
 	/**
@@ -228,24 +227,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return void
 	 */
 	public function rewrite_body_buffer_start() {
-		ob_start( array( $this, 'rewrite_body_modify_content' ) );
-		add_action( 'wp_footer', array( $this, 'rewrite_body_buffer_stop' ), 9999, 0 ); // stop right before the end of the body tag.
-	}
-
-	/**
-	 * stop the PHP output buffer and flush its content.
-	 *
-	 * @return void
-	 */
-	public function rewrite_body_buffer_stop() {
-		$status = ob_get_status( true );
-		if ( ! empty( $status ) ) {
-			foreach ( $status as $s ) {
-				if ( is_array($s) && in_array( 'mvbplugins\fslightbox\RewriteFigureTags::rewrite_body_modify_content', $s, false ) ) {
-					ob_end_flush();
-				}
-			}
-		}
+		ob_start( [ $this, 'rewrite_body_modify_content' ] );
 	}
 
 	/**
@@ -255,13 +237,35 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return string the rewritten html $content
 	 */
 	public function rewrite_body_modify_content( string $content ): string {
-		//modify $content
-		if ( $this->prepare() ) {
-			$content = $this->rewriteHTML( $content );
-			if ( $this->nFound > 0 ) {
-				$content .= $this->rewrite_body_add_scripts();
-			}
-		}
+		// check if html contains <body> .... </body> 
+		if (!preg_match('/(<body\b[^>]*>)(.*?)(<\/body>)/is', $content, $m)) {
+        	return $content; // Fallback
+    	}
+
+		// extract and change innner body content and add script and style tags at the end.
+		$content = preg_replace_callback(
+				'/(<body\b[^>]*>)(.*?)(<\/body>)/is',
+				function (array $matches) {
+					$body_open  = $matches[1]; // <body ...>
+					$body_inner = $matches[2]; // Inhalt des Body
+					$body_close = $matches[3]; // </body>
+
+					// Deine eigentliche Rewrite-Logik nur auf $body_inner anwenden
+					if ($this->prepare()) {
+						$body_inner = $this->rewriteHTML($body_inner);
+
+						if ($this->nFound > 0) {
+							$scripts = $this->rewrite_body_add_scripts();
+							$body_inner .= $scripts;
+						}
+					}
+
+					return $body_open . $body_inner . $body_close;
+				},
+				$content,
+				1 // nur das erste Match ersetzen (sicherer)
+			);
+		
 		return $content;
 	}
 
@@ -273,27 +277,30 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	public function rewrite_body_add_scripts(): string {
 		$out = '';
 
-		$slug = \WP_PLUGIN_URL . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
 
-		// check for fslightbox.js free version
-		$path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
-		if ( is_file( $path ) ) {
-			$path = $slug . '/js/fslightbox-basic/fslightbox.js';
-			$out = "<script defer src='{$path}' id='fslightbox-js'></script>";
-		}
 		// check for fslightbox.js paid version
 		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/fslightbox-paid/fslightbox.js';
-			$out = "<script defer src='{$path}' id='fslightbox-js'></script>";
+			$out = "<script defer src='{$path}' id='mvb-fslightbox'></script>";
+		} else {
+			// check for fslightbox.js free version
+			$path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
+			if ( is_file( $path ) ) {
+				$path = $slug . '/js/fslightbox-basic/fslightbox.js';
+				$out = "<script defer src='{$path}' id='mvb-fslightbox'></script>";
+			}
 		}
+
 		// check for simple-lightbox.min.js script to handle videos
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			$out .= "<script defer src='{$path}' id='yt-script-js'></script>";
+			$out .= "<script defer src='{$path}' id='yt-script-mvb-fslightbox'></script>";
 		}
-		// check for CSS file for simple-fslightbox for YouTube Videos
+
+		// check for CSS file for simple-fslightbox
 		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';

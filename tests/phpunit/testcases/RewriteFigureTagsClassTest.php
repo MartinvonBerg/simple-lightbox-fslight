@@ -180,11 +180,15 @@ final class RewriteFigureTagsClassTest extends BaseWpTestCase {
 			->once()
 			->andReturn( 'http://localhost/wordpress' );
 
+		expect( 'plugins_url' )
+			->once()
+			->andReturn( 'http://localhost/wordpress' );	
+
 		$tested = new mvbplugins\fslightbox\RewriteFigureTags();
 		$this->assertInstanceOf( '\mvbplugins\fslightbox\RewriteFigureTags', $tested );
 
 		$out = $tested->rewrite_body_add_scripts();
-		$expected = "<script defer src='http://localhost/wordpress/wp-content/plugins/simple-lightbox-fslight/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js' id='fslightbox-js'></script><script defer src='http://localhost/wordpress/wp-content/plugins/simple-lightbox-fslight/simple-lightbox-fslight/js/simple-lightbox.min.js' id='yt-script-js'></script><link rel='stylesheet' id='simple-fslightbox-css' href='http://localhost/wordpress/wp-content/plugins/simple-lightbox-fslight/simple-lightbox-fslight/css/simple-fslightbox.css' media='all' />";
+		$expected = "<script defer src='http://localhost/wordpress/simple-lightbox-fslight/js/fslightbox-paid/fslightbox.js' id='mvb-fslightbox'></script><script defer src='http://localhost/wordpress/simple-lightbox-fslight/js/simple-lightbox.min.js' id='yt-script-mvb-fslightbox'></script><link rel='stylesheet' id='simple-fslightbox-css' href='http://localhost/wordpress/simple-lightbox-fslight/css/simple-fslightbox.css' media='all' />";
 		$this->assertEquals( $expected, $out );
 	}
 
