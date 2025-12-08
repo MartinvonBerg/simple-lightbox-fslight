@@ -99,6 +99,9 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
     - loading of html from dom changed with wrapper to prevent adding of body, head etc. tags
     - new function to get the mime type faster and better: hrefImageDetection.php
     - updated Unit-Tests accordingly.
+    - Update Generation of Thumbnails for Youtube-Videos
+
+
 
 = 3.0.0 =
 - Updated PHP-Lib html5-dom-document-php to V2.8.1 which requires PHP 8.* so increased the min PHP Version to 8.0.

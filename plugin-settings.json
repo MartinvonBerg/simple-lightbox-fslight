@@ -18,6 +18,5 @@
     ],
     "excludeIDs": [
         0
-    ],
-    "rewriteScope": "body"
+    ]
 }
