@@ -91,7 +91,7 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 == Changelog ==
 
 = 3.1.0 =
-- Updated Class in RewriteFigureTagsClass.php for 'the_content' filter (body still missing) to improve
+- Updated Class in RewriteFigureTagsClass.php for 'the_content' and 'body' HTML-filter to improve
     - restriction to frontend page calls ( function prepare(), changeFigureTagsInContent) and early stop if no figures or images are on the page, post etc.
     - guarantee that the html-code is treated only once (html comment and counter)
     - function my_enqueue_script upated for paths and logic
@@ -100,8 +100,6 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
     - new function to get the mime type faster and better: hrefImageDetection.php
     - updated Unit-Tests accordingly.
     - Update Generation of Thumbnails for Youtube-Videos
-
-
 
 = 3.0.0 =
 - Updated PHP-Lib html5-dom-document-php to V2.8.1 which requires PHP 8.* so increased the min PHP Version to 8.0.
