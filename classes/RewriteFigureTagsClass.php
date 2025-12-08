@@ -460,15 +460,13 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 					$href = explode( '?', $href )[0];
 					$a->setAttribute( 'href', $href );
 
-					// get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/default.jpg. source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
-					$ytID = explode( '/', $href );
-					$ytID = end( $ytID );
-					$videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/default.jpg';
-					// Get the video thumbnail. Use get_headers() function
-					$headers = @get_headers( $videoThumbUrl );
-					// TODO: @get_headers() ist blockierend; du setzt den Daumen sowieso optional—mach das per späterem JS oder zwischengespeichert.
-					// Use condition to check the existence of URL
-					$headers && strpos( $headers[0], '200' ) ? $a->setAttribute( 'data-thumb', $videoThumbUrl ) : null;
+					// get the ID and thumbnail from img.youtube.com/vi/[Video-ID]/hqdefault.jpg. source: https://internetzkidz.de/2021/03/youtube-thumbnail-url/
+					$ytID = $this->extract_yt_id($href);
+					if ($ytID) {
+						// set hqdefault without blocking Checks if existing
+						$videoThumbUrl = 'https://img.youtube.com/vi/' . $ytID . '/hqdefault.jpg';
+						$a->setAttribute('data-thumb', $videoThumbUrl);
+					}
 
 					// create the button to open the lightbox
 					$lbdiv = $dom->createElement( 'div' );
@@ -653,11 +651,57 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		return $classFound;
 	}
 
+	/**
+	 * Checks whether the given URL points to a media file (image, video etc.)
+	 *
+	 * This function is a wrapper around href_is_image() and will return true if the URL points to an image.
+	 *
+	 * @param string $url The URL to check
+	 * @return bool True if the URL points to a media file, false otherwise
+	 */
 	private function isMediaFile ( string $url ): bool {
 		return href_is_image( $url );
 	}
 
-	// --------------- private functions : Enqueueing ------------------------
+	
+	/**
+	 * Extracts a YouTube video ID from a given URL or ID string.
+	 *
+	 * If the given string is already a valid 11-character YouTube video ID, it will be returned unchanged.
+	 * If the string is a URL, it will be parsed to extract the video ID.
+	 *
+	 * Supported URL formats are:
+	 * - watch?v=<id>
+	 * - youtu.be/<id>
+	 * - youtube.com/embed/<id>
+	 * - youtube.com/shorts/<id>
+	 * - /v/<id> or /vi/<id>
+	 *
+	 * @param string $url_or_id The URL or ID string to parse
+	 * @return ?string The extracted YouTube video ID, or null if no ID could be extracted
+	 */
+	private function extract_yt_id( string $url_or_id ): ?string {
+		// Wenn schon eine 11er ID, nimm sie
+		if (preg_match('~^[A-Za-z0-9_-]{11}$~', $url_or_id)) {
+			return $url_or_id;
+		}
+		// Aus URL extrahieren (watch?v=, youtu.be/, embed/, shorts/)
+		$patterns = [
+			'~(?:v=|vi=)([A-Za-z0-9_-]{11})~',                     // watch?v=
+			'~youtu\.be/([A-Za-z0-9_-]{11})~',                     // youtu.be/
+			'~youtube\.com/embed/([A-Za-z0-9_-]{11})~',            // /embed/
+			'~youtube\.com/shorts/([A-Za-z0-9_-]{11})~',           // /shorts/
+			'~/vi?/([A-Za-z0-9_-]{11})~',                          // /v/ /vi/
+		];
+		foreach ($patterns as $p) {
+			if (preg_match($p, $url_or_id, $m)) {
+				return $m[1];
+			}
+		}
+		return null;
+	}
+
+	// --------------- public functions : Enqueueing ------------------------
 	/**
 	 * Enqueues the fslightbox.js script as basic or paid version, if available.
 	 *
