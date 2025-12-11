@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           3.1.0
+ * Version:           3.2.0
  * Requires at least: 5.9
  * Requires PHP:      8.0
  * Author:            Martin von Berg
@@ -47,6 +47,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	protected string $plugin_main_dir = '';
 	protected int $nFound = 0;
 	protected bool $want_to_modify_body = false;
+	protected bool $render_with_javascript = false;
 
 	/**
 	 * @var hrefTypes
@@ -109,6 +110,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 			// extract $want_to_modify_body from settings
 			if ( \key_exists( 'rewriteScope', $settings ) ) {
 				$this->want_to_modify_body = $settings['rewriteScope'] === 'body';
+				$this->render_with_javascript = $settings['rewriteScope'] === 'javascript';
 			}
 		}
 		;
@@ -158,7 +160,6 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 			&& ! is_trackback()
 			&& ! $is_rest
 			&& is_singular()
-			//&& in_the_loop() // removed to have it run for body content
 			&& is_main_query();
 
 		$this->nFound = 0;
@@ -172,11 +173,14 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return boolean
 	 */
 	public function execute(): bool {
-		if ( ! $this->want_to_modify_body ) {
-			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 20, 1 );
-		} else {
+		if ( $this->want_to_modify_body ) {
 			//  here for output buffering.
 			$this->changeFigureTagsInBody();
+		} else if ( $this->render_with_javascript) {
+			add_action('wp_enqueue_scripts', [$this, 'render_with_javascript'], 20, 0);;	
+		} 
+		else {
+			add_filter( 'the_content', array( $this, 'changeFigureTagsInContent' ), 20, 1 );
 		}
 		return true;
 	}
@@ -205,11 +209,16 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 			// include scripts and styles if rewrite was actually done.
 			if ( $this->nFound > 0 ) {
 				$this->needs_assets = true;
-				$this->my_enqueue_script();
+				$this->content_enqueue_script();
 			}
 		}
 		self::$called_counter -= 1;
 		return $content;
+	}
+
+	public function render_with_javascript(){
+		$this->needs_assets = true;
+		$this->js_enqueue_script();
 	}
 
 	/**
@@ -663,7 +672,6 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		return href_is_image( $url );
 	}
 
-	
 	/**
 	 * Extracts a YouTube video ID from a given URL or ID string.
 	 *
@@ -707,7 +715,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 *
 	 * @return void
 	 */
-	public function my_enqueue_script(): void {
+	public function content_enqueue_script(): void {
 		if ( ! $this->needs_assets ) return;
 
 		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
@@ -729,16 +737,76 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			\wp_register_script( 'yt-script-mvb-fslightbox', $path, array( 'mvb-fslightbox' ), '3.1.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_register_script( 'yt-script-mvb-fslightbox', $path, array( 'mvb-fslightbox' ), '3.2.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
 			\wp_enqueue_script( 'yt-script-mvb-fslightbox' );
 		}
 
 		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.1.0', 'all' );
+			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.2.0', 'all' );
 		}
 
+		$this->needs_assets = false;
+	}
+
+	/**
+	 * Enqueues the fslightbox.js script as basic or paid version, if available.
+	 *
+	 * @return void
+	 */
+	public function js_enqueue_script(): void {
+		if ( ! $this->needs_assets ) return;
+		
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$pro = false; // to differ between free and paid version of fslightbox.js.
+
+		$path = $this->plugin_main_dir . '/js/simple-lightbox-js-render.min.js';
+		if ( is_file( $path ) ) {
+			$path = $slug . '/js/simple-lightbox-js-render.js';
+			\wp_register_script( 'js-script-mvb-fslightbox', $path, array( 'mvb-fslightbox' ), '3.2.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_enqueue_script( 'js-script-mvb-fslightbox' );
+		}
+
+		// enqueue fslightbox.js paid or basic
+		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
+		if ( is_file( $path ) ) {
+			$path = $slug . '/js/fslightbox-paid/fslightbox.js';
+			$pro = true;
+			\wp_register_script( 'mvb-fslightbox', $path, array(), '3.8.3', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_enqueue_script( 'mvb-fslightbox' );
+		} else {
+			$path = $this->plugin_main_dir . '/js/fslightbox-basic/fslightbox.js';
+			if ( is_file( $path ) ) {
+				$path = $slug . '/js/fslightbox-basic/fslightbox.js';
+				\wp_register_script( 'mvb-fslightbox', $path, array(), '3.7.4', [ 'strategy'  => 'defer', 'in_footer' => true] );
+				\wp_enqueue_script( 'mvb-fslightbox' );
+			} else {
+				$pro = 'none'; // actually not required because with dependency of simple-lightbox-js-render.js nothing will be loaded in this case.
+			}
+		}
+
+		$cfg = array(
+			'settingsUrl' => $slug . '/plugin-settings.json',
+			'galleryKey'  => 'slfs',
+			'pro'         => $pro,
+			'scanBody'      => true,
+			'cssClassesToSearch' => $this->cssClassesToSearch
+		);
+
+		wp_add_inline_script(
+			'js-script-mvb-fslightbox',
+			'const SLFS_CONFIG = ' . wp_json_encode($cfg) . ';',
+			'before'
+		);
+
+		// enqueue simple-fslightbox.css
+		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
+		if ( is_file( $path ) ) {
+			$path = $slug . '/css/simple-fslightbox.css';
+			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.2.0', 'all' );
+		}
+		
 		$this->needs_assets = false;
 	}
 }

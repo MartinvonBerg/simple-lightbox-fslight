@@ -15,3 +15,16 @@
     box-shadow: 1px 3px 14px 0px rgba(0, 0, 0, 0.68);
     background: #f50505ff;
 }
+
+.slfs-ovl-btn {
+        position: absolute;
+        left: 8px; top: 8px;
+        background: #e53935; color: #fff;
+        border: none; border-radius: 3px;
+        padding: 4px 6px; font-size: 12px; line-height: 1;
+        cursor: pointer; z-index: 2;
+        opacity: 0.9; transition: opacity .2s ease;
+      }
+.slfs-ovl-btn:hover { opacity: 1; }
+.slfs-ovl-wrap { position: relative; }
+.slfs-hidden-link { display: none !important; }

@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 6.0
 Tested up to: 6.9
-Stable tag: 3.1.0
+Stable tag: 3.2.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -46,9 +46,25 @@ Positive feedback is reported from Beaver Builder, Post Types of Advanced Custom
 
 = How to change the plugin settings? =
 
-The settings are written in a separate file 'plugin-settings.json' in the main plugin folder. 
-Change here the type of posts, pages which shall include the lightbox. Additionally change whether existing links to Media-Files should be overwritten and which CSS-Classes should be used for the fslightbox.
-In the JSON file, you can select which link may already be present on the image (hrefTypes : Empty, Media). In addition, it can be set for which pages or posts the lightbox should be activated (postTypes). The selection of the actual media type is done with the CSS class that is used for the image or video (cssClassesToSearch). With excludeIDs you can set which posts / pages should not be equipped with a lightbox. Reasonable basic settings have been chosen, so there should be no reason to change them at the beginning.
+The settings are stored in a separate file called plugin-settings.json, located in the main plugin folder.
+In this file, you can:
+* **postTypes** – Define which post or page types or other should include the lightbox.
+* **hrefTypes** – Choose which link type may already be present on the image (`Empty`, `Media`).
+* **cssClassesToSearch** – Specify CSS classes used for images or videos to apply the lightbox. Mind: These are defined in the figure-Tag above the img-tag! Predefined classes are: 
+        "wp-block-image",
+        "wp-block-post-featured-image",
+        "wp-block-embed-youtube",
+        "wp-block-media-text__media",
+        "wp-block-video"
+        Not working with : "wp-block-cover"
+* **excludeIDs** – List post or page WordPress-IDs that should not include a lightbox.
+* **rewriteScope** – Select where HTML rendering takes place:
+    * '' - Empty Value: Default or standard setting to render the content only.
+    * `body` – Render in PHP for the entire page.
+    * `javascript` – Render on the client side for the entire script.
+
+Default settings are optimized for most use cases, so you usually don’t need to change them initially.
+
 
 = Is the paid version of fslightbox.js supported? =
 
@@ -89,6 +105,10 @@ Upgrade only if your servers uses PHP 8.0++. Do NOT upgrade if you still use PHP
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= 3.2.0 =
+- Added functionality to render the HTML for fslightbox completely on the client side in javascript. Almost same performance for images from the same server. Slower for videos from another source.
+- Added the requred *.js and *.css files for that. Tested with local and public version of my sites. 
 
 = 3.1.0 =
 - Updated Class in RewriteFigureTagsClass.php for 'the_content' and 'body' HTML-filter to improve
