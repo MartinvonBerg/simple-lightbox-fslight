@@ -37,7 +37,8 @@ if ( ! defined( 'WP_PLUGIN_URL' ) ) {
 define ( 'PLUGIN_DIR', 'C:\wamp64\www\wordpress\wp-content\plugins\simple-lightbox-fslight');
 
 // $comp_path = "C:/Users/Martin von Berg/AppData/Roaming/Composer"; // TODO: get the global path
-$comp_path = PLUGIN_DIR . "/classes/html5-dom-document-php";
+//$comp_path = PLUGIN_DIR . "/classes/html5-dom-document-php";
+$comp_path = PLUGIN_DIR . "/tests/src/html5-dom-document-php";
 
 require_once $comp_path . '/autoload.php';
 

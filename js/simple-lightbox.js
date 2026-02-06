@@ -91,53 +91,7 @@
         stopAllYouTubeVideos();
         stopAllHTMLVideos();
     }
-
-    /**
-     * Handles the slide change event for instance.
-     *
-     * @param {object} instance - The instance object.
-     * @return {undefined} This function does not return a value.
-     */
-    function handleOnSlideChange2(instance) {
-
-        // Get the current slide index which was running until arrow was clicked
-        let currentSlideIndex = lastSlideIndex;
-        console.log(instance.stageIndexes.current);
-        lastSlideIndex = instance.stageIndexes.current;
-
-        // Get the YouTube video iframe element
-        const currentSource = instance.elements.sources[currentSlideIndex];
-
-        // Check if the YouTube video iframe exists
-        if (currentSource && currentSource.src.includes('youtube')) {
-            // Send a postMessage to the YouTube video iframe to stop the video
-            currentSource.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', "*");
-        } else if (currentSource && currentSource.tagName === "VIDEO") {
-            // stop other running videos
-            currentSource.pause();
-        }
-    }
-
-    /**
-     * Handles the slide change event for instance.
-     *
-     * @param {object} instance - The instance object.
-     * @return {undefined} This function does not return a value.
-     */
-    function handleOnSlideChange3(instance) {
-        let sources = instance.elements.sources;
-        for (let i = 0; i < sources.length; i++) {
-            let source = sources[i];
-            if (!source) {
-                continue;
-            }
-            if (source.tagName === "VIDEO") {
-                source.pause();
-            } else if (source.tagName === "IFRAME") {
-                source.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', "*");
-            }
-        }
-    }
+    
     try {
         fsLightboxInstances['1'].props.onOpen = handleOnOpen;
         fsLightboxInstances['1'].props.onSlideChange = handleOnSlideChange; // not available in free version of fslightbox

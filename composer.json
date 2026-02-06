@@ -1,6 +1,16 @@
 {
+    "name": "mvbplugins/fslightbox",
+    "description": "Lightbox for Gutenberg images, galleries, and Media & Text block. Configurable via JSON file in the plugin folder.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0 or later",
+    "authors": [
+        {
+            "name": "Dr.-Ing. Martin von Berg",
+            "email": "mail@mvb1.de"
+        }
+    ],
     "require": {
-        "ivopetkov/html5-dom-document-php": "^2.8.1"
+        "php": ">=8.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.12",
@@ -8,8 +18,9 @@
         "phpstan/extension-installer": "^1",
         "phpcompatibility/php-compatibility": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "phpunit/phpunit": "9.6",
-        "brain/monkey": "^2.6"
+        "phpunit/phpunit": "9.6.34",
+        "brain/monkey": "^2.6",
+        "ivopetkov/html5-dom-document-php": "^2.8.1"
     },
     "prefer-stable": true,
     "config": {
