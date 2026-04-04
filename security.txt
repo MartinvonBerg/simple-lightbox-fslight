@@ -1,0 +1,23 @@
+Prompt for AI: Please fix the following security issue:
+
+<issue>
+Remote code execution (RCE) from unpinned third-party action in GitHub Actions
+
+An attacker could alter the action and run arbitrary code in your CI, exfiltrating secrets, tampering with artifacts, or injecting backdoors into build outputs.
+
+The workflow references a third-party action by tag or branch. Without a 40-character commit SHA pin, the action is mutable and its integrity cannot be guaranteed.
+</issue>
+
+<locations>
+.github/workflows/main.yml:21
+</locations>
+
+<fix>
+Pin each third-party action to a full-length commit SHA: uses: owner/repo@<40-hex-sha>. Retrieve the SHA from the action's release or commit page. Use Dependabot or Renovate to monitor and update pinned SHAs.
+</fix>
+
+<fix_impact>
+Pinning to an exact commit prevents automatic updates from tags/branches. Future upstream changes will not apply until you update the pinned SHA, which may alter expected behavior when you later upgrade.
+</fix_impact>
+
+Keep the changes minimal - only make the necessary code changes to fix the security issue.
