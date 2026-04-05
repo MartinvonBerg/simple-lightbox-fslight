@@ -139,7 +139,7 @@ Yes.
 
 ## Screenshots
 
-1. Example lightbox.
+![Example lightbox](./assets/screenshot-1.png)
 
 ## Upgrade Notice
 
