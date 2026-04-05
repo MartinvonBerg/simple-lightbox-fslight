@@ -112,13 +112,13 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 
 = 3.2.0 =
 - Added functionality to render the HTML for fslightbox completely on the client side in javascript. Almost same performance for images from the same server. Slower for videos from another source.
-- Added the requred *.js and *.css files for that. Tested with local and public version of my sites. 
+- Added the required *.js and *.css files for that. Tested with local and public version of my sites. 
 
 = 3.1.0 =
 - Updated Class in RewriteFigureTagsClass.php for 'the_content' and 'body' HTML-filter to improve
     - restriction to frontend page calls ( function prepare(), changeFigureTagsInContent) and early stop if no figures or images are on the page, post etc.
     - guarantee that the html-code is treated only once (html comment and counter)
-    - function my_enqueue_script upated for paths and logic
+    - function my_enqueue_script updated for paths and logic
     - error treatment in function parentFindCssClass().
     - loading of html from dom changed with wrapper to prevent adding of body, head etc. tags
     - new function to get the mime type faster and better: hrefImageDetection.php
