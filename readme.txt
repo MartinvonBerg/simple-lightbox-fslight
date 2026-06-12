@@ -4,7 +4,7 @@ Contributors: martinvonberg
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CQA6XZ7LUMBJQ
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 6.0
-Tested up to: 6.9
+Tested up to: 7.0
 Stable tag: 3.3.0
 Requires PHP: 8.0
 License: GPLv2 or later
@@ -109,6 +109,7 @@ Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your se
 = 3.3.0 =
 - replaced the PHP-Library from ivopetkov by native PHP-Functions and adopted PHP-Unit-Tests accordingly. Runs 5-times faster now!
 - updated phpunit to 9.6.34
+- Test with WP 7.0.
 
 = 3.2.0 =
 - Added functionality to render the HTML for fslightbox completely on the client side in javascript. Almost same performance for images from the same server. Slower for videos from another source.
