@@ -5,6 +5,8 @@ use Brain\Monkey\Functions;
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
 
+#require_once __DIR__ . '/WpErrorClass.php';
+
 abstract class BaseWpTestCase extends TestCase
 {
     /** @var array<string, array{value:mixed, expires:?int}> */
@@ -14,6 +16,8 @@ abstract class BaseWpTestCase extends TestCase
     {
         parent::setUp();
         setUp();
+
+        include_once 'C:\wamp64\www\wordpress\wp-includes\class-wp-error.php';
 
         // === Default-Umfeld ===
         Functions\when('wp_generate_password')->justReturn('12345678');
@@ -178,6 +182,11 @@ abstract class BaseWpTestCase extends TestCase
         Functions\when('wp_enqueue_style')->justReturn(null);
         Functions\when('wp_script_is')->alias(fn() => false);
         Functions\when('wp_style_is')->alias(fn() => false);
+        //
+        Functions\when( 'rest_validate_value_from_schema' )->justReturn( true );
+        Functions\when( '__' )->returnArg();
+        Functions\when( 'wp_die' )->returnArg();
+        Functions\when( 'esc_html' )->returnArg();
     }
 
     protected function tearDown(): void

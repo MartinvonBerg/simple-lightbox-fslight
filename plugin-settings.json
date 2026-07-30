@@ -1,20 +1,18 @@
 {
-    "$schema": "./settings/settings-schema.json",
     "hrefTypes": [
         "Empty",
         "Media"
     ],
     "postTypes": [
         "page",
-        "post",
-        "home",
-        "front"
+        "post"
     ],
     "cssClassesToSearch": [
         "wp-block-image",
+        "wp-block-post-featured-image",
+        "wp-block-embed-youtube",
         "wp-block-media-text",
-        "wp-block-video",
-        "wp-block-embed-youtube"
+        "wp-block-video"        
     ],
     "excludeIDs": [
         0

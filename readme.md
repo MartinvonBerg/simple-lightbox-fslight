@@ -78,7 +78,7 @@ Predefined classes include:
 - `wp-block-image`
 - `wp-block-post-featured-image`
 - `wp-block-embed-youtube`
-- `wp-block-media-text__media`
+- `wp-block-media-text`
 - `wp-block-video`
 
 Not working with:

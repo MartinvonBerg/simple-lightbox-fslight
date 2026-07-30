@@ -39,12 +39,12 @@ final class RewriteFigureTagsClassTest extends BaseWpTestCase {
 		$want_to_modify_body->setAccessible( true );
 
 		$this->assertEquals( false, $privateProp1->getValue( $tested ) );
-		$this->assertEquals( true, $privateProp2->getValue( $tested ) );
-		$this->assertEquals( true, $privateProp3->getValue( $tested ) );
+		$this->assertEquals( false, $privateProp2->getValue( $tested ) );
+		$this->assertEquals( false, $privateProp3->getValue( $tested ) );
 		$this->assertEquals( 0, $nFound->getValue( $tested ) );
 		$this->assertEquals( false, $want_to_modify_body->getValue( $tested ) );
 	}
-
+	
 	public function test_construct_with_empty_settings() {
 		expect( 'get_site_url' )
 			->once()

@@ -1,14 +1,11 @@
 {
-    "$schema": "./settings/settings-schema.json",
     "hrefTypes": [
         "Empty",
         "Media"
     ],
     "postTypes": [
         "page",
-        "post",
-        "home",
-        "front"
+        "post"
     ],
     "cssClassesToSearch": [
         "wp-block-image",
@@ -16,5 +13,7 @@
         "wp-block-video",
         "postie-image"
     ],
-    "excludeIDs": []
+    "excludeIDs": [
+        0
+    ]
 }

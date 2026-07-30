@@ -1,5 +1,4 @@
 {
-    "$schema": "./settings/settings-schema.json",
     "hrefTypes": [
         "Empty",
         "Media"
