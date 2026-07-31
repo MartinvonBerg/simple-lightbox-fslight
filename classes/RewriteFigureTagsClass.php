@@ -225,7 +225,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		return $content;
 	}
 
-	public function render_with_javascript(){
+	public function render_with_javascript() : void {
 		$this->needs_assets = true;
 		$this->js_enqueue_script();
 	}
@@ -261,7 +261,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
     	}
 
 		// extract and change innner body content and add script and style tags at the end.
-		$content = preg_replace_callback(
+		$new_content = preg_replace_callback(
 				'/(<body\b[^>]*>)(.*?)(<\/body>)/is',
 				function (array $matches) {
 					$body_open  = $matches[1]; // <body ...>
@@ -284,7 +284,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 				1 // nur das erste Match ersetzen (sicherer)
 			);
 		
-		return $content;
+		return $new_content;
 	}
 
 	/**
@@ -295,7 +295,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	public function rewrite_body_add_scripts(): string {
 		$out = '';
 
-		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir );
 
 		// check for fslightbox.js paid version
 		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
@@ -349,9 +349,14 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 
 		// rewrite HTML code with figures
 		$dom = new \DOMDocument();
-		libxml_use_internal_errors(true);
-		//$dom->loadHTML( $html, \IvoPetkov\HTML5DOMDocument::ALLOW_DUPLICATE_IDS | \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
-		$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING);  
+		$previous_error_setting = libxml_use_internal_errors(true);
+
+		try {
+			$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING);
+		} finally {
+			libxml_clear_errors();
+			libxml_use_internal_errors( $previous_error_setting );
+		}
   
 		$container = $dom->getElementById($wrapId);
 		$allFigures = $container->getElementsByTagName('figure');
@@ -725,7 +730,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		if ( ! $this->needs_assets ) return;
 
 		$path = $this->plugin_main_dir . '/js/fslightbox-paid/fslightbox.js';
-		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir );
 
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/fslightbox-paid/fslightbox.js';
@@ -765,7 +770,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		if ( ! $this->needs_assets ) return;
 		
 		// TODO: better define a constant for the plugin slug, because this is used in several places.
-		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir ); // @phpstan-ignore-line
+		$slug = plugins_url() . '/' . \basename( $this->plugin_main_dir );
 
 		// enqueue fslightbox.js paid or basic
 		$pro = false; // to differ between free and paid version of fslightbox.js.

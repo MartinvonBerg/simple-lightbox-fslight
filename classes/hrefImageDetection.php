@@ -1,4 +1,9 @@
 <?php
+
+if ( ! \defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Robust check: does $href point to an image (local or external)?
  * - No GD/Imagick needed for WEBP/AVIF: signature-based sniff.
@@ -18,7 +23,7 @@ function href_is_image(string $href): bool {
     // 2) Exclude known non-image providers (oEmbed/video)
     $host = strtolower(parse_url($href, PHP_URL_HOST) ?: '');
     foreach (['youtube.com','youtu.be','vimeo.com','dailymotion.com','soundcloud.com','tiktok.com'] as $nh) {
-        if ($host === $nh || ($nh && substr($host, -strlen($nh)) === $nh)) {
+        if ($host === $nh || ($nh !== '' && substr($host, -strlen($nh)) === $nh)) {
             return false;
         }
     }
@@ -125,7 +130,7 @@ function href_is_image(string $href): bool {
 
                 // 8.3) SVG heuristics (text-based)
                 $trim = ltrim($bytes);
-                if (stripos($trim, '<svg') !== false || (stripos($trim, '<?xml') === 0 && stripos($trim, '<svg') !== false)) {
+                if (stripos($trim, '<svg') !== false) {
                     \set_transient($cacheKey, '1', DAY_IN_SECONDS * 2);
                     return true;
                 }

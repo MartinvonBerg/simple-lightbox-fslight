@@ -43,16 +43,17 @@ final class ProPostInstallFunctionsTest extends TestCase {
 		$this->assertEquals( false, $result );
 	}
 
-	public function test_restore_settings() {
+	public function test_restore_settings1() {
 		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->restore_settings_after_upgrade_callback( '', '', [ 'error' ] );
-		$this->assertEquals( [ 'error' ], $result );
+		$result = $tested->restore_settings_after_upgrade_callback( false, [], [ 'error' ] );
+		$this->assertEquals( false, $result );
 	}
 
 	public function test_restore_settings2() {
 		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
+		include_once 'C:\wamp64\www\wordpress\wp-includes\class-wp-error.php';
 
 		expect( 'is_file' )
 			->once()
@@ -63,38 +64,25 @@ final class ProPostInstallFunctionsTest extends TestCase {
 			->andReturn( false );
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->restore_settings_after_upgrade_callback( '', '', [ 'destination_name' => 'simple-lightbox-fslight' ] );
-		$this->assertEquals( [ 'destination_name' => 'simple-lightbox-fslight' ], $result );
+		$result = $tested->restore_settings_after_upgrade_callback( false, [], [ 'destination_name' => 'simple-lightbox-fslight' ] );
+		$this->assertEquals( true, is_wp_error($result) );
 	}
 
 	public function test_restore_settings3() {
 		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
+		include_once 'C:\wamp64\www\wordpress\wp-includes\class-wp-error.php';
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->restore_settings_after_upgrade_callback( '', [ '' => '' ], [ 'destination_name' => 'simple-lightbox-fslight' ] );
-		$this->assertEquals( [ 'destination_name' => 'simple-lightbox-fslight' ], $result );
+		$result = $tested->restore_settings_after_upgrade_callback( false, [ '' => '' ], [ 'destination_name' => 'simple-lightbox-fslight' ] );
+		$this->assertEquals( false, $result );
 	}
 
 	public function test_restore_settings4() {
 		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 
-		expect( 'activate_plugin' )
-			->once()
-			->with( 'plugin' )
-			->andReturn( 'WP_Error' );
-
-		expect( 'is_wp_error' )
-			->once()
-			->with( 'WP_Error' )
-			->andReturn( true );
-
-		expect( 'add_action' )
-			->once()
-			->andReturn( true );
-
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->restore_settings_after_upgrade_callback( '', [ 'plugin' => 'plugin' ], [ 'destination_name' => 'simple-lightbox-fslight' ] );
-		$this->assertEquals( [ 'destination_name' => 'simple-lightbox-fslight' ], $result );
+		$result = $tested->restore_settings_after_upgrade_callback( false, [ 'plugin' => 'plugin' ], [ 'destination_name' => 'simple-lightbox-fslight' ] );
+		$this->assertEquals( false, $result );
 	}
 
 	public function test_save_files1() {
@@ -154,37 +142,14 @@ final class ProPostInstallFunctionsTest extends TestCase {
 
 	public function test_save_settings2() {
 		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
-
-		expect( 'is_wp_error' )
-			->once()
-			->with( 'WP_Error' )
-			->andReturn( false );
-
-		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->save_settings_before_upgrade_callback( 'WP_Error', [ 'plugin' => '', 'temp_backup' => [ 'slug' => 'simple-lightbox-fslight' ] ] );
-		$this->assertEquals( 'WP_Error', $result );
-	}
-
-	public function test_save_settings3() {
-		include_once PLUGIN_DIR . '\tests\src\WrapPrePostInstallFunctions.php';
 		include_once 'C:\wamp64\www\wordpress\wp-includes\class-wp-error.php';
 
 		expect( 'is_wp_error' )
 			->once()
-			->with( 'WP_Error' )
 			->andReturn( false );
-
-		expect( 'is_plugin_active' )
-			->once()
-			->andReturn( false );
-
-		expect( 'activate_plugin' )
-			->once()
-			->andReturn( null );
 
 		$tested = new mvbplugins\fslightbox\WrapPPIFunctions();
-		$result = $tested->save_settings_before_upgrade_callback( 'WP_Error', [ 'plugin' => 'plugin', 'temp_backup' => [ 'slug' => 'simple-lightbox-fslight' ] ] );
-		$result = (array) $result;
-		$this->assertEquals( 'Update skipped. Could not save Plugin files (plugin-settings.json, fslightbox-paid).', $result["errors"]["bad_request"][0] );
+		$result = $tested->save_settings_before_upgrade_callback( 'No_WP_Error', [ 'plugin' => '', 'temp_backup' => [ 'slug' => 'simple-lightbox-fslight' ] ] );
+		$this->assertEquals( "Update skipped. Could not save Plugin files (plugin-settings.json, fslightbox-paid).", $result->errors["bad_request"][0] );
 	}
 }

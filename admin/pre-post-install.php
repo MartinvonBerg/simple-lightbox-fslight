@@ -16,19 +16,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Are you ok?' );
 }
 
+// note: a deactivated plugin will not backup and restore the settings and fslightbox paid files
 add_filter( 'upgrader_pre_install', '\mvbplugins\fslightbox\save_settings_before_upgrade_callback', 10, 2 );
 add_filter( 'upgrader_post_install', '\mvbplugins\fslightbox\restore_settings_after_upgrade_callback', 10, 3 );
+add_filter( 'upgrader_source_selection', '\mvbplugins\fslightbox\save_settings_before_uploaded_zip_callback', 10, 4 );
 
 /**
  * handle pre install hook : save the settings to a seperate folder in WP-Plugin Directory. 
- * Fail silently in most cases. Only report an error and skip Plugin update if saving of files fails.
+ * Only report an error and skip Plugin update if saving of files fails. The original plugin will not be updated.
  * 
  * @source https://stackoverflow.com/questions/56179399/wordpress-run-function-before-plugin-is-updating handle pre install hook
  * @param  mixed $return The return value from the previous function (type is actually unknown)
  * @param  array $plugin An array that stores information about the updated plugin
  * @return mixed $return 
  */
-function save_settings_before_upgrade_callback( $return, $plugin ) {
+function save_settings_before_upgrade_callback( mixed $return, array $plugin ): mixed {
 	/* $plugin = Array
 		(
 			[plugin] => simple-lightbox-fslight/simple-lightbox-fslight.php
@@ -40,7 +42,8 @@ function save_settings_before_upgrade_callback( $return, $plugin ) {
 				)
 
 		)
-																										  */
+	*/
+
 	$pluginUnmodiefied = $plugin;
 	$slug = 'simple-lightbox-fslight'; // expected slug shall be the slug given by wordpress.org. 
 	// using this: $slug = plugin_basename( __FILE__ ) would give a valid slug for every plugin. So the code would run for every plugin.
@@ -51,26 +54,12 @@ function save_settings_before_upgrade_callback( $return, $plugin ) {
 	}
 
 	// Do only for the intended plugin. Install all other Plugins regularly and skip this if.
-	if ( key_exists( 'plugin', $plugin ) && key_exists( 'temp_backup', $plugin ) && $plugin['temp_backup']['slug'] === $slug ) {
-
-		// return $return if variable $plugin is not correct.
-		$plugin = isset( $plugin['plugin'] ) ? $plugin['plugin'] : '';
-
-		if ( empty( $plugin ) ) {
-			return $return; // The Plugin won't be updated with that response. (Somewhat useless here)
-		}
-
-		// When in cron (background updates) don't deactivate the plugin, as we require a browser to reactivate it. Plugin will be updated!
-		if ( \is_plugin_active( $plugin ) && ! \wp_doing_cron() ) {
-			//Deactivate the plugin silently, Prevent deactivation hooks from running.
-			\deactivate_plugins( $plugin, true );
-		}
+	if ( isset( $plugin['plugin'], $plugin['temp_backup']['slug'] ) && $plugin['temp_backup']['slug'] === $slug ) {
 
 		// Now save the settings './plugin-settings.json' and the folder './js/fslightbox-paid'
 		$success = savePluginFiles( $pluginUnmodiefied );
 
 		if ( ! $success ) {
-			\activate_plugin( $plugin );
 			return new \WP_Error( 'bad_request', 'Update skipped. Could not save Plugin files (plugin-settings.json, fslightbox-paid).' );
 		}
 	}
@@ -79,41 +68,163 @@ function save_settings_before_upgrade_callback( $return, $plugin ) {
 }
 
 /**
- * Restores the settings and js-paid files after an upgrade callback. Will fail silently.
+ * Restores the settings and js-paid files after an upgrade callback. 
+ * Will report an error and restore the original plugin ONLY if it the update is triggered from wordpress.org.
+ * BUT will NOT restore the settings if the plugin is installed from an uploaded ZIP file!
  *
- * @param mixed $response The response from the callback.
+ * @param bool $response The response from the callback.
  * @param array $hook_extra The extra data from the callback.
- * @param mixed $result The result of the callback.
- * @return mixed The unchanged result.
+ * @param array $result The result of the callback.
+ * @return bool The unchanged result.
  */
-function restore_settings_after_upgrade_callback( $response, $hook_extra, $result ) {
+function restore_settings_after_upgrade_callback( bool $response, array $hook_extra, array $result ): bool|\WP_Error {
 	// check if plugin is simple-lightbox-fslight
 	if ( key_exists( 'destination_name', $result ) && $result["destination_name"] === 'simple-lightbox-fslight' ) {
 
 		$success = restorePluginFiles();
 
-		if ( $success && key_exists( 'plugin', $hook_extra ) ) {
-			$plugin = $hook_extra['plugin'];
-			$success = \activate_plugin( $plugin );
-		}
-
-		// Give an admin notice here, if something fails.
-		if ( ! $success || is_wp_error( $success ) ) {
-			add_action(
-				'admin_notices',
-				function () {
-					?>
-				<div class="notice notice-error is-dismissible">
-					<p>
-						<?php esc_html_e( 'Simple Lightbox Fslight: Could not restore files after Plugin Update (Ignore this message if installed for the first time)', 'simple-lightbox-fslight' ); ?>
-					</p>
-				</div>
-				<?php
-				}
-			);
+		if ( ! $success ) {
+			return new \WP_Error( 'fslight_restore_failed', 'The plugin was installed, but customized files could not be restored. Restore manually if updated from ZIP-File' );
 		}
 	}
-	return $result;
+	return $response;
+}
+
+/**
+ * Saves locally modified plugin files before an uploaded ZIP overwrites the installed plugin.^
+ * Only report an error and skip Plugin update if saving of files fails. The original plugin will not be updated.
+ *
+ * @param string|\WP_Error $source        Path to the unpacked package.
+ * @param string           $remote_source Temporary extraction directory.
+ * @param \WP_Upgrader     $upgrader      Upgrader instance.
+ * @param array            $hook_extra    Additional installation data.
+ *
+ * @return string|\WP_Error Unchanged package source or an error.
+ */
+function save_settings_before_uploaded_zip_callback( string|\WP_Error $source, string $remote_source, \WP_Upgrader $upgrader, array $hook_extra ): string|\WP_Error 
+{
+	if ( \is_wp_error( $source ) ) {
+		return $source;
+	}
+
+	/*
+	 * Repository updates are already handled by upgrader_pre_install().
+	 * This callback is intended only for uploaded/plugin-install packages.
+	 */
+	if ( ( $hook_extra['type'] ?? '' ) !== 'plugin' || ( $hook_extra['action'] ?? '' ) !== 'install' ) {
+		return $source;
+	}
+
+	$plugin_file = find_plugin_main_file_in_package( $source );
+
+	if ( null === $plugin_file ) {
+		return $source;
+	}
+
+	$plugin_data = \get_plugin_data( $plugin_file, false, false );
+
+	/*
+	 * Use a stable identifier from the uploaded package.
+	 *
+	 * Plugin Name alone is not technically guaranteed to be unique,
+	 * but is sufficient here when combined with the expected folder.
+	 */
+	if ( $plugin_data['Name'] !== 'Simple Lightbox Fslight' ) {
+		return $source;
+	}
+
+	$installed_folder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
+
+	/*
+	 * No existing installation: this is a first installation, not an update.
+	 */
+	if ( ! \is_dir( $installed_folder ) ) {
+		return $source;
+	}
+
+	$success = savePluginFilesFromDirectory( $installed_folder );
+
+	if ( ! $success ) {
+		return new \WP_Error( 'fslight_backup_failed', 'Update INCORRECT. Could not save Simple Lightbox Fslight files.' );
+	}
+
+	return $source;
+}
+
+/**
+ * Saves customized files from an installed plugin directory.
+ *
+ * @param string $source_folder Absolute plugin directory.
+ * @return bool True on success.
+ */
+function savePluginFilesFromDirectory( string $source_folder ): bool {
+    $source_folder = untrailingslashit( $source_folder );
+
+    if ( ! \is_dir( $source_folder ) ) {
+        return false;
+    }
+
+    $destination_folder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
+
+    if ( ! \is_dir( $destination_folder ) ) {
+        $directory_permissions = \defined( 'FS_CHMOD_DIR' ) ? FS_CHMOD_DIR : 0755;
+
+        if ( ! \mkdir( $destination_folder, $directory_permissions, true ) ) {
+            return false;
+        }
+    }
+
+    $settings_source = $source_folder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
+
+    if ( ! \is_file( $settings_source ) ) {
+        return false;
+    }
+
+    $settings_destination = $destination_folder . \DIRECTORY_SEPARATOR . 'plugin-settings.json';
+
+    if ( ! xcopy( $settings_source, $settings_destination ) ) {
+        return false;
+    }
+
+    $paid_source = $source_folder . \DIRECTORY_SEPARATOR . 'js' . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
+
+    if ( \is_dir( $paid_source ) ) {
+        $paid_destination = $destination_folder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
+
+        if ( ! xcopy( $paid_source, $paid_destination ) ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Finds the main plugin file in an unpacked package.
+ *
+ * @param string $source Path selected by the upgrader.
+ * @return string|null Absolute path to the plugin file.
+ */
+function find_plugin_main_file_in_package( string $source ): ?string {
+    if ( ! \is_dir( $source ) ) {
+        return null;
+    }
+
+    $files = glob( trailingslashit( $source ) . '*.php' );
+
+    if ( false === $files ) {
+        return null;
+    }
+
+    foreach ( $files as $file ) {
+        $plugin_data = \get_plugin_data( $file, false, false );
+
+        if ( ! empty( $plugin_data['Name'] ) ) {
+            return $file;
+        }
+    }
+
+    return null;
 }
 
 /**
@@ -123,10 +234,9 @@ function restore_settings_after_upgrade_callback( $response, $hook_extra, $resul
  *                    - temp_backup: ['src' => string, 'slug' => string] The source path and slug of the backup.
  * @return bool True if the plugin files are successfully saved, false otherwise.
  */
-function savePluginFiles( $info ) {
+function savePluginFiles( array $info ) : bool {
 	$success = false;
-	$destFolder = 'simple-lightbox-fslight-backup';
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . $destFolder; // @phpstan-ignore-line
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
 
 	if ( isset( $info['temp_backup']['src'] ) && isset( $info['temp_backup']['slug'] ) ) {
 		$sourceFolder = $info['temp_backup']['src'] . \DIRECTORY_SEPARATOR . $info['temp_backup']['slug'] . \DIRECTORY_SEPARATOR;
@@ -136,9 +246,11 @@ function savePluginFiles( $info ) {
 
 	// create directory
 	if ( ! is_dir( $destFolder ) ) {
-		$result = mkdir( $destFolder, 0777, true );
-		if ( ! $result )
+		$directory_permissions = \defined( 'FS_CHMOD_DIR' ) ? FS_CHMOD_DIR : 0755;
+		$result = mkdir( $destFolder, $directory_permissions, true );
+		if ( ! $result ) {
 			return false;
+		}
 	}
 
 	// save the settings './plugin-settings.json'
@@ -150,10 +262,10 @@ function savePluginFiles( $info ) {
 		return false;
 	}
 
-	// save the folder './js/fslightbox-paid. Will fail silently.
+	// Save the optional folder and its contents './js/fslightbox-paid' if it exists.
 	$path = $sourceFolder . 'js/fslightbox-paid';
 	if ( \is_dir( $path ) ) {
-		$savePath = $destFolder . \DIRECTORY_SEPARATOR . '/fslightbox-paid';
+		$savePath = $destFolder . \DIRECTORY_SEPARATOR . 'fslightbox-paid';
 		$success = $success && xcopy( $path, $savePath );
 	}
 
@@ -165,9 +277,9 @@ function savePluginFiles( $info ) {
  *
  * @return bool true if the plugin files are successfully restored, false otherwise.
  */
-function restorePluginFiles() {
-	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup'; // @phpstan-ignore-line
-	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight'; // @phpstan-ignore-line
+function restorePluginFiles() : bool {
+	$sourceFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight-backup';
+	$destFolder = \WP_PLUGIN_DIR . \DIRECTORY_SEPARATOR . 'simple-lightbox-fslight';
 	$success = false;
 
 	// restore the settings './plugin-settings.json'
@@ -190,50 +302,66 @@ function restorePluginFiles() {
 }
 
 /**
- * Copy a file, or recursively copy a folder and its contents
- * @author      Aidan Lister <aidan@php.net>
- * @version     1.0.1
- * @link        http://aidanlister.com/2004/04/recursively-copying-directories-in-php/
- * @param       string   $source    Source path
- * @param       string   $dest      Destination path
- * @param       int      $permissions New folder creation permissions
- * @return      bool     Returns true on success, false on failure
+ * Copies a file or recursively copies a directory and its contents.
+ *
+ * @param string $source Source path.
+ * @param string $dest   Destination path.
+ *
+ * @return bool True on success, false on failure.
  */
-function xcopy( $source, $dest, $permissions = 0777 ) {
+function xcopy( $source, $dest ) {
 	$sourceHash = hashDirectory( $source );
-	// Check for symlinks
-	if ( is_link( $source ) && readlink( $source ) !== false ) {
+
+	// Check for symlinks.
+	if ( is_link( $source ) && false !== readlink( $source ) ) {
 		return symlink( readlink( $source ), $dest );
 	}
 
-	// Simple copy for a file
+	// Simple copy for a file.
 	if ( is_file( $source ) ) {
 		return copy( $source, $dest );
 	}
 
-	// Make destination directory
+	// Make destination directory.
 	if ( ! is_dir( $dest ) ) {
-		$result = mkdir( $dest, 0777, true );
-		if ( ! $result )
+		$directory_permissions = \defined( 'FS_CHMOD_DIR' )
+			? FS_CHMOD_DIR
+			: 0755;
+
+		if ( ! mkdir( $dest, $directory_permissions, true ) ) {
 			return false;
+		}
 	}
 
-	// Loop through the folder
+	// Loop through the folder.
 	$dir = dir( $source );
-	while ( false !== $entry = $dir->read() ) {
-		// Skip pointers
-		if ( $entry == '.' || $entry == '..' ) {
+
+	if ( false === $dir ) {
+		return false;
+	}
+
+	while ( false !== ( $entry = $dir->read() ) ) {
+		// Skip pointers.
+		if ( '.' === $entry || '..' === $entry ) {
 			continue;
 		}
 
-		// Deep copy directories
-		if ( $sourceHash != hashDirectory( $source . "/" . $entry ) ) {
-			xcopy( "$source/$entry", "$dest/$entry", $permissions );
+		// Deep copy directories and files.
+		if ( $sourceHash !== hashDirectory( $source . '/' . $entry ) ) {
+			if (
+				! xcopy(
+					$source . '/' . $entry,
+					$dest . '/' . $entry
+				)
+			) {
+				$dir->close();
+				return false;
+			}
 		}
 	}
 
-	// Clean up
 	$dir->close();
+
 	return true;
 }
 
@@ -243,13 +371,17 @@ function xcopy( $source, $dest, $permissions = 0777 ) {
  * @param string $directory The path to the directory.
  * @return string|false The MD5 hash of the directory contents.
  */
-function hashDirectory( $directory ) {
+function hashDirectory( string $directory ) : string|false {
 	if ( ! is_dir( $directory ) ) {
 		return false;
 	}
 
-	$files = array();
+	$files = [];
 	$dir = dir( $directory );
+
+	if ( false === $dir ) {
+		return false;
+	}
 
 	while ( false !== ( $file = $dir->read() ) ) {
 		if ( $file != '.' and $file != '..' ) {
