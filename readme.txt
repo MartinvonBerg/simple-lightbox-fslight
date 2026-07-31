@@ -5,7 +5,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: lightbox, gallery, fslightbox, Gutenberg, Video, Image, Youtube
 Requires at least: 6.0
 Tested up to: 7.0
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -105,6 +105,12 @@ Upgrade only if your servers uses PHP 8.0++. Do NOT upgrade if you still use PHP
 Upgrade to 2.1.0+ if you want support for Youtube Videos or want to have your settings restored automatically.
 
 == Changelog ==
+
+= 3.4.0 =
+- Update of fslightbox.js (basic, free version) to 3.7.5. and pro to 3.8.7.
+- Test with WP 7.02. Updated files for PHPUnit-Tests. All Tests ran OK. Updated for PHPStan LVL 8 (with some minor errors)
+- Update Default Plugin Settings and a JSON Validator for the updated Scheme
+- Review and Update Pre-Post-installer and add backup / restore for ZIP-Plugin-Files install path. Test with local site.
 
 = 3.3.0 =
 - replaced the PHP-Library from ivopetkov by native PHP-Functions and adopted PHP-Unit-Tests accordingly. Runs 5-times faster now!

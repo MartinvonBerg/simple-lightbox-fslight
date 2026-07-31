@@ -149,6 +149,13 @@ Yes.
 
 ## Changelog
 
+### 3.4.0
+
+- Update of fslightbox.js (basic, free version) to 3.7.5. and pro to 3.8.7.
+- Test with WP 7.02. Updated files for PHPUnit-Tests. All Tests ran OK. Updated for PHPStan LVL 8 (with some minor errors)
+- Update Default Plugin Settings and a JSON Validator for the updated Scheme
+- Review and Update Pre-Post-installer and add backup / restore for ZIP-Plugin-Files install path. Test with local site.
+  
 ### 3.3.0
 
 - Replaced the `ivopetkov` PHP library with native PHP functions and updated PHPUnit tests
