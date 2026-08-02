@@ -36,8 +36,6 @@ if ( ! defined( 'WP_PLUGIN_URL' ) ) {
 // change this if the plugin was moved to a different folder
 define ( 'PLUGIN_DIR', 'C:\wamp64\www\wordpress\wp-content\plugins\simple-lightbox-fslight');
 
-// $comp_path = "C:/Users/Martin von Berg/AppData/Roaming/Composer"; // TODO: get the global path
-//$comp_path = PLUGIN_DIR . "/classes/html5-dom-document-php";
 $comp_path = PLUGIN_DIR . "/tests/src/html5-dom-document-php";
 
 require_once $comp_path . '/autoload.php';
@@ -50,4 +48,11 @@ if ( ! defined( 'WEEK_IN_SECONDS' ) ) {
 }
 if ( ! defined( 'MINUTE_IN_SECONDS_IN_SECONDS' ) ) {
 	define( 'MINUTE_IN_SECONDS', 60 );
+}
+
+if ( ! defined( 'MYABSPATH' ) ) {
+    define( 'MYABSPATH', dirname(__DIR__, 5) . DIRECTORY_SEPARATOR );
+}
+if ( ! defined( 'WPINC' ) ) {
+    define( 'WPINC', 'wp-includes' );
 }

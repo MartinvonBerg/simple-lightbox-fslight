@@ -183,7 +183,7 @@ abstract class BaseWpTestCase extends TestCase
         Functions\when('wp_script_is')->alias(fn() => false);
         Functions\when('wp_style_is')->alias(fn() => false);
         //
-        Functions\when( 'rest_validate_value_from_schema' )->justReturn( true );
+        //Functions\when( 'rest_validate_value_from_schema' )->justReturn( true );
         Functions\when( '__' )->returnArg();
         Functions\when( 'wp_die' )->returnArg();
         Functions\when( 'esc_html' )->returnArg();
