@@ -5,8 +5,6 @@ use Brain\Monkey\Functions;
 use function Brain\Monkey\setUp;
 use function Brain\Monkey\tearDown;
 
-#require_once __DIR__ . '/WpErrorClass.php';
-
 abstract class BaseWpTestCase extends TestCase
 {
     /** @var array<string, array{value:mixed, expires:?int}> */
@@ -173,6 +171,18 @@ abstract class BaseWpTestCase extends TestCase
                 'body'     => $body,
             ];
         });
+
+        Functions\when( 'wp_is_numeric_array' )->alias(
+            function ( $data ): bool {
+                if ( ! is_array( $data ) ) {
+                    return false;
+                }
+
+                $keys = array_keys( $data );
+
+                return count( array_filter( $keys, 'is_string' ) ) === 0;
+            }
+        );
 
         // Optional: Enqueue-Stubs (falls Tests sie berühren)
         Functions\when('wp_register_script')->justReturn(null);

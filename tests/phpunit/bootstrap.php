@@ -5,6 +5,9 @@
  * it with something that matches your plugin name.
  */
 $plugin_main_dir = dirname(__DIR__, 2);
+// Patchwork MUSS vor allen Dateien geladen werden, deren Funktionen später durch Brain Monkey gemockt werden sollen.
+require_once $plugin_main_dir . '/vendor/antecedent/patchwork/Patchwork.php';
+
 $plugin_rel_dir = 'wp-content/plugins/simple-lightbox-fslight';
 
 // define test environment
@@ -36,8 +39,8 @@ if ( ! defined( 'WP_PLUGIN_URL' ) ) {
 // change this if the plugin was moved to a different folder
 define ( 'PLUGIN_DIR', 'C:\wamp64\www\wordpress\wp-content\plugins\simple-lightbox-fslight');
 
+// load the html5-dom-document-php library for testing
 $comp_path = PLUGIN_DIR . "/tests/src/html5-dom-document-php";
-
 require_once $comp_path . '/autoload.php';
 
 if ( ! defined( 'DAY_IN_SECONDS' ) ) {

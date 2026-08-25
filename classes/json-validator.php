@@ -110,6 +110,14 @@ function load_and_validate_json_config( string $config_file, string $schema_file
 		);
 	}
 
+	// check if $schema is in array $schema or $config and remove it from $schema if so.
+	if ( isset( $schema['$schema'] ) ) {
+		unset( $schema['$schema'] );
+	}
+	if ( isset( $config['$schema'] ) ) {
+		unset( $config['$schema'] );
+	}
+
 	$validation = rest_validate_value_from_schema(
 		$config,
 		$schema,

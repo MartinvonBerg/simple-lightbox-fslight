@@ -149,6 +149,12 @@ Yes.
 
 ## Changelog
 
+### 3.5.0
+- Bugfix in JSON_Validator for old $schema entries
+- update function 'rewrite_body_modify_content' for PHPStan
+- update PHPUnit-Tests
+- Test with WP 7.1.
+  
 ### 3.4.0
 
 - Update of fslightbox.js (basic, free version) to 3.7.5. and pro to 3.8.7.

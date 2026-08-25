@@ -2,7 +2,7 @@
 
 /**
  *
- * Version:           3.4.0
+ * Version:           3.5.0
  * Requires at least: 5.9
  * Requires PHP:      8.0
  * Author:            Martin von Berg
@@ -255,15 +255,11 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 	 * @return string the rewritten html $content
 	 */
 	public function rewrite_body_modify_content( string $content ): string {
-		// check if html contains <body> .... </body> 
-		if (!preg_match('/(<body\b[^>]*>)(.*?)(<\/body>)/is', $content, $m)) {
-        	return $content; // Fallback
-    	}
-
+		
 		// extract and change innner body content and add script and style tags at the end.
 		$new_content = preg_replace_callback(
 				'/(<body\b[^>]*>)(.*?)(<\/body>)/is',
-				function (array $matches) {
+				function (array $matches) : string {
 					$body_open  = $matches[1]; // <body ...>
 					$body_inner = $matches[2]; // Inhalt des Body
 					$body_close = $matches[3]; // </body>
@@ -273,8 +269,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 						$body_inner = $this->rewriteHTML($body_inner);
 
 						if ($this->nFound > 0) {
-							$scripts = $this->rewrite_body_add_scripts();
-							$body_inner .= $scripts;
+							$body_inner .= $this->rewrite_body_add_scripts();
 						}
 					}
 
@@ -284,7 +279,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 				1 // nur das erste Match ersetzen (sicherer)
 			);
 		
-		return $new_content;
+		return $new_content ?? $content; // Fallback, falls preg_replace_callback fehlschlägt
 	}
 
 	/**
@@ -748,14 +743,14 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox.min.js';
-			\wp_register_script( 'yt-script-mvb-fslightbox', $path, ['mvb-fslightbox'], '3.4.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_register_script( 'yt-script-mvb-fslightbox', $path, ['mvb-fslightbox'], '3.5.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
 			\wp_enqueue_script( 'yt-script-mvb-fslightbox' );
 		}
 
 		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			\wp_enqueue_style( 'simple-fslightbox-css', $path, [], '3.4.0', 'all' );
+			\wp_enqueue_style( 'simple-fslightbox-css', $path, [], '3.5.0', 'all' );
 		}
 
 		$this->needs_assets = false;
@@ -793,7 +788,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/js/simple-lightbox-js-render.min.js';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/js/simple-lightbox-js-render.min.js';
-			\wp_register_script( 'js-script-mvb-fslightbox', $path, ['mvb-fslightbox'], '3.4.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
+			\wp_register_script( 'js-script-mvb-fslightbox', $path, ['mvb-fslightbox'], '3.5.0', [ 'strategy'  => 'defer', 'in_footer' => true] );
 			\wp_enqueue_script( 'js-script-mvb-fslightbox' );
 		}
 
@@ -815,7 +810,7 @@ final class RewriteFigureTags implements RewriteFigureTagsInterface {
 		$path = $this->plugin_main_dir . '/css/simple-fslightbox.css';
 		if ( is_file( $path ) ) {
 			$path = $slug . '/css/simple-fslightbox.css';
-			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.4.0', 'all' );
+			\wp_enqueue_style( 'simple-fslightbox-css', $path, array(), '3.5.0', 'all' );
 		}
 		
 		$this->needs_assets = false;
